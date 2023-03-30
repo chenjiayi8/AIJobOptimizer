@@ -218,3 +218,127 @@ def query_project_contributions(project_name: str) -> list | None:
     else:
         contributions = []
     return contributions
+
+
+def parse_experience(exp_in: dict) -> dict:
+    '''
+    Given a dictionary `exp_in` containing information about a work experience,
+    this function parses the dictionary and returns a new dictionary `exp_out`
+    containing the following fields:
+
+     - 'title': the job title
+     - 'company': the name of the company or organization
+     - 'date_range': the date range of the experience (if available),
+     - 'projects': a list of projects associated with the experience, \
+        where each project is represented as a dictionary with fields:
+                - 'uuid': a unique identifier for the project
+                - 'title': the title of the project
+                - 'description': a description of the project
+                - 'contributions': a list of contributions made to the project
+
+    For each project in the input dictionary 'exp_in', the function \
+    searches for the project title, description, and contributions. If \
+    the values are missing, the function attempts to query for them using \
+    various strategies.
+
+    Arguments:
+    exp_in -- a dictionary containing information about a work experience
+
+    Returns:
+    A dictionary containing the parsed information about the work experience
+    '''
+    exp_out = {}
+    exp_out['title'] = search_field(exp_in, ['title', 'position', 'job_title'])
+    exp_out['company'] = search_field(exp_in, ['company', 'organisation'])
+    if 'start' in exp_in:
+        exp_out['date_range'] = get_date_range(exp_in)
+    else:
+        exp_out['date_range'] = search_field(
+            exp_in, ['dates', 'date', 'date_range'])
+    if exp_out['date_range'] is None:
+        start_date = search_field(exp_in, ['start_date'])
+        end_date = search_field(exp_in, ['end_date'])
+        exp_out['date_range'] = start_date + ' - ' + end_date
+
+    exp_out['projects'] = search_field(exp_in, ['projects'])
+    if exp_out['projects'] is None:
+        project = {}
+        project['uuid'] = str(uuid.uuid4())
+        # locate project title; in some cases, GPT employs description instead
+        project['title'] = search_field(exp_in, ['project', 'description'])
+        project['description'] = search_field(
+            exp_in, ['project_description', 'project description', 'description'])
+        # Check if the value of key 'description' in 'project' is None or \
+        # equal to the value of key 'title' in 'project', and if true, \
+        # call the function 'query_project_description'
+        if project['description'] is None or \
+                project['description'] == project['title']:
+            project['title'] = query_project_title(project['title'])
+            project['description'] = query_project_description(
+                project['title'])
+
+        project['description'] = project['description'].replace(
+            project['title'], '').strip()
+        project['description'] = project['description'].replace(
+            'Project:', '').strip()
+        project['title'] = project['title'].replace('Project:', '').strip()
+        project['title'] = project['title'].replace(
+            'The project name is ', '').strip()
+        temp_title = extract_by_quotation_mark(project['title'])
+        if temp_title is not None:
+            project['title'] = temp_title
+        project['contributions'] = search_field(
+            exp_in, ['contributions', 'key_contributions'])
+        if project['contributions'] is None:
+            project['contributions'] = query_project_contributions(
+                project['title'])
+
+        exp_out['projects'] = [project]
+    else:
+        for i in range(len(exp_out['projects'])):
+            project_old = exp_out['projects'][i]
+            project = {}
+            project['uuid'] = str(uuid.uuid4())
+            project['title'] = search_field(project_old, ['title', 'project'])
+            project['description'] = search_field(project_old, ['description'])
+            if project['description'] is None:
+                project['description'] = query_project_description(
+                    project['title'])
+
+            project['contributions'] = search_field(
+                project_old, ['key_contributions', 'contributions'])
+            if project['contributions'] is None:
+                project['contributions'] = query_project_contributions(
+                    project_old['title'])
+            exp_out['projects'][i] = project
+
+    return exp_out
+
+
+def parse_expereinces() -> None:
+    """
+    Parses the experiences stored in the `st.session_state` dictionary,
+    generates a unique UUID for each experience, and returns a list of
+    experiences as dictionaries.
+
+    Each experience is parsed using the `parse_experience()` function,
+    which should return a dictionary with keys 'title', 'company', \
+    'description', and 'date_range'.
+
+    The UUID is generated using the `uuid.uuid4()` function and added to
+    each experience dictionary with key 'uuid'.
+
+    The parsed experiences are stored back in the `st.session_state` dictionary.
+
+    Returns:
+        A list of experiences as dictionaries, with a unique UUID generated
+        for each experience.
+    """
+    experiences = []
+    for exp in st.session_state['experiences']:
+        experience = parse_experience(exp)
+        experience['uuid'] = str(uuid.uuid4())
+        experiences.append(experience)
+    with st.expander("Debug: preconditioned experiences"):
+        st.write("experiences: ", experiences)
+    st.session_state['experiences'] = experiences
