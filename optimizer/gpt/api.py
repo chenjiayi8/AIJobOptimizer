@@ -87,7 +87,13 @@ def call_openai_api(model, messages, temperature=0.1, number_completion=1):
                              json=data, timeout=(60, 120))
     response.raise_for_status()
     choices = response.json()['choices']
-    replies = [choice['message']['content'] for choice in choices]
+    replies = []
+    for choice in choices:
+        if choice['finish_reason'] == 'length':
+            st.write("### :red[Your input is too long!]")
+            return None
+        replies.append(choice['message']['content'])
+
     if len(replies) == 0:
         return None
     if len(replies) == 1:
