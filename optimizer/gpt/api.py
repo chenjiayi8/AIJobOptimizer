@@ -10,6 +10,8 @@ import streamlit as st
 from dotenv import dotenv_values
 import requests
 
+MODEL = "gpt-3.5-turbo"
+
 
 def retry(exception, tries=5, delay=1, backoff=2, max_delay=120):
     """
