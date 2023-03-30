@@ -18,7 +18,12 @@ from optimizer.tests.tests import test_api
 
 def main():
     """
-    Runs the main process of the application. The function initializes and generates a dictionary containing the desired page names and their respective functions. This dictionary is then used to create a dropdown menu in the sidebar, allowing the user to select the desired page to display. The selected function is then called to display the chosen page.
+    Runs the main process of the application. The function initializes \
+    and generates a dictionary containing the desired page names and \
+    their respective functions. This dictionary is then used to create a \
+    dropdown menu in the sidebar, allowing the user to select the desired \
+    page to display. The selected function is then called to display \
+    the chosen page.
 
     Returns:
     None
