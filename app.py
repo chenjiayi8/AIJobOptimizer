@@ -13,7 +13,8 @@ import streamlit as st
 from optimizer.core.initialisation import initialise
 from optimizer.core.introduction import intro
 from optimizer.core.job import job_description
-from optimizer.tests.tests import test_api
+from optimizer.core.resume import upload_resume
+from optimizer.tests.test_apis import test_api
 
 
 def main():
@@ -34,6 +35,7 @@ def main():
         "Introduction": intro,
         "Test API": test_api,
         "Job description": job_description,
+        "Upload Resume": upload_resume,
     }
 
     demo_name = st.sidebar.selectbox(
@@ -48,4 +50,4 @@ if __name__ == '__main__':
         pass
     except Exception as error:
         trace_back_obj = sys.exc_info()
-        traceback.print_tb(trace_back_obj)
+        st.write(traceback.format_exc())
