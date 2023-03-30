@@ -342,3 +342,95 @@ def parse_expereinces() -> None:
     with st.expander("Debug: preconditioned experiences"):
         st.write("experiences: ", experiences)
     st.session_state['experiences'] = experiences
+
+
+@st.cache_data
+def parse_json(txt_resume: str) -> None:
+    """
+    Parse json str and assign components of resume
+
+    Returns:
+    None
+    """
+    st.session_state['resume'] = json.loads(txt_resume)
+    st.session_state['statement'] = st.session_state['resume']['statement']
+    skills = []
+    for value in st.session_state['resume']['skills'].values():
+        skills += value
+
+    st.session_state['skills'] = ' | '.join(skills) + ' '
+    st.session_state['experiences'] = st.session_state['resume']['experiences']
+
+
+@st.cache_data
+def parse_api_json(reply_json_str: str) -> None:
+    """
+    Parses and stores the API response JSON string in the session state.
+
+    Args:
+        reply_json_str (str): The JSON string returned by the API response.
+
+    Returns:
+        None
+    """
+    st.session_state['resume'] = json.loads(reply_json_str)
+    st.session_state['statement'] = get_statement(st.session_state['resume'])
+    skills = get_skills(st.session_state['resume'])
+    st.session_state['skills'] = ' | '.join(skills) + ' '
+    st.session_state['experiences'] = get_experiences(
+        st.session_state['resume'])
+    with st.expander("Debug: Raw input"):
+        st.write("resume: ", st.session_state['resume'])
+
+
+@st.cache_data(show_spinner=False)
+def analyse_resume(txt_resume: str, temperature: float) -> str:
+    """Extracts information from a resume using GPT-3.
+
+    Args:
+        txt_resume (str): The text of the resume to analyse.
+        temperature (float): The sampling temperature to use when generating responses.
+
+    Returns:
+        A dictionary-like object that contains the extracted information from the resume.
+
+    Raises:
+        ValueError: If the `txt_resume` argument is an empty string or None.
+        OpenAIAPIError: If the OpenAI API returns an error status code or message.
+    """
+    if txt_resume is None or len(txt_resume) == 0:
+        raise ValueError("Invalid resume")
+    temp_msgs = [
+        {"role": "system", "content": "You are my secretary. I need you to \
+        identify and extract all the information of a resume. You have to \
+        do it very carefully."},
+        {"role": "user", "content": "The following is the resume"},
+        {"role": "user", "content": txt_resume},
+        {"role": "user", "content": "Can you give me the information as JSON-like?"},
+    ]
+    reply = call_openai_api(MODEL, temp_msgs, temperature=temperature)
+    reply_json_str = extract_code(reply)
+    return reply_json_str
+
+
+@st.cache_data(show_spinner=False)
+def parse_resume(txt_resume: str) -> None:
+    """
+    Caches the result of parsing the provided resume text using JSON \
+    parsing or API analysis and JSON parsing.
+
+    Args:
+        txt_resume (str): The text of the resume to be parsed.
+
+    Returns:
+        None
+    """
+    try:
+        parse_json(txt_resume)
+    except ValueError:
+        reply_json = analyse_resume(txt_resume, temperature=0.1)
+        parse_api_json(reply_json)
+    except Exception as error:
+        print(f"Error: {str(error)}")
+    finally:
+        parse_expereinces()
