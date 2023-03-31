@@ -11,6 +11,7 @@ import sys
 import traceback
 import streamlit as st
 from optimizer.core.competencies import edit_skills
+from optimizer.core.experiences import edit_experiences
 from optimizer.core.initialisation import initialise
 from optimizer.core.introduction import intro
 from optimizer.core.job import job_description
@@ -42,6 +43,7 @@ def main():
         "Upload Resume": upload_resume,
         "Personal statement": edit_statement,
         "Core competencies": edit_skills,
+        "Experiences": edit_experiences,
     }
 
     demo_name = st.sidebar.selectbox(
