@@ -249,7 +249,8 @@ def parse_experience(exp_in: dict) -> dict:
     '''
     exp_out = {}
     exp_out['title'] = search_field(exp_in, ['title', 'position', 'job_title'])
-    exp_out['company'] = search_field(exp_in, ['company', 'organisation'])
+    exp_out['company'] = search_field(
+        exp_in, ['company', 'organisation', 'employer'])
     if 'start' in exp_in:
         exp_out['date_range'] = get_date_range(exp_in)
     else:
