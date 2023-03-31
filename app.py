@@ -13,6 +13,7 @@ import streamlit as st
 from optimizer.core.initialisation import initialise
 from optimizer.core.introduction import intro
 from optimizer.core.job import job_description
+from optimizer.core.profile import edit_profile
 from optimizer.core.resume import upload_resume
 from optimizer.tests.test_apis import test_api
 
@@ -36,6 +37,7 @@ def main():
         "Test API": test_api,
         "Job description": job_description,
         "Upload Resume": upload_resume,
+        "Personal profile": edit_profile,
     }
 
     demo_name = st.sidebar.selectbox(
