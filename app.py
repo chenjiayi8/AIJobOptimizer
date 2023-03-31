@@ -10,12 +10,14 @@ from the sidebar dropdown menu.
 import sys
 import traceback
 import streamlit as st
+from optimizer.core.competencies import edit_skills
 from optimizer.core.initialisation import initialise
 from optimizer.core.introduction import intro
 from optimizer.core.job import job_description
 from optimizer.core.statement import edit_statement
 from optimizer.core.resume import upload_resume
 from optimizer.tests.test_apis import test_api
+from optimizer.utils.format import custom_layout
 
 
 def main():
@@ -32,12 +34,14 @@ def main():
     """
 
     initialise()
+    custom_layout()
     page_names_to_funcs = {
         "Introduction": intro,
         "Test API": test_api,
         "Job description": job_description,
         "Upload Resume": upload_resume,
         "Personal statement": edit_statement,
+        "Core competencies": edit_skills,
     }
 
     demo_name = st.sidebar.selectbox(
