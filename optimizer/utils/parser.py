@@ -17,7 +17,7 @@ SECRETARY_ROLE = """You are my secretary. I need you to identify and \
 extract all the information of a resume. You have to do it very carefully."""
 
 
-def search_field(obj: dict, candidates: list) -> str | list | dict:
+def search_field(obj: dict, candidates: list) -> any:
     """
     Search for the first matching field in the given object, selected from a list of candidates.
 
@@ -80,7 +80,7 @@ def get_skills(resume: dict) -> list | None:
     return ""
 
 
-def get_experiences(resume: dict) -> dict | None:
+def get_experiences(resume: dict) -> list | None:
     """
     Search for experience-related fields in a resume and return them if found.
 
@@ -88,7 +88,7 @@ def get_experiences(resume: dict) -> dict | None:
         resume (dict): A dictionary containing fields in a resume.
 
     Returns:
-        dict | None: A dictionary with experience-related fields if found, otherwise None.
+        list | None: A list with experience-related fields if found, otherwise None.
     """
 
     candidates = ['experience', 'experiences',
