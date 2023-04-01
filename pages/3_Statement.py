@@ -34,6 +34,7 @@ Functions:
 import json
 import streamlit as st
 from optimizer.utils.extract import extract_code
+from optimizer.utils.format import custom_layout
 from optimizer.gpt.api import MODEL, call_openai_api, SYSTEM_ROLE
 
 st.set_page_config(
@@ -156,3 +157,4 @@ def edit_statement() -> None:
 
 
 edit_statement()
+custom_layout()

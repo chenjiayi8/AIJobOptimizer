@@ -6,6 +6,7 @@ as input and returns a summarized version of it.
 """
 import streamlit as st
 from optimizer.gpt.api import call_openai_api, MODEL, SYSTEM_ROLE
+from optimizer.utils.format import custom_layout
 
 st.set_page_config(
     page_title="Job Description",
@@ -60,3 +61,4 @@ def job_description():
 
 
 job_description()
+custom_layout()

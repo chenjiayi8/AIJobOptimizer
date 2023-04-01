@@ -10,6 +10,7 @@ Functions:
 import json
 import streamlit as st
 from optimizer.utils.extract import extract_code
+from optimizer.utils.format import custom_layout
 from optimizer.gpt.api import MODEL, SYSTEM_ROLE, call_openai_api
 
 st.set_page_config(
@@ -162,3 +163,4 @@ def edit_skills():
 
 
 edit_skills()
+custom_layout()

@@ -5,6 +5,7 @@ by calling the OpenAI GPT API.
 
 import streamlit as st
 from optimizer.gpt.api import call_openai_api, MODEL, SYSTEM_ROLE
+from optimizer.utils.format import custom_layout
 from optimizer.utils.parser import parse_resume
 
 st.set_page_config(
@@ -79,3 +80,4 @@ def upload_resume():
 
 
 upload_resume()
+custom_layout()

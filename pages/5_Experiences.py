@@ -1,6 +1,7 @@
 
 import streamlit as st
 from collections import OrderedDict
+from optimizer.utils.format import custom_layout
 
 st.set_page_config(
     page_title="Experiences",
@@ -65,3 +66,4 @@ def edit_experiences() -> None:
 
 
 edit_experiences()
+custom_layout()
