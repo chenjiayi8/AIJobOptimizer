@@ -34,8 +34,12 @@ Functions:
 import json
 import streamlit as st
 from optimizer.utils.extract import extract_code
-from optimizer.gpt.api import MODEL, call_openai_api
-from optimizer.core.job import SYSTEM_ROLE
+from optimizer.gpt.api import MODEL, call_openai_api, SYSTEM_ROLE
+
+st.set_page_config(
+    page_title="Personal Statement",
+    page_icon=":open_book:",
+)
 
 
 def parse_statements(replies: list) -> list:
@@ -75,6 +79,7 @@ def generate_statements(words: int = 120, temperature: float = 0.8) -> list:
     skills = st.session_state['skills']
     statement = st.session_state['statement']
     experiences_str = json.dumps(st.session_state['experiences'])
+
     messages = [
         {"role": "system", "content": SYSTEM_ROLE},
         {"role": "assistant", "content":  "The job description is following:"},
@@ -148,3 +153,6 @@ def edit_statement() -> None:
 
         st.session_state['statement_choice'] = st.selectbox(
             'Choose final statement', options, index=statement_choice_index)
+
+
+edit_statement()

@@ -5,10 +5,12 @@ by calling the OpenAI GPT API. The main function is \
 as input and returns a summarized version of it.
 """
 import streamlit as st
-from optimizer.gpt.api import call_openai_api, MODEL
+from optimizer.gpt.api import call_openai_api, MODEL, SYSTEM_ROLE
 
-
-SYSTEM_ROLE = "You are my Career Coach. You will help me revise my resume for a target job."
+st.set_page_config(
+    page_title="Job Description",
+    page_icon=":microscope:",
+)
 
 
 @st.cache_data(show_spinner=False)
@@ -39,7 +41,8 @@ def job_description():
     Returns:
     None
     """
-
+    st.markdown("<h2 style='text-align: center;'>Job Description</h2>",
+                unsafe_allow_html=True)
     st.session_state['txt_jd'] = st.text_area(
         'Job Description',
         st.session_state['txt_jd'],
@@ -54,3 +57,6 @@ def job_description():
             job_analysed = summary_job_description(st.session_state['txt_jd'])
         st.markdown("### Can you tell me what is the job about?")
         st.write(job_analysed)
+
+
+job_description()

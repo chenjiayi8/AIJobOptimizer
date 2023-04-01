@@ -12,6 +12,8 @@ import requests
 
 MODEL = "gpt-3.5-turbo"
 
+SYSTEM_ROLE = "You are my Career Coach. You will help me revise my resume for a target job."
+
 
 def retry(exception, tries=5, delay=1, backoff=2, max_delay=120):
     """

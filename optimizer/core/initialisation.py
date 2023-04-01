@@ -30,7 +30,13 @@ def initialise():
         init_state(button)
 
     # initialise text fields
-    text_fields = ['txt_jd', 'txt_resume', 'txt_skills']
+    text_fields = ['txt_jd', 'txt_resume', 'txt_skills', 'statement', 'skills']
 
     for text in text_fields:
         init_state(text, '')
+
+    # initialise list fields
+    list_fields = ['experiences']
+
+    for field in list_fields:
+        init_state(field, [])

@@ -3,6 +3,12 @@ The "Introduction" page provides an overview of the module
 """
 
 import streamlit as st
+from optimizer.core.initialisation import initialise
+
+st.set_page_config(
+    page_title="AIJobOptimizer",
+    page_icon="👋",
+)
 
 
 def intro():
@@ -18,7 +24,6 @@ def intro():
     """
 
     st.write("# Welcome to AIJobOptimizer! 👋")
-    st.sidebar.success("Select a page above.")
 
     st.markdown(
         """
@@ -30,3 +35,7 @@ def intro():
         **👈 Select a page from the dropdown on the left**!
     """
     )
+
+
+initialise()
+intro()

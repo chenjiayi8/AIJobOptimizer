@@ -10,8 +10,12 @@ Functions:
 import json
 import streamlit as st
 from optimizer.utils.extract import extract_code
-from optimizer.gpt.api import MODEL, call_openai_api
-from optimizer.core.job import SYSTEM_ROLE
+from optimizer.gpt.api import MODEL, SYSTEM_ROLE, call_openai_api
+
+st.set_page_config(
+    page_title="Core Competencies",
+    page_icon=":toolbox:",
+)
 
 
 @st.cache_data(show_spinner=False)
@@ -155,3 +159,6 @@ def edit_skills():
             st.session_state['btn_sort_skills']:
         st.write('#### Final Core Competencies')
         st.write(st.session_state['sorted_skills'])
+
+
+edit_skills()

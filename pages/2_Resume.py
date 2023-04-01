@@ -4,9 +4,13 @@ by calling the OpenAI GPT API.
 """
 
 import streamlit as st
-from optimizer.gpt.api import call_openai_api, MODEL
-from optimizer.core.job import SYSTEM_ROLE
+from optimizer.gpt.api import call_openai_api, MODEL, SYSTEM_ROLE
 from optimizer.utils.parser import parse_resume
+
+st.set_page_config(
+    page_title="Resume",
+    page_icon=":notebook:",
+)
 
 
 @st.cache_data(show_spinner=False)
@@ -49,6 +53,8 @@ def upload_resume():
     Returns:
     None
     """
+    st.markdown("<h2 style='text-align: center;'>Resume</h2>",
+                unsafe_allow_html=True)
     st.session_state['txt_resume'] = st.text_area(
         'Your resume',
         st.session_state['txt_resume'],
@@ -70,3 +76,6 @@ def upload_resume():
                 "### Can you help me estimate the match rate between \
                 my experiences and this job description?")
             st.write(reply)
+
+
+upload_resume()
