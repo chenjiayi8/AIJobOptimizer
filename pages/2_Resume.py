@@ -68,14 +68,14 @@ def upload_resume():
     col_analyse, col_empty, col_estimate = st.columns([1, 2, 1])
 
     with col_analyse:
-        if st.button('Analyse'):
+        if st.button('Analyse', help='Analyse your resume and pre-fill the form'):
             st.session_state['btn_analyse'] = True
 
     with col_empty:
         st.write("")
 
     with col_estimate:
-        if st.button("Estimate"):
+        if st.button("Estimate", help="Estimate your match rate with the job"):
             st.session_state['btn_estimate'] = True
 
     if st.session_state['btn_analyse']:
