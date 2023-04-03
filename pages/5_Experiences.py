@@ -1,7 +1,14 @@
+"""
+This module provides the functions for editing experience and corresponding \
+projects for a job description.
 
+Functions:
+    generate_descriptions: revise descriptions based on the job requirements
+    generate_contributions: revise contributions based on job requirements
+"""
 import json
-import streamlit as st
 from collections import OrderedDict
+import streamlit as st
 from optimizer.core.initialisation import init_state, initialise
 from optimizer.gpt.api import MODEL, SYSTEM_ROLE, call_openai_api
 from optimizer.utils.extract import extract_code
@@ -80,7 +87,39 @@ def parse_descriptions(replies: list) -> list:
     return descriptions
 
 
-def edit_description(project):
+def edit_description(project: dict) -> None:
+    """
+    Edit the description of a project using Streamlit widgets.
+
+    Parameters
+    ----------
+    project : dict
+        A dictionary representing the project to edit. It should contain a
+        'uuid' key with a unique identifier, and a 'description' key with the
+        current description value.
+
+    Returns
+    -------
+    None
+
+    Notes
+    -----
+    This function uses Streamlit to create an interactive interface with the
+    following elements:
+
+    - A text area to input the new description (with a default height of \
+        200px).
+    - Two sliders to control the length and the creativity of the generated
+      descriptions.
+    - A button to trigger the generation of new descriptions based on the
+      input parameters.
+    - A list of generated descriptions, each with a title ('Version 0' for
+      the original description, 'Version 1' for the first generated
+      description, and so on), and a selectbox to choose the final description.
+    - The description choice is stored in \
+      `st.session_state['description_choice_'+name]`.
+
+    """
     name = project['uuid']
     project['description'] = st.text_area(
         'Description',  project['description'], height=200)
@@ -123,6 +162,18 @@ def edit_description(project):
 
 
 def edit_contribtions(project):
+    """
+    Function that takes in a project dictionary and outputs the
+    list of key contributions in a markdown format.
+
+    Args:
+    project: a dictionary representing a project. It should have a \
+    'contributions' key which is a list of strings representing the key \
+    contributions of the project.
+
+    Returns:
+    None
+    """
     st.markdown("#### Key contributions:")
     for contribution in project['contributions']:
         st.markdown('- ' + contribution)
