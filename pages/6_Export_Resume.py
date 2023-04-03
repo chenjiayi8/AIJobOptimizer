@@ -16,7 +16,7 @@ from optimizer.export.to_docx import to_docx, validate_template
 from optimizer.utils.download import download_button
 
 st.set_page_config(
-    page_title="Export to docx",
+    page_title="Export resume to docx",
     page_icon=":page_facing_up:",
 )
 
