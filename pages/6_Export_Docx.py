@@ -6,7 +6,6 @@ package.
 """
 from collections import OrderedDict
 import copy
-import os
 import re
 import streamlit as st
 from streamlit.runtime.uploaded_file_manager import UploadedFile
@@ -227,23 +226,6 @@ def write_docx(choices: list, options: dict):
     return (output_path, output_file_name)
 
 
-# def validate_template(doc: docx_document):
-#     """
-#     Check if all the required fields in `template_fields` are present in \
-#     the given Word document `doc`.
-
-#     Args:
-#         doc (docx.document.Document): Word document instance.
-
-#     Returns:
-#         bool: True if all fields are present, False otherwise.
-
-#     Raises:
-#         None
-#     """
-#     missed_fields =
-
-
 def create_docx_template(uploaded_file: UploadedFile) -> None:
     """
     This function takes in a `uploaded_file` object which is a binary file \
@@ -318,6 +300,7 @@ def export_docx() -> None:
         with col_download:
             st.write(st.session_state['dl_link'], unsafe_allow_html=True)
 
+    reset()
     with st.expander("Debug: Raw output"):
         st.write("session_state: ", st.session_state)
 
