@@ -14,7 +14,7 @@ st.set_page_config(
 initialise()
 
 
-def generate_descriptions(words, temperature):
+def generate_descriptions(words: int, temperature: float) -> list:
     """
     This function generates descriptions based on the job requirements and \
     other inputs provided by the user. It takes in the following parameters:
@@ -31,6 +31,9 @@ def generate_descriptions(words, temperature):
 
     The output should be surrounded by code tags using the "<code> Your \
     message here </code>" syntax.
+
+    Returns:
+    a list of strings representing replies from OpenAI API
     """
     txt_jd = st.session_state['txt_jd']
     skills = st.session_state['skills']
@@ -59,7 +62,7 @@ def generate_descriptions(words, temperature):
     return replies
 
 
-def parse_descriptions(replies):
+def parse_descriptions(replies: list) -> list:
     """
     Extracts code descriptions from a list of reply messages.
 
@@ -125,7 +128,7 @@ def edit_contribtions(project):
         st.markdown('- ' + contribution)
 
 
-def init_project(project):
+def init_project(project: dict) -> None:
     """
     Initializes the project with the given UUID by creating four states for it:
     - generate_description_<UUID>
@@ -143,7 +146,7 @@ def init_project(project):
     init_state('new_contributions_' + name)
 
 
-def edit_project(project):
+def edit_project(project: dict) -> None:
     """
     Initializes a project and allows the user to edit its title, \
     description, and list of contributions.
@@ -161,7 +164,7 @@ def edit_project(project):
     edit_contribtions(project)
 
 
-def edit_experience(exp):
+def edit_experience(exp: dict) -> None:
     """Display and edit work experience details for a given experience object.
 
     Parameters
