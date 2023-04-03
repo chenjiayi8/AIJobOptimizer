@@ -6,16 +6,25 @@ package.
 """
 from collections import OrderedDict
 import copy
+import os
 import re
+from io import BytesIO
+from docx import Document
+from docx.document import Document as docx_document
 import streamlit as st
+from streamlit.runtime.uploaded_file_manager import UploadedFile
 from optimizer.core.initialisation import initialise
 from optimizer.gpt.api import MODEL, SYSTEM_ROLE, call_openai_api
 from optimizer.utils.extract import extract_code, extract_html_list
 from optimizer.export.to_docx import to_docx
+from optimizer.utils.download import download_button
+
 st.set_page_config(
     page_title="Export to docx",
     page_icon=":page_facing_up:",
 )
+
+template_fields = ['{statement}', '{competencies}', '{experiences}']
 
 initialise()
 
@@ -208,21 +217,69 @@ def write_docx(choices: list, options: dict):
             project['description'] = choose_description(project)
             project['contributions'] = choose_contributions(project)
 
-    docx_temperate = 'CV_template2.docx'
     if 'company_role' in st.session_state:
         company_role = st.session_state['company_role']
         company_role = re.sub(r'[^\w_. -]', '_', company_role)
         company_role = company_role.replace(' ', '_')
-        output_file = f"CV_{company_role}.docx"
+        output_file_name = f"CV_{company_role}.docx"
     else:
-        output_file = None
-    output_file = to_docx(docx_temperate, statement,
-                          skills, experiences, output_file)
-    if output_file is not None:
-        st.success("Resume exported to " + output_file)
+        output_file_name = 'CV_exported.docx'
+    output_path = to_docx(st.session_state['template']['data'], statement,
+                          skills, experiences)
+
+    return (output_path, output_file_name)
 
 
-def export_docx():
+def validate_template(doc: docx_document):
+    """
+    Check if all the required fields in `template_fields` are present in \
+    the given Word document `doc`.
+
+    Args:
+        doc (docx.document.Document): Word document instance.
+
+    Returns:
+        bool: True if all fields are present, False otherwise.
+
+    Raises:
+        None
+    """
+    targets = copy.deepcopy(template_fields)
+    for para in doc.paragraphs:
+        if para.text in targets:
+            targets.remove(para.text)
+    if len(targets) == 0:
+        return True
+
+    for target in targets:
+        st.error(f"{target} is not found in your template")
+
+    return False
+
+
+def create_docx_template(uploaded_file: UploadedFile) -> None:
+    """
+    This function takes in a `uploaded_file` object which is a binary file \
+    in docx format. It reads the bytes data from this file and creates a \
+    `doc` object of `Document` class from it using a `BytesIO` class. It \
+    then validates the template using `validate_template` function and if \
+    it's valid, returns the `doc` object, otherwise returns None.
+
+    Args:
+    - uploaded_file: An object representing the uploaded docx file
+
+    Returns:
+    - doc: A `Document` object if the template is valid, otherwise None
+    """
+
+    bytes_data = uploaded_file.getvalue()
+    doc = Document(BytesIO(bytes_data))
+    if validate_template(doc):
+        return doc
+    return None
+
+
+def export_docx() -> None:
     """
     This function renders a Markdown heading with the title "Export resume".
     It creates a dictionary of project titles and corresponding project and \
@@ -236,6 +293,9 @@ def export_docx():
     to generate a docx file.
 
     """
+    if len(st.session_state['experiences']) == 0:
+        st.write("# Nothing to export")
+        return
     st.markdown("<h2 style='text-align: center;'>Export resume</h2>",
                 unsafe_allow_html=True)
     options = {}
@@ -248,8 +308,31 @@ def export_docx():
             options[project_title]['exp_uuid'] = exp['uuid']
     choices = st.multiselect('Select relevant projects',
                              options.keys(), default=options)
-    if st.button("Export to docx"):
-        write_docx(choices, options)
+
+    with st.form("my-form", clear_on_submit=True):
+        uploaded_file = st.file_uploader(
+            "Upload your temperature", type='docx')
+        submitted = st.form_submit_button("UPLOAD!")
+    if submitted and uploaded_file is not None:
+        template = create_docx_template(uploaded_file)
+        if template is not None:
+            st.session_state['template'] = {}
+            st.session_state['template']['name'] = uploaded_file.name
+            st.session_state['template']['data'] = template
+            uploaded_file = None
+
+    if 'template' in st.session_state:
+        st.write(
+            f"Your template file: {st.session_state['template']['name']}")
+        if st.button("Export to docx"):
+            doc_path, doc_name = write_docx(choices, options)
+            with open(doc_path, 'rb') as file:
+                doc_bytes = file.read()
+                dl_link = download_button(
+                    doc_bytes, doc_name, 'Download resume')
+                st.write(dl_link, unsafe_allow_html=True)
+                os.remove(doc_path)
+
     with st.expander("Debug: Raw output"):
         st.write("session_state: ", st.session_state)
 
