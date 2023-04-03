@@ -65,13 +65,24 @@ def upload_resume():
         height=300
     )
 
-    if st.button('Analyse'):
-        st.session_state['btn_analyse'] = True
+    col_analyse, col_empty, col_estimate = st.columns([1, 2, 1])
+
+    with col_analyse:
+        if st.button('Analyse'):
+            st.session_state['btn_analyse'] = True
+
+    with col_empty:
+        st.write("")
+
+    with col_estimate:
+        if st.button("Estimate"):
+            st.session_state['btn_estimate'] = True
 
     if st.session_state['btn_analyse']:
         with st.spinner('Analysing your resume ...'):
             parse_resume(st.session_state['txt_resume'])
 
+    if st.session_state['btn_estimate']:
         with st.spinner("Estimating the match rate ..."):
             reply = estimate_match_rate(
                 st.session_state['txt_jd'], st.session_state['txt_resume'])
