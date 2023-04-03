@@ -417,7 +417,6 @@ def analyse_resume(txt_resume: str, temperature: float) -> str:
     return reply_json_str
 
 
-@st.cache_data(show_spinner=False)
 def parse_resume(txt_resume: str) -> None:
     """
     Caches the result of parsing the provided resume text using JSON \
