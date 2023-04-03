@@ -1,0 +1,257 @@
+"""
+This module contains a function to export a resume to a docx file format
+based on user-defined choices. The module imports libraries:
+OrderedDict, copy, re, streamlit, and functions from the optimizer
+package.
+"""
+from collections import OrderedDict
+import copy
+import re
+import streamlit as st
+from optimizer.core.initialisation import initialise
+from optimizer.gpt.api import MODEL, SYSTEM_ROLE, call_openai_api
+from optimizer.utils.extract import extract_code, extract_html_list
+from optimizer.export.to_docx import to_docx
+st.set_page_config(
+    page_title="Export to docx",
+    page_icon=":page_facing_up:",
+)
+
+initialise()
+
+
+@st.cache_data(show_spinner=False)
+def query_company_and_role() -> str:
+    """
+    Function to query the company and role from a given job description \
+    using OpenAI's API.
+
+    Returns:
+        - reply (str): A string containing the identified company and role \
+        in the following syntax: {company}_{role}
+
+    Caching:
+        The function is cached using Streamlit's caching mechanism to reduce \
+        API calls.
+        The cached data is deleted when the inputs to the function change.
+        The spinner is disabled to prevent unnecessary UI clutter.
+    """
+    txt_jd = st.session_state['txt_jd']
+    messages = [
+        {"role": "system", "content": SYSTEM_ROLE},
+        {"role": "assistant", "content":  "The job description is following:"},
+        {"role": "assistant", "content":  txt_jd},
+        {"role": "user", "content": "Can you identify the role and the \
+        company from the job description?"},
+        {"role": "user", "content": "Please always surround the output with \
+        code tags by using the following syntax:"},
+        {"role": "user", "content": "<code>{company}_{role}</code>"},
+    ]
+    reply = call_openai_api(MODEL, messages, temperature=0.2)
+    return reply
+
+
+def choose_statement() -> str:
+    """
+    Selects a statement to export.
+
+    If a statement_choice is present in the session_state, this function \
+    will return the corresponding statement from the new_statements list \
+    stored in the session_state. Otherwise, it will return the statement
+    originally stored in the session_state.
+
+    Parameters:
+    None
+
+    Returns:
+    string: The statement to export.
+    """
+    if 'statement_choice' not in st.session_state:
+        return st.session_state['statement']
+    statement_choice = st.session_state['statement_choice']
+    statement_index = int(statement_choice.split(' ')[1]) - 1
+    return st.session_state['new_statements'][statement_index]
+
+
+def choose_skills():
+    """
+    Selects skills to export.
+
+    If sorted_skills are present in the session_state, it will return them. \
+    Otherwise, it will return the skills originally stored in the \
+    session_state.
+
+    Parameters:
+    None
+
+    Returns:
+    string: The skills to export.
+    """
+    if 'sorted_skills' in st.session_state:
+        if len(st.session_state['sorted_skills']) > 0:
+            return st.session_state['sorted_skills']
+    return st.session_state['skills']
+
+
+def choose_description(project):
+    """
+    Selects a description to export.
+
+    If a description_choice is present in the session_state, this function \
+    will return the corresponding description from the new_descriptions list \
+    stored in the session_state. Otherwise, it will return the description
+    originally stored in the session_state.
+
+    Parameters:
+    None
+
+    Returns:
+    string: The description to export.
+    """
+    choice_key = 'description_choice_'+project['uuid']
+    choice_field = 'new_descriptions_'+project['uuid']
+    # use default description
+    if not all(key in st.session_state for key in (choice_key,
+                                                   choice_field)):
+        return project['description']
+    index = int(st.session_state[choice_key].split(' ')[1])-1
+    return st.session_state[choice_field][index].strip()
+
+
+def choose_contributions(project):
+    """
+    Selects contributions to export.
+
+    If a contributions_choice is present in the session_state, this function \
+    will return the corresponding contributions from the new_contributions \
+    list stored in the session_state. Otherwise, it will return the \
+    contributions originally stored in the session_state.
+
+    Parameters:
+    None
+
+    Returns:
+    string: The contributions to export.
+    """
+    choice_key = 'contributions_choice_'+project['uuid']
+    choice_field = 'new_contributions_'+project['uuid']
+    # use default contributions
+    if not all(key in st.session_state for key in (choice_key,
+                                                   choice_field)):
+        return project['contributions']
+    index = int(st.session_state[choice_key].split(' ')[1])-1
+    contributions = st.session_state[choice_field][index].strip(
+    )
+    if isinstance(contributions, list):
+        return contributions
+    contributions_new = extract_html_list(contributions)
+    return contributions_new
+
+
+def find_experience(experiences, exp_uuid):
+    """
+    Returns the experience dictionary from the given list of experiences \
+    that has the specified UUID.
+
+    Parameters:
+    experiences (list): A list of experience dictionaries.
+    exp_uuid (str): UUID of the experience to be searched.
+
+    Returns:
+    dict: a deep copy of the experience dictionary that has the specified UUID.
+
+    """
+    for exp in experiences:
+        if exp['uuid'] == exp_uuid:
+            return copy.deepcopy(exp)
+
+
+def write_docx(choices: list, options: dict):
+    """
+    Generates a Word document containing job seeker's CV given the configured \
+    template.
+
+    Args:
+        choices (list): List containing the experience and projects that \
+        are to be included in the CV.
+        options (dict): Dictionary containing the experience and projects \
+        along with their unique ids.
+
+    Returns:
+        str: Name of the output file if successfully generated, None otherwise.
+    """
+    if 'company_role' not in st.session_state:
+        reply = query_company_and_role()
+        company_role = extract_code(reply)
+        st.session_state['company_role'] = company_role
+    statement = choose_statement()
+    skills = choose_skills()
+    experiences = OrderedDict()  # experiences are ordered
+    for choice in choices:
+        proj_uuid = options[choice]['proj_uuid']
+        exp_uuid = options[choice]['exp_uuid']
+        if exp_uuid not in experiences:
+            exp = find_experience(st.session_state['experiences'], exp_uuid)
+            exp['choosen_projects'] = [proj_uuid]
+            experiences[exp_uuid] = exp
+        else:
+            experiences[exp_uuid]['choosen_projects'].append(proj_uuid)
+
+    for key, exp in experiences.items():
+        for project in exp['projects']:
+            if project['uuid'] not in exp['choosen_projects']:
+                exp['projects'].remove(project)
+        experiences[key] = exp
+
+    for key, exp in experiences.items():
+        for project in exp['projects']:
+            project['description'] = choose_description(project)
+            project['contributions'] = choose_contributions(project)
+
+    docx_temperate = 'CV_template2.docx'
+    if 'company_role' in st.session_state:
+        company_role = st.session_state['company_role']
+        company_role = re.sub(r'[^\w_. -]', '_', company_role)
+        company_role = company_role.replace(' ', '_')
+        output_file = f"CV_{company_role}.docx"
+    else:
+        output_file = None
+    output_file = to_docx(docx_temperate, statement,
+                          skills, experiences, output_file)
+    if output_file is not None:
+        st.success("Resume exported to " + output_file)
+
+
+def export_docx():
+    """
+    This function renders a Markdown heading with the title "Export resume".
+    It creates a dictionary of project titles and corresponding project and \
+    experience UUIDs, based on the experiences and projects stored in the \
+    current session state.
+
+    It then displays a multiselect drop-down widget populated with the \
+    project options from the dictionary.
+    When the user clicks the "Export to docx" button, the selected options \
+    and their corresponding UUIDs are passed to the write_docx() function \
+    to generate a docx file.
+
+    """
+    st.markdown("<h2 style='text-align: center;'>Export resume</h2>",
+                unsafe_allow_html=True)
+    options = {}
+    for i in range(len(st.session_state['experiences'])):
+        exp = st.session_state['experiences'][i]
+        for j in range(len(exp['projects'])):
+            project_title = f"{exp['projects'][j]['title']}"
+            options[project_title] = {}
+            options[project_title]['proj_uuid'] = exp['projects'][j]['uuid']
+            options[project_title]['exp_uuid'] = exp['uuid']
+    choices = st.multiselect('Select relevant projects',
+                             options.keys(), default=options)
+    if st.button("Export to docx"):
+        write_docx(choices, options)
+    with st.expander("Debug: Raw output"):
+        st.write("session_state: ", st.session_state)
+
+
+export_docx()
