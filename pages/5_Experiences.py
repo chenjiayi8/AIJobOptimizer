@@ -6,9 +6,9 @@ Functions:
     generate_descriptions: revise descriptions based on the job requirements
     generate_contributions: revise contributions based on job requirements
 """
-import json
 from collections import OrderedDict
 import streamlit as st
+import streamlit.components.v1 as components
 from optimizer.core.initialisation import init_state, initialise
 from optimizer.gpt.api import MODEL, SYSTEM_ROLE, call_openai_api
 from optimizer.utils.extract import extract_code
@@ -21,7 +21,7 @@ st.set_page_config(
 initialise()
 
 
-def generate_descriptions(words: int, temperature: float) -> list:
+def generate_descriptions(project: dict, words: int, temperature: float) -> list:
     """
     This function generates descriptions based on the job requirements and \
     other inputs provided by the user. It takes in the following parameters:
@@ -43,29 +43,22 @@ def generate_descriptions(words: int, temperature: float) -> list:
     a list of strings representing replies from OpenAI API
     """
     txt_jd = st.session_state['txt_jd']
-    skills = st.session_state['skills']
-    experiences_str = json.dumps(st.session_state['experiences'])
-    description = st.session_state['description']
     messages = [
         {"role": "system", "content": SYSTEM_ROLE},
         {"role": "assistant", "content":  "The job description is following:"},
         {"role": "assistant", "content":  txt_jd},
-        {"role": "assistant",
-            "content":  "Can you tell me about your skills and experiences?"},
-        {"role": "user", "content": "I will give you my skills as following:"},
-        {"role": "user", "content": skills},
-        {"role": "user", "content": "I will give you my experiences as \
-        following:"},
-        {"role": "user", "content": experiences_str},
-        {"role": "user", "content": f"Can you rephrase the following project \
+        {"role": "user", "content":  f"Now I want to rewrite the project key \
+        description for project: {project['title']}."},
+        {"role": "user", "content":  f"The project description is: \
+        {project['description']}."},
+        {"role": "user", "content": f"Can you rephrase the project \
         description in {words} words, to align with the job description?"},
-        {"role": "user", "content": description},
         {"role": "user", "content": "Please always surround the output with \
         code tags by using the following syntax:"},
         {"role": "user", "content": "<code> Your message here </code>"},
-
     ]
-    replies = call_openai_api(MODEL, messages, temperature=temperature, n=3)
+    replies = call_openai_api(MODEL, messages, temperature=temperature,
+                              number_completion=3)
     return replies
 
 
@@ -138,6 +131,7 @@ def edit_description(project: dict) -> None:
     with col_description:
         if st.button('Generate description', key='gene_description_'+name):
             replies = generate_descriptions(
+                project,
                 description_words,
                 description_temp
             )
@@ -156,9 +150,86 @@ def edit_description(project: dict) -> None:
             options.append(option)
             st.write('### ' + option)
             st.write(st.session_state['new_descriptions_' + name][j])
+
+        if 'description_choice_'+name in st.session_state:
+            description_choice_index = options.index(
+                st.session_state['description_choice_'+name])
+        else:
+            description_choice_index = 0
+
         description_choice = st.selectbox(
-            'Choose final description', options, key='description'+name)
+            'Choose final description', options, key='description'+name,
+            index=description_choice_index)
         st.session_state['description_choice_'+name] = description_choice
+
+
+def parse_contributions(replies):
+    """
+    Parses a list of replies to extract contributions
+    that contain code snippets.
+
+    Args:
+        replies (list): A list of strings representing replies.
+
+    Returns:
+        A list of strings representing contributions,
+        where each contribution contains at least one code snippet.
+    """
+    contributions = []
+    for reply in replies:
+        contribution = extract_code(reply)
+        contributions.append(contribution)
+    return contributions
+
+
+def generate_contributions(project, words, number, temperature):
+    """
+    Given a project and job description, generates new key contributions \
+    aligned with the job description using OpenAI's GPT-3 API.
+
+    Args:
+    project (dict): The project for which new key contributions need to \
+    be generated.
+    words (int): The maximum number of words in each key contribution.
+    number (int): The number of new key contributions to generate.
+    temperature (float): Controls the creativity of the generated text. \
+    A higher temperature value leads to more creative responses, but they \
+    may not be as coherent.
+
+    Returns:
+    replies (list): A list of key contributions generated by the GPT-3 \
+    model, aligned with the job description.
+    """
+    txt_jd = st.session_state['txt_jd']
+    contributions_str = '\n'.join(project['contributions'])
+    messages = [
+        {"role": "system", "content": SYSTEM_ROLE},
+        {"role": "assistant", "content":  "The job description is following:"},
+        {"role": "assistant", "content":  txt_jd},
+        {"role": "user",
+            "content":  f"Now I want to rewrite my key contributions for \
+            project: {project['title']}."},
+        {"role": "user", "content":  f"The project description is: \
+        {project['description']}."},
+        {"role": "user", "content":  "These are my key contributions \
+        for the project:"},
+        {"role": "user", "content":  contributions_str},
+        {"role": "user", "content": f"Can you analyse them and write \
+        {number} new key contributions in {words} words, to align with the \
+        job description?"},
+        {"role": "user", "content": "Formatting the output as html in \
+        unordered list; identifiying the keywords relevant with the job \
+        description."},
+        {"role": "user", "content": "Please always surround the keywords \
+        with bold tags by using the following syntax:"},
+        {"role": "user", "content": "<b> keywords </b>"},
+        {"role": "user", "content": "Please always surround the output \
+        with code tags by using the following syntax:"},
+        {"role": "user", "content": "<code> Your message here </code>"},
+    ]
+    replies = call_openai_api(MODEL, messages, temperature=temperature,
+                              number_completion=3)
+    return replies
 
 
 def edit_contribtions(project):
@@ -174,9 +245,58 @@ def edit_contribtions(project):
     Returns:
     None
     """
+    name = project['uuid']
     st.markdown("#### Key contributions:")
     for contribution in project['contributions']:
         st.markdown('- ' + contribution)
+    col_contributions_words, \
+        col_contributions_number, \
+        col_contributions_temp, \
+        col_contributions = st.columns([1.5, 1.5, 1.5, 2])
+    with col_contributions_words:
+        contributions_words = st.slider(
+            "Words of contributions", 50, 100, value=60,
+            key='contributions_words_'+name)
+    with col_contributions_number:
+        contributions_number = st.slider(
+            "Number of contributions", 4, 8, value=4,
+            key='contributions_number_'+name)
+    with col_contributions_temp:
+        contributions_temperature = st.slider(
+            "Temperature", 0.0, 1.0, value=0.8, key='contributions_temp_'+name)
+    with col_contributions:
+        if st.button('Generate contributions', key='gene_contributions_'+name):
+            responses = generate_contributions(
+                project, contributions_words, contributions_number,
+                contributions_temperature)
+            new_contributions = parse_contributions(responses)
+            st.session_state['generate_contributions_'+name] = True
+            st.session_state['new_contributions_' + name] = new_contributions
+    if st.session_state['generate_contributions_'+name]:
+        options = []
+        option = 'Version ' + str(0)
+        options.append(option)
+        st.write('### ' + option)
+        for contribution in project['contributions']:
+            st.markdown('- ' + contribution)
+        for j in range(len(st.session_state['new_contributions_' + name])):
+            option = 'Version ' + str(j+1)
+            options.append(option)
+            st.write('### ' + option)
+            components.html(
+                st.session_state['new_contributions_' + name][j],
+                scrolling=True)
+
+        if 'contributions_choice_'+name in st.session_state:
+            contributions_choice_index = options.index(
+                st.session_state['contributions_choice_'+name])
+        else:
+            contributions_choice_index = 0
+
+        contributions_choice = st.selectbox(
+            'Choose final contributions', options, key='contributions'+name,
+            index=contributions_choice_index)
+        st.session_state['contributions_choice_'+name] = contributions_choice
 
 
 def init_project(project: dict) -> None:
