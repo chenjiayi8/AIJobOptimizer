@@ -8,15 +8,12 @@ from collections import OrderedDict
 import copy
 import os
 import re
-from io import BytesIO
-from docx import Document
-from docx.document import Document as docx_document
 import streamlit as st
 from streamlit.runtime.uploaded_file_manager import UploadedFile
-from optimizer.core.initialisation import initialise
+from optimizer.core.initialisation import initialise, reset
 from optimizer.gpt.api import MODEL, SYSTEM_ROLE, call_openai_api
 from optimizer.utils.extract import extract_code, extract_html_list
-from optimizer.export.to_docx import to_docx
+from optimizer.export.to_docx import to_docx, validate_template
 from optimizer.utils.download import download_button
 
 st.set_page_config(
@@ -224,37 +221,27 @@ def write_docx(choices: list, options: dict):
         output_file_name = f"CV_{company_role}.docx"
     else:
         output_file_name = 'CV_exported.docx'
-    output_path = to_docx(st.session_state['template']['data'], statement,
-                          skills, experiences)
+    output_path = to_docx(st.session_state['template']['bytes_data'],
+                          statement, skills, experiences)
 
     return (output_path, output_file_name)
 
 
-def validate_template(doc: docx_document):
-    """
-    Check if all the required fields in `template_fields` are present in \
-    the given Word document `doc`.
+# def validate_template(doc: docx_document):
+#     """
+#     Check if all the required fields in `template_fields` are present in \
+#     the given Word document `doc`.
 
-    Args:
-        doc (docx.document.Document): Word document instance.
+#     Args:
+#         doc (docx.document.Document): Word document instance.
 
-    Returns:
-        bool: True if all fields are present, False otherwise.
+#     Returns:
+#         bool: True if all fields are present, False otherwise.
 
-    Raises:
-        None
-    """
-    targets = copy.deepcopy(template_fields)
-    for para in doc.paragraphs:
-        if para.text in targets:
-            targets.remove(para.text)
-    if len(targets) == 0:
-        return True
-
-    for target in targets:
-        st.error(f"{target} is not found in your template")
-
-    return False
+#     Raises:
+#         None
+#     """
+#     missed_fields =
 
 
 def create_docx_template(uploaded_file: UploadedFile) -> None:
@@ -273,10 +260,14 @@ def create_docx_template(uploaded_file: UploadedFile) -> None:
     """
 
     bytes_data = uploaded_file.getvalue()
-    doc = Document(BytesIO(bytes_data))
-    if validate_template(doc):
-        return doc
-    return None
+    missed_fields = validate_template(bytes_data, template_fields)
+    if len(missed_fields) == 0:
+        st.session_state['template'] = {}
+        st.session_state['template']['name'] = uploaded_file.name
+        st.session_state['template']['bytes_data'] = bytes_data
+    else:
+        for field in missed_fields:
+            st.error(f"{field} is missing in your template")
 
 
 def export_docx() -> None:
@@ -314,24 +305,18 @@ def export_docx() -> None:
             "Upload your temperature", type='docx')
         submitted = st.form_submit_button("UPLOAD!")
     if submitted and uploaded_file is not None:
-        template = create_docx_template(uploaded_file)
-        if template is not None:
-            st.session_state['template'] = {}
-            st.session_state['template']['name'] = uploaded_file.name
-            st.session_state['template']['data'] = template
-            uploaded_file = None
+        create_docx_template(uploaded_file)
 
     if 'template' in st.session_state:
-        st.write(
-            f"Your template file: {st.session_state['template']['name']}")
-        if st.button("Export to docx"):
-            doc_path, doc_name = write_docx(choices, options)
-            with open(doc_path, 'rb') as file:
-                doc_bytes = file.read()
-                dl_link = download_button(
-                    doc_bytes, doc_name, 'Download resume')
-                st.write(dl_link, unsafe_allow_html=True)
-                os.remove(doc_path)
+        doc_bytes, doc_name = write_docx(choices, options)
+        st.session_state['dl_link'] = download_button(
+            doc_bytes, doc_name, 'Download resume')
+        col_file, col_download = st.columns([2, 1])
+        with col_file:
+            st.write(
+                f"Your template file: {st.session_state['template']['name']}")
+        with col_download:
+            st.write(st.session_state['dl_link'], unsafe_allow_html=True)
 
     with st.expander("Debug: Raw output"):
         st.write("session_state: ", st.session_state)
