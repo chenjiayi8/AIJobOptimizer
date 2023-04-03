@@ -5,6 +5,8 @@ session state and text fields.
 
 import streamlit as st
 
+from optimizer.utils.format import custom_layout
+
 
 def init_state(name, value=False):
     """
@@ -40,3 +42,5 @@ def initialise():
 
     for field in list_fields:
         init_state(field, [])
+
+    custom_layout()

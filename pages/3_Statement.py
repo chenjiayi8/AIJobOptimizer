@@ -33,6 +33,7 @@ Functions:
 """
 import json
 import streamlit as st
+from optimizer.core.initialisation import initialise
 from optimizer.utils.extract import extract_code
 from optimizer.utils.format import custom_layout
 from optimizer.gpt.api import MODEL, call_openai_api, SYSTEM_ROLE
@@ -156,5 +157,5 @@ def edit_statement() -> None:
             'Choose final statement', options, index=statement_choice_index)
 
 
+initialise()
 edit_statement()
-custom_layout()

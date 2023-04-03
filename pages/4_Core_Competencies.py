@@ -9,14 +9,16 @@ Functions:
 
 import json
 import streamlit as st
+from optimizer.core.initialisation import initialise
 from optimizer.utils.extract import extract_code
-from optimizer.utils.format import custom_layout
 from optimizer.gpt.api import MODEL, SYSTEM_ROLE, call_openai_api
 
 st.set_page_config(
     page_title="Core Competencies",
     page_icon=":toolbox:",
 )
+
+initialise()
 
 
 @st.cache_data(show_spinner=False)
@@ -163,4 +165,3 @@ def edit_skills():
 
 
 edit_skills()
-custom_layout()

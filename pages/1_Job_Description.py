@@ -5,6 +5,7 @@ by calling the OpenAI GPT API. The main function is \
 as input and returns a summarized version of it.
 """
 import streamlit as st
+from optimizer.core.initialisation import initialise
 from optimizer.gpt.api import call_openai_api, MODEL, SYSTEM_ROLE
 from optimizer.utils.format import custom_layout
 
@@ -12,6 +13,8 @@ st.set_page_config(
     page_title="Job Description",
     page_icon=":microscope:",
 )
+
+initialise()
 
 
 @st.cache_data(show_spinner=False)
@@ -61,4 +64,3 @@ def job_description():
 
 
 job_description()
-custom_layout()

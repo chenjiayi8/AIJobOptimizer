@@ -1,12 +1,14 @@
 
 import streamlit as st
 from collections import OrderedDict
-from optimizer.utils.format import custom_layout
+from optimizer.core.initialisation import initialise
 
 st.set_page_config(
     page_title="Experiences",
     page_icon=":male-office-worker:",
 )
+
+initialise()
 
 
 def edit_description(project):
@@ -66,4 +68,3 @@ def edit_experiences() -> None:
 
 
 edit_experiences()
-custom_layout()
