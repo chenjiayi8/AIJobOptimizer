@@ -35,7 +35,6 @@ import json
 import streamlit as st
 from optimizer.core.initialisation import initialise
 from optimizer.utils.extract import extract_code
-from optimizer.utils.format import custom_layout
 from optimizer.gpt.api import MODEL, call_openai_api, SYSTEM_ROLE
 
 st.set_page_config(
