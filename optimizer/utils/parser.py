@@ -363,7 +363,6 @@ def parse_json(txt_resume: str) -> None:
     st.session_state['experiences'] = st.session_state['resume']['experiences']
 
 
-@st.cache_data
 def parse_api_json(reply_json_str: str) -> None:
     """
     Parses and stores the API response JSON string in the session state.
@@ -382,6 +381,10 @@ def parse_api_json(reply_json_str: str) -> None:
         st.session_state['resume'])
     with st.expander("Debug: Raw input"):
         st.write("resume: ", st.session_state['resume'])
+    with st.expander("Debug: statement"):
+        st.write("statement: ", st.session_state['statement'])
+    with st.expander("Debug: skills"):
+        st.write("Skills: ", st.session_state['skills'])
 
 
 @st.cache_data(show_spinner=False)
