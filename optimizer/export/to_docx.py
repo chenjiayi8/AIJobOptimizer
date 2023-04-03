@@ -3,10 +3,12 @@ This module provides functions to create a Word document from a given \
 template. The main function is `to_docx` which creates a Word document from \
 a given template , and replaces placeholders with the corresponding parameters
 """
+import copy
 from docx import Document
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.shared import Pt
 import re
+import uuid
 
 
 def move_table_after(table, paragraph):
@@ -140,8 +142,8 @@ def set_paragraph_font_name(para, name):
         run.font.name = name
 
 
-def to_docx(input_file, statement, skills_str, experiences, output_file=None, new_font_name='Times New Roman'):
-    doc = Document(input_file)
+def to_docx(doc, statement, skills_str, experiences,
+            new_font_name='Times New Roman'):
     for para in doc.paragraphs:
         if para.text == '{statement}':
             para.text = statement.strip()
@@ -156,12 +158,10 @@ def to_docx(input_file, statement, skills_str, experiences, output_file=None, ne
         if para.text == '{experiences}':
             write_experiences(doc, para, experiences)
 
-    if output_file is None:
-        output_file = input_file.split('.')[0] + '_output.docx'
-
     if new_font_name is not None:
         for para in doc.paragraphs:
             set_paragraph_font_name(para, new_font_name)
 
-    doc.save(output_file)
-    return output_file
+    output_path = str(uuid.uuid4()) + '.docx'
+    doc.save(output_path)
+    return output_path
