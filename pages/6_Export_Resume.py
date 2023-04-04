@@ -303,8 +303,8 @@ def export_docx() -> None:
     st.markdown("***")
 
     reset()
-    with st.expander("Debug: Raw output"):
-        st.write("session_state: ", st.session_state)
 
 
 export_docx()
+with st.expander("Debug: Raw output"):
+    st.write("session_state: ", st.session_state)
