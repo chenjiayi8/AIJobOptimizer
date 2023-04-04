@@ -7,7 +7,7 @@ from io import BytesIO
 import copy
 from docx import Document
 from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_LINE_SPACING
-from docx.shared import Pt
+from docx.shared import Pt, Inches
 import re
 import uuid
 
@@ -78,8 +78,19 @@ def render_contribution(para, contribution):
         para.add_run(contribution[right_bold[-1]+4:])
 
 
+def add_bullet_point(para):
+    # Set bullet properties
+    para.paragraph_format.left_indent = Inches(0.5)
+    para.paragraph_format.first_line_indent = Inches(-0.25)
+    para.paragraph_format.tab_stops.add_tab_stop(Inches(0.5))
+    # Replace 'Symbol' with the desired font
+    para.style.font.name = 'Times New Roman'
+    para.text = '\u25CF    ' + para.text  # Prepend bullet point character
+
+
 def create_contribution(doc, contribution):
-    para = doc.add_paragraph(style='List Bullet 2')
+    para = doc.add_paragraph()
+    add_bullet_point(para)
     render_contribution(para, contribution)
     para.alignment = WD_ALIGN_PARAGRAPH.LEFT
     para.style.font.size = Pt(11)
