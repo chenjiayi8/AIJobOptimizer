@@ -272,6 +272,7 @@ def parse_project(exp_or_project_in: dict) -> dict:
     return project
 
 
+@st.cache_data
 def parse_experience(exp_in: dict) -> dict:
     '''
     Given a dictionary `exp_in` containing information about a work experience,
@@ -325,8 +326,7 @@ def parse_experience(exp_in: dict) -> dict:
     return exp_out
 
 
-@st.cache_data
-def parse_expereinces(experiences_in) -> None:
+def parse_expereinces() -> None:
     """
     Parses the experiences and generates a unique UUID for each experience, \
     and returns a list of experiences as dictionaries.
@@ -343,13 +343,18 @@ def parse_expereinces(experiences_in) -> None:
     Returns:
         None
     """
-    st.session_state['experiences'] = []
-    for exp in experiences_in:
-        experience = parse_experience(exp)
-        experience['uuid'] = str(uuid.uuid4())
-        st.session_state['experiences'].append(experience)
+    experiences = []
+    for exp in st.session_state['experiences']:
+        if 'uuid' not in exp:
+            experience = parse_experience(exp)
+            experience['uuid'] = str(uuid.uuid4())
+        else:
+            experience = copy.deepcopy(exp)
+
+        experiences.append(experience)
+    st.session_state['experiences'] = experiences
     with st.expander("Debug: preconditioned experiences"):
-        st.write("experiences: ", st.session_state['experiences'])
+        st.write("experiences: ", experiences)
 
 
 @st.cache_data
@@ -367,7 +372,7 @@ def parse_json(txt_resume: str) -> None:
         skills += value
 
     st.session_state['skills'] = ' | '.join(skills) + ' '
-    st.session_state['experiences_raw'] = st.session_state['resume']['experiences']
+    st.session_state['experiences'] = st.session_state['resume']['experiences']
 
 
 def parse_api_json(reply_json_str: str) -> None:
@@ -384,7 +389,7 @@ def parse_api_json(reply_json_str: str) -> None:
     st.session_state['statement'] = get_statement(st.session_state['resume'])
     skills = get_skills(st.session_state['resume'])
     st.session_state['skills'] = ' | '.join(skills) + ' '
-    st.session_state['experiences_raw'] = get_experiences(
+    st.session_state['experiences'] = get_experiences(
         st.session_state['resume'])
     with st.expander("Debug: Raw input"):
         st.write("resume: ", st.session_state['resume'])
@@ -392,6 +397,8 @@ def parse_api_json(reply_json_str: str) -> None:
         st.write("statement: ", st.session_state['statement'])
     with st.expander("Debug: skills"):
         st.write("Skills: ", st.session_state['skills'])
+    with st.expander("Debug: experiences"):
+        st.write("Experiences: ", st.session_state['experiences'])
 
 
 @st.cache_data(show_spinner=False)
@@ -443,4 +450,4 @@ def parse_resume(txt_resume: str) -> None:
     except Exception as error:
         print(f"Error: {str(error)}")
     finally:
-        parse_expereinces(st.session_state['experiences_raw'])
+        parse_expereinces()
