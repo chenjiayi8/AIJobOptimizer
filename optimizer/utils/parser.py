@@ -4,6 +4,7 @@ and extract information like personal statement, skills and experiences \
 for further use.
 """
 
+import copy
 import datetime
 import json
 import re
@@ -153,7 +154,7 @@ def query_project_title(project_info: str) -> str:
 
 
 @st.cache_data
-def query_project_description(project_name: str) -> str:
+def query_project_description(project: dict) -> str:
     """
     Returns the project description of a given `project_name`.
 
@@ -163,13 +164,17 @@ def query_project_description(project_name: str) -> str:
     Returns:
     str: The extracted project description, surrounded by code tags.
     """
+    # project_str = json.dumps(project, indent=2)
     messages = [
         {"role": "system", "content": SECRETARY_ROLE},
         {"role": "user", "content": "The following is the resume"},
         {"role": "user", "content": st.session_state['txt_resume']},
-        {"role": "user", "content": f"Can you extract the project \
-        description of Project:  {project_name}, between project name and \
-        key contributions?"},
+        {"role": "user", "content": "The following is one project of \
+        the resume:"},
+        {"role": "user", "content": f"Project name/title: {project['title']}"},
+        {"role": "user", "content": "Can you find the project description \
+        from the resume, located between the project name and key \
+        contributions?"},
         {"role": "user", "content": "Please always surround the output \
         with code tags by using the following syntax:"},
         {"role": "user", "content": "<code> Your message here </code>"},
@@ -220,6 +225,53 @@ def query_project_contributions(project_name: str) -> list | None:
     return contributions
 
 
+def parse_project(exp_or_project_in: dict) -> dict:
+    """
+    Parses a project from a given dictionary.
+
+    Parameters:
+    exp_or_project_in (dict): A dictionary containing the project information.
+
+    Returns:
+    dict: A dictionary containing the parsed project with the following keys:
+          'uuid': A randomly generated unique identifier.
+          'title': The project's title.
+          'description': The project's description.
+          'contributions': The project's contributions.
+    """
+    project = {}
+    project['uuid'] = str(uuid.uuid4())
+    # locate project title; in some cases, GPT employs description instead
+    project['title'] = search_field(
+        exp_or_project_in, ['project', 'description', 'title'])
+    project['description'] = search_field(
+        exp_or_project_in, ['project_description', 'project description', 'description'])
+
+    # Check if the value of key 'description' in 'project' is None or \
+    # equal to the value of key 'title' in 'project', and if true, \
+    # call the function 'query_project_description'
+    if project['description'] is None or \
+            project['description'] == project['title']:
+        project['title'] = query_project_title(project['title'])
+        project['description'] = query_project_description(project)
+    project['description'] = project['description'].replace(
+        project['title'], '').strip()
+    project['description'] = project['description'].replace(
+        'Project:', '').strip()
+    project['title'] = project['title'].replace('Project:', '').strip()
+    project['title'] = project['title'].replace(
+        'The project name is ', '').strip()
+    temp_title = extract_by_quotation_mark(project['title'])
+    if temp_title is not None:
+        project['title'] = temp_title
+    project['contributions'] = search_field(
+        exp_or_project_in, ['contributions', 'key_contributions'])
+    if project['contributions'] is None:
+        project['contributions'] = query_project_contributions(
+            project['title'])
+    return project
+
+
 def parse_experience(exp_in: dict) -> dict:
     '''
     Given a dictionary `exp_in` containing information about a work experience,
@@ -263,55 +315,12 @@ def parse_experience(exp_in: dict) -> dict:
 
     exp_out['projects'] = search_field(exp_in, ['projects'])
     if exp_out['projects'] is None:
-        project = {}
-        project['uuid'] = str(uuid.uuid4())
-        # locate project title; in some cases, GPT employs description instead
-        project['title'] = search_field(exp_in, ['project', 'description'])
-        project['description'] = search_field(
-            exp_in, ['project_description', 'project description', 'description'])
-        # Check if the value of key 'description' in 'project' is None or \
-        # equal to the value of key 'title' in 'project', and if true, \
-        # call the function 'query_project_description'
-        if project['description'] is None or \
-                project['description'] == project['title']:
-            project['title'] = query_project_title(project['title'])
-            project['description'] = query_project_description(
-                project['title'])
-
-        project['description'] = project['description'].replace(
-            project['title'], '').strip()
-        project['description'] = project['description'].replace(
-            'Project:', '').strip()
-        project['title'] = project['title'].replace('Project:', '').strip()
-        project['title'] = project['title'].replace(
-            'The project name is ', '').strip()
-        temp_title = extract_by_quotation_mark(project['title'])
-        if temp_title is not None:
-            project['title'] = temp_title
-        project['contributions'] = search_field(
-            exp_in, ['contributions', 'key_contributions'])
-        if project['contributions'] is None:
-            project['contributions'] = query_project_contributions(
-                project['title'])
-
+        project = parse_project(copy.deepcopy(exp_in))
         exp_out['projects'] = [project]
     else:
         for i in range(len(exp_out['projects'])):
-            project_old = exp_out['projects'][i]
-            project = {}
-            project['uuid'] = str(uuid.uuid4())
-            project['title'] = search_field(project_old, ['title', 'project'])
-            project['description'] = search_field(project_old, ['description'])
-            if project['description'] is None:
-                project['description'] = query_project_description(
-                    project['title'])
-
-            project['contributions'] = search_field(
-                project_old, ['key_contributions', 'contributions'])
-            if project['contributions'] is None:
-                project['contributions'] = query_project_contributions(
-                    project_old['title'])
-            exp_out['projects'][i] = project
+            project_old = copy.deepcopy(exp_out['projects'][i])
+            exp_out['projects'][i] = parse_project(project_old)
 
     return exp_out
 
