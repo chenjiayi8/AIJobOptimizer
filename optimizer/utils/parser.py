@@ -78,7 +78,7 @@ def get_skills(resume: dict) -> list | None:
     skills = search_field(resume, candidates)
     if skills is not None:
         return skills
-    return ""
+    return []
 
 
 def get_experiences(resume: dict) -> list | None:
@@ -371,7 +371,7 @@ def parse_json(txt_resume: str) -> None:
     for value in st.session_state['resume']['skills'].values():
         skills += value
 
-    st.session_state['skills'] = ' | '.join(skills) + ' '
+    st.session_state['skills'] = skills
     st.session_state['experiences'] = st.session_state['resume']['experiences']
 
 
@@ -387,8 +387,7 @@ def parse_api_json(reply_json_str: str) -> None:
     """
     st.session_state['resume'] = json.loads(reply_json_str)
     st.session_state['statement'] = get_statement(st.session_state['resume'])
-    skills = get_skills(st.session_state['resume'])
-    st.session_state['skills'] = ' | '.join(skills) + ' '
+    st.session_state['skills'] = get_skills(st.session_state['resume'])
     st.session_state['experiences'] = get_experiences(
         st.session_state['resume'])
     with st.expander("Debug: Raw input"):
