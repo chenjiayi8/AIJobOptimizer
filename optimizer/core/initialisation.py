@@ -34,13 +34,13 @@ def initialise():
 
     # initialise text fields
     text_fields = ['txt_jd', 'txt_resume', 'txt_skills',
-                   'statement', 'skills', 'dl_link']
+                   'statement', 'skills', 'dl_link', 'letter']
 
     for text in text_fields:
         init_state(text, '')
 
     # initialise list fields
-    list_fields = ['experiences']
+    list_fields = ['experiences', 'motivations']
 
     for field in list_fields:
         init_state(field, [])
