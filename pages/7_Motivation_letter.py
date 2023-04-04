@@ -240,27 +240,48 @@ def create_letter():
     Returns:
     None
     """
+    placeholder = """
+    Copy and paste your motivation letter as a template:
+    1. Fill ( then revise paragraphs one by one)
+    2. Revise (the entire letter at once)
+
+    or
+
+    3. Generate a motivation letter based on your expeirences without a template
+    """
+
     st.session_state['letter'] = st.text_area(
         "Your motivation letter",
         st.session_state['letter'],
         height=300,
-        placeholder="Copy and paste your motivation letter as a template"
+        placeholder=placeholder
     )
-    col_analyse, col_words, col_temp, col_generate = st.columns([1, 1, 1, 1])
+    col_fill, \
+        col_words, \
+        col_temp, \
+        col_analyse, \
+        col_generate = st.columns([
+            0.75, 1, 1, 1, 1])
     with col_words:
         words = st.slider('Words', 300, 600, 500)
 
     with col_temp:
         temp = st.slider("Temperature", 0.1, 1.0, 0.8)
 
+    with col_fill:
+        if st.button("Fill", help="Fill your motivation letter to Revise \
+                    paragraphs one by one"):
+            parse_letter()
+            st.experimental_rerun()
+
     with col_analyse:
-        if st.button("Revise"):
+        if st.button("Revise", help="Revise the entire motivation letter at once"):
             st.session_state['letter'] = revise_motivations(words, temp)
             parse_letter()
             st.experimental_rerun()
 
     with col_generate:
-        if st.button("Generate"):
+        if st.button("Generate", help="Generate a motivation letter based on your expeirences"):
             st.session_state['letter'] = generate_motivations(words, temp)
             parse_letter()
             st.experimental_rerun()
@@ -315,13 +336,8 @@ def edit_motivations() -> None:
     if len(st.session_state['motivations']) == 0:
         create_letter()
         return
-    col_append, col_words, col_temp = st.columns([1, 1, 1])
-    with col_append:
-        if st.button("Add motivation"):
-            motivation = {}
-            motivation['uuid'] = str(uuid.uuid4())
-            motivation['content'] = ""
-            st.session_state['motivations'].append(motivation)
+
+    col_words, col_temp = st.columns([1, 1])
 
     with col_words:
         motivation_words = st.slider("Words", 5, 300, 100)
@@ -404,16 +420,17 @@ def export_motivations() -> None:
 
     paragraphs = [m['content'] for m in st.session_state['motivations']]
     letter = '\n\n'.join(paragraphs)
-    bytes_data = write_letter(letter)
-    dl_link = download_button(
-        bytes_data, output_file_name, 'Download motivation letter')
-    st.markdown(
-        f"<h2 style='text-align: center;'>Preview: motivation letter \
-        ({count_words(letter)} words)</h2>", unsafe_allow_html=True)
+    if len(letter) > 10:
+        bytes_data = write_letter(letter)
+        dl_link = download_button(
+            bytes_data, output_file_name, 'Download motivation letter')
+        st.markdown(
+            f"<h2 style='text-align: center;'>Preview: motivation letter \
+            ({count_words(letter)} words)</h2>", unsafe_allow_html=True)
 
-    st.write(letter)
+        st.write(letter)
 
-    st.write(dl_link, unsafe_allow_html=True)
+        st.write(dl_link, unsafe_allow_html=True)
 
 
 edit_motivations()
