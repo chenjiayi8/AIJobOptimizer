@@ -300,6 +300,8 @@ def export_docx() -> None:
         with col_download:
             st.write(st.session_state['dl_link'], unsafe_allow_html=True)
 
+    st.markdown("***")
+
     reset()
     with st.expander("Debug: Raw output"):
         st.write("session_state: ", st.session_state)
