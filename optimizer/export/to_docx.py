@@ -6,7 +6,7 @@ a given template , and replaces placeholders with the corresponding parameters
 from io import BytesIO
 import copy
 from docx import Document
-from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_LINE_SPACING
 from docx.shared import Pt
 import re
 import uuid
@@ -155,6 +155,21 @@ def validate_template(bytes_data, template_fields):
             targets.remove(para.text)
 
     return targets
+
+
+def write_letter(letter, new_font_name='Times New Roman'):
+    doc = Document()
+    para = doc.add_paragraph(letter)
+    para.style.font.size = Pt(12)
+    para.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    paragraph_format = para.paragraph_format
+    paragraph_format.line_spacing_rule = WD_LINE_SPACING.SINGLE
+    for para in doc.paragraphs:
+        set_paragraph_font_name(para, new_font_name)
+    file_stream = BytesIO()
+    doc.save(file_stream)
+    file_stream.seek(0)
+    return file_stream.read()
 
 
 def to_docx(bytes_data, statement, skills_str, experiences,
