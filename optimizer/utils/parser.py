@@ -325,11 +325,11 @@ def parse_experience(exp_in: dict) -> dict:
     return exp_out
 
 
-def parse_expereinces() -> None:
+@st.cache_data
+def parse_expereinces(experiences_in) -> None:
     """
-    Parses the experiences stored in the `st.session_state` dictionary,
-    generates a unique UUID for each experience, and returns a list of
-    experiences as dictionaries.
+    Parses the experiences and generates a unique UUID for each experience, \
+    and returns a list of experiences as dictionaries.
 
     Each experience is parsed using the `parse_experience()` function,
     which should return a dictionary with keys 'title', 'company', \
@@ -338,20 +338,18 @@ def parse_expereinces() -> None:
     The UUID is generated using the `uuid.uuid4()` function and added to
     each experience dictionary with key 'uuid'.
 
-    The parsed experiences are stored back in the `st.session_state` dictionary.
+    The parsed experiences are stored in the `st.session_state` dictionary.
 
     Returns:
-        A list of experiences as dictionaries, with a unique UUID generated
-        for each experience.
+        None
     """
-    experiences = []
-    for exp in st.session_state['experiences']:
+    st.session_state['experiences'] = []
+    for exp in experiences_in:
         experience = parse_experience(exp)
         experience['uuid'] = str(uuid.uuid4())
-        experiences.append(experience)
+        st.session_state['experiences'].append(experience)
     with st.expander("Debug: preconditioned experiences"):
-        st.write("experiences: ", experiences)
-    st.session_state['experiences'] = experiences
+        st.write("experiences: ", st.session_state['experiences'])
 
 
 @st.cache_data
@@ -369,7 +367,7 @@ def parse_json(txt_resume: str) -> None:
         skills += value
 
     st.session_state['skills'] = ' | '.join(skills) + ' '
-    st.session_state['experiences'] = st.session_state['resume']['experiences']
+    st.session_state['experiences_raw'] = st.session_state['resume']['experiences']
 
 
 def parse_api_json(reply_json_str: str) -> None:
@@ -386,7 +384,7 @@ def parse_api_json(reply_json_str: str) -> None:
     st.session_state['statement'] = get_statement(st.session_state['resume'])
     skills = get_skills(st.session_state['resume'])
     st.session_state['skills'] = ' | '.join(skills) + ' '
-    st.session_state['experiences'] = get_experiences(
+    st.session_state['experiences_raw'] = get_experiences(
         st.session_state['resume'])
     with st.expander("Debug: Raw input"):
         st.write("resume: ", st.session_state['resume'])
@@ -445,4 +443,4 @@ def parse_resume(txt_resume: str) -> None:
     except Exception as error:
         print(f"Error: {str(error)}")
     finally:
-        parse_expereinces()
+        parse_expereinces(st.session_state['experiences_raw'])
