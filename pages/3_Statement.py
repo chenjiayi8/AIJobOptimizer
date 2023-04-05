@@ -78,6 +78,7 @@ def generate_statements(words: int = 120, temperature: float = 0.8) -> list:
     """
     txt_jd = st.session_state['txt_jd']
     skills = st.session_state['skills']
+    skills_str = ','.join(skills)
     statement = st.session_state['statement']
     experiences_str = json.dumps(st.session_state['experiences'])
 
@@ -88,7 +89,7 @@ def generate_statements(words: int = 120, temperature: float = 0.8) -> list:
         {"role": "assistant",
             "content":  "Can you tell me about your skills and experiences?"},
         {"role": "user", "content": "I will give you my skills as following:"},
-        {"role": "user", "content": skills},
+        {"role": "user", "content": skills_str},
         {"role": "user", "content": "I will give you my experiences as \
         following:"},
         {"role": "user", "content": experiences_str},
