@@ -10,7 +10,7 @@
       "request": "launch",
       "module": "streamlit",
       "justMyCode": true,
-      "args": ["run", "${file}", "--server.port", "8080"]
+      "args": ["run", "Introduction.py", "--server.port", "8080"]
     }
   ]
 }
