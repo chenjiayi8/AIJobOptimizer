@@ -33,7 +33,7 @@ def parse_skills(reply):
     """
     skills_str = extract_code(reply)
     skills = skills_str.split(',')
-    skills = [skill.strip() for skill in skills]
+    skills = [skill.strip().capitalize() for skill in skills]
     return skills
 
 
@@ -125,8 +125,17 @@ def edit_skills():
     """
     st.markdown("<h2 style='text-align: center;'>Skills</h2>",
                 unsafe_allow_html=True)
-    st.session_state['skills'] = st.text_area(
-        'Core Competencies', st.session_state['skills'], height=200)
+
+    for skill in st.session_state['choosen_skills']:
+        if skill not in st.session_state['skills']:
+            st.session_state['skills'].append(skill)
+    st.session_state['choosen_skills'] = st.multiselect(
+        "Core Competencies:",
+        options=st.session_state['skills'],
+        default=st.session_state['choosen_skills'],
+        key='choosen_skills'
+    )
+
     col_skills_generate_number, \
         col_skills_generate_words, \
         col_skills_generate_temp = st.columns([1, 1, 1])
@@ -148,38 +157,46 @@ def edit_skills():
 
     with col_skills_sort:
         if st.button('Sort skills', help="Sort your skills based on their \
-                    relevance to the job description"):
+                    relevance to the job description", key="sort_skills"):
             st.session_state['btn_sort_skills'] = True
             with st.spinner("Sorting"):
                 reply = sort_skills(
-                    st.session_state['txt_jd'], st.session_state['skills'])
-                st.session_state['sorted_skills'] = parse_skills(reply)
+                    st.session_state['txt_jd'],
+                    st.session_state['choosen_skills']
+                )
+                st.session_state['choosen_skills'] = parse_skills(reply)
+                st.experimental_rerun()
 
     with col_skills_null:
         st.write("")
 
     with col_skills_generate:
         if st.button('Generate skills', help="Generate skills from the job \
-                    description and your experiences"):
+                    description and your experiences", key="generate_skills"):
             reply = generate_skills(skills_number, skills_words, skills_temp)
             st.session_state['new_skills'] = parse_skills(reply)
             st.session_state['btn_generate_skills'] = True
             st.session_state['btn_sort_skills'] = False
 
-    if st.session_state['btn_generate_skills'] and \
-            not st.session_state['btn_sort_skills']:
-        st.write('#### Experience based Core Competencies')
-        st.write(st.session_state['new_skills'])
+    if st.session_state['btn_generate_skills']:
+        new_skills = st.multiselect(
+            "Experience based Core Competencies",
+            st.session_state['new_skills'],
+            st.session_state['new_skills']
+        )
+        if st.button("Add selected skills",
+                     help="Click to add selected new skills",
+                     key="add_new_skills"):
+            for skill in new_skills:
+                if skill not in st.session_state['skills']:
+                    st.session_state['skills'].append(skill)
+                if skill not in st.session_state['choosen_skills']:
+                    st.session_state['choosen_skills'].append(skill)
+                st.session_state['new_skills'].remove(skill)
+            st.experimental_rerun()
 
-    if not st.session_state['btn_generate_skills'] and \
-            st.session_state['btn_sort_skills']:
-        st.write('#### Job description based Core Competencies')
-        st.write(st.session_state['sorted_skills'])
-
-    if st.session_state['btn_generate_skills'] and \
-            st.session_state['btn_sort_skills']:
-        st.write('#### Final Core Competencies')
-        st.write(st.session_state['sorted_skills'])
+    st.write('#### Final Core Competencies:')
+    st.write(f"{' | '.join(st.session_state['choosen_skills'])}")
 
 
 edit_skills()
