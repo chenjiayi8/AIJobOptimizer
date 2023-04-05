@@ -82,7 +82,7 @@ def choose_skills():
     """
     Selects skills to export.
 
-    If sorted_skills are present in the session_state, it will return them. \
+    If choosen_skills are present in the session_state, it will return them. \
     Otherwise, it will return the skills originally stored in the \
     session_state.
 
@@ -92,9 +92,9 @@ def choose_skills():
     Returns:
     string: The skills to export.
     """
-    if 'sorted_skills' in st.session_state:
-        if len(st.session_state['sorted_skills']) > 0:
-            return st.session_state['sorted_skills']
+    if 'choosen_skills' in st.session_state:
+        if len(st.session_state['choosen_skills']) > 0:
+            return st.session_state['choosen_skills']
     return st.session_state['skills']
 
 
@@ -191,6 +191,7 @@ def write_docx(choices: list, options: dict):
         st.session_state['company_role'] = company_role
     statement = choose_statement()
     skills = choose_skills()
+    skills_str = ' | '.join(skills)
     experiences = OrderedDict()  # experiences are ordered
     for choice in choices:
         proj_uuid = options[choice]['proj_uuid']
@@ -220,8 +221,9 @@ def write_docx(choices: list, options: dict):
         output_file_name = f"CV_{company_role}.docx"
     else:
         output_file_name = 'CV_exported.docx'
+
     output_path = to_docx(st.session_state['template']['bytes_data'],
-                          statement, skills, experiences)
+                          statement, skills_str, experiences)
 
     return (output_path, output_file_name)
 
