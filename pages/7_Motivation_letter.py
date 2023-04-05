@@ -37,6 +37,7 @@ def create_motivation(index: int, config: dict) -> str:
     temperature = config['temp']
     txt_jd = st.session_state['txt_jd']
     skills = st.session_state['skills']
+    skills_str = ','.join(skills)
     experiences_str = json.dumps(st.session_state['experiences'])
     previous_letter = ''
     for i in range(index):
@@ -49,7 +50,7 @@ def create_motivation(index: int, config: dict) -> str:
         {"role": "assistant",
             "content":  "Can you tell me about your skills and experiences?"},
         {"role": "user", "content": "I will give you my skills as following:"},
-        {"role": "user", "content": skills},
+        {"role": "user", "content": skills_str},
         {"role": "user", "content": "I will give you my experiences as \
         following:"},
         {"role": "user", "content": experiences_str},
@@ -81,8 +82,8 @@ def revise_motivation(content, config):
     """
     txt_jd = st.session_state['txt_jd']
     skills = st.session_state['skills']
+    skills_str = ','.join(skills)
     experiences_str = json.dumps(st.session_state['experiences'])
-    # paragraph = st.session_state['motivations'][index]
     words = config['words']
     temperature = config['temp']
     messages = [
@@ -92,7 +93,7 @@ def revise_motivation(content, config):
         {"role": "assistant", "content":  "Can you tell me about your skills \
         and experiences?"},
         {"role": "user", "content": "I will give you my skills as following:"},
-        {"role": "user", "content": skills},
+        {"role": "user", "content": skills_str},
         {"role": "user", "content": "I will give you my experiences as \
         following:"},
         {"role": "user", "content": experiences_str},
@@ -100,8 +101,11 @@ def revise_motivation(content, config):
         motivation letter as following:"},
         {"role": "user", "content": content},
         {"role": "user", "content": f"Please revise this paragraph \
-        for me in {words} words, connecting my skills and \
-        experiences with the job description."},
+        of my motivation letter in {words} words, ensuring that it \
+        effectively highlights my relevant experiences and skills in the \
+        context of the position I am applying for. Feel free to make any \
+        necessary changes in terms of structure or tone to make it more \
+        compelling."},
 
     ]
     reply = call_openai_api(MODEL, messages, temperature=temperature)
@@ -142,6 +146,7 @@ def revise_motivations(words: int, temperature: float) -> str:
     """
     txt_jd = st.session_state['txt_jd']
     skills = st.session_state['skills']
+    skills_str = ','.join(skills)
     experiences_str = json.dumps(st.session_state['experiences'])
     letter = st.session_state['letter']
     messages = [
@@ -151,16 +156,19 @@ def revise_motivations(words: int, temperature: float) -> str:
         {"role": "assistant",
             "content":  "Can you tell me about your skills and experiences?"},
         {"role": "user", "content": "I will give you my skills as following:"},
-        {"role": "user", "content": skills},
+        {"role": "user", "content": skills_str},
         {"role": "user", "content": "I will give you my experiences as \
         following:"},
         {"role": "user", "content": experiences_str},
         {"role": "user", "content": "I will give you my motivation letter as \
         following:"},
         {"role": "user", "content": letter},
-        {"role": "user", "content": f"Please revise my motivation letter \
-        for me in {words} words, connecting my skills and \
-        experiences with the job description."},
+        {"role": "user", "content": f"Compose a motivation letter in {words} \
+        words that highlights my unique experiences and skills, demonstrating \
+        how they make me an ideal candidate for the desired position. Be sure \
+        to discuss any relevant educational background, work experiences, \
+        accomplishments, and personal traits that contribute to my passion \
+        for this field."},
 
     ]
     reply = call_openai_api(MODEL, messages, temperature=temperature)
@@ -183,6 +191,7 @@ def generate_motivations(words: int, temperature: float) -> str:
     """
     txt_jd = st.session_state['txt_jd']
     skills = st.session_state['skills']
+    skills_str = ','.join(skills)
     experiences_str = json.dumps(st.session_state['experiences'])
     messages = [
         {"role": "system", "content": SYSTEM_ROLE},
@@ -191,7 +200,7 @@ def generate_motivations(words: int, temperature: float) -> str:
         {"role": "assistant",
             "content":  "Can you tell me about your skills and experiences?"},
         {"role": "user", "content": "I will give you my skills as following:"},
-        {"role": "user", "content": skills},
+        {"role": "user", "content": skills_str},
         {"role": "user", "content": "I will give you my experiences as \
         following:"},
         {"role": "user", "content": experiences_str},
@@ -337,13 +346,19 @@ def edit_motivations() -> None:
         create_letter()
         return
 
-    col_words, col_temp = st.columns([1, 1])
+    col_words, col_temp, col_reset = st.columns([1, 1, 1])
 
     with col_words:
         motivation_words = st.slider("Words", 5, 300, 100)
 
     with col_temp:
         motivation_temp = st.slider("Temperature", 0.1, 1.0, 0.8)
+
+    with col_reset:
+        if st.button("Reset letter"):
+            st.session_state['letter'] = ''
+            st.session_state['motivations'] = []
+            st.experimental_rerun()
 
     config = {}
     config['words'] = motivation_words
@@ -368,6 +383,7 @@ def edit_motivations() -> None:
                 ):
                     motivation['content'] = revise_motivation(
                         motivation['content'], config)
+                    st.experimental_rerun()
                 if st.button(
                     "Insert",
                     key="insert_moti_"+motivation['uuid'],
