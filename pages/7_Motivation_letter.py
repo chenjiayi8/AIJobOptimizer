@@ -10,7 +10,7 @@ import streamlit as st
 
 from optimizer.core.initialisation import initialise
 from optimizer.gpt.api import MODEL, SYSTEM_ROLE, call_openai_api
-from optimizer.export.to_docx import write_letter
+from optimizer.io.docx import write_letter
 from optimizer.utils.download import download_button
 
 st.set_page_config(
