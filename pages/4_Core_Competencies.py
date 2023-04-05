@@ -133,7 +133,7 @@ def edit_skills():
         "Core Competencies:",
         options=st.session_state['skills'],
         default=st.session_state['choosen_skills'],
-        key='choosen_skills'
+        key='choosen_skills_multiselect'
     )
 
     col_skills_generate_number, \
