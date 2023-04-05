@@ -100,8 +100,8 @@ def generate_skills(number: int, words: int, temperature: float = 0.2) -> str:
         {"role": "user", "content": f"From my experiences, can you identify \
         and extract {number} skills which is demanded by the job desription? \
         Each skill is less than {words} words."},
-        {"role": "user", "content": "Please list the skills separated by \
-        commas: skill1, skill2, skill3"},
+        {"role": "user", "content": "Please seperate the skills by commas. \
+        For example: skill1, skill2, skill3"},
         {"role": "user", "content": "Please always surround the output with \
         code tags by using the following syntax:"},
         {"role": "user", "content": "<code> Your message here </code>"},
@@ -195,8 +195,9 @@ def edit_skills():
                 st.session_state['new_skills'].remove(skill)
             st.experimental_rerun()
 
-    st.write('#### Final Core Competencies:')
-    st.write(f"{' | '.join(st.session_state['choosen_skills'])}")
+    if len(st.session_state['choosen_skills']) > 0:
+        st.write('#### Final Core Competencies:')
+        st.write(f"{' | '.join(st.session_state['choosen_skills'])}")
 
 
 edit_skills()
