@@ -122,7 +122,7 @@ def edit_description(project: dict) -> None:
         col_description = st.columns([1, 1, 1])
     with col_description_words:
         description_words = st.slider(
-            "Words", 50, 100, value=60, key='description_words_'+name)
+            "Words", 10, 100, value=60, key='description_words_'+name)
 
     with col_description_temp:
         description_temp = st.slider(
@@ -255,15 +255,15 @@ def edit_contribtions(project):
         col_contributions = st.columns([1.5, 1.5, 1.5, 2])
     with col_contributions_words:
         contributions_words = st.slider(
-            "Words of contributions", 50, 100, value=60,
+            "Words of contributions", 10, 50, value=30,
             key='contributions_words_'+name)
     with col_contributions_number:
         contributions_number = st.slider(
-            "Number of contributions", 4, 8, value=4,
+            "Number of contributions", 2, 8, value=4,
             key='contributions_number_'+name)
     with col_contributions_temp:
         contributions_temperature = st.slider(
-            "Temperature", 0.0, 1.0, value=0.8, key='contributions_temp_'+name)
+            "Temperature", 0.1, 1.0, value=0.8, key='contributions_temp_'+name)
     with col_contributions:
         if st.button('Generate contributions', key='gene_contributions_'+name):
             responses = generate_contributions(

@@ -123,7 +123,7 @@ def edit_statement() -> None:
     col_statement_words, col_statement_temp, col_statement = st.columns([
                                                                         1, 1, 1])
     with col_statement_words:
-        statement_words = st.slider("Words", 50, 300, value=120)
+        statement_words = st.slider("Words", 10, 300, value=120)
     with col_statement_temp:
         statement_temp = st.slider("Temperature", 0.0, 1.0, 0.8)
     with col_statement:

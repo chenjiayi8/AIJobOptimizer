@@ -272,7 +272,7 @@ def create_letter():
         col_generate = st.columns([
             0.75, 1, 1, 1, 1])
     with col_words:
-        words = st.slider('Words', 300, 600, 500)
+        words = st.slider('Words', 200, 800, 500)
 
     with col_temp:
         temp = st.slider("Temperature", 0.1, 1.0, 0.8)
