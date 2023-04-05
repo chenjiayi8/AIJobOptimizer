@@ -372,6 +372,7 @@ def parse_json(txt_resume: str) -> None:
         skills += value
 
     st.session_state['skills'] = skills
+    st.session_state['choosen_skills'] = skills
     st.session_state['experiences'] = st.session_state['resume']['experiences']
 
 
@@ -388,16 +389,9 @@ def parse_api_json(reply_json_str: str) -> None:
     st.session_state['resume'] = json.loads(reply_json_str)
     st.session_state['statement'] = get_statement(st.session_state['resume'])
     st.session_state['skills'] = get_skills(st.session_state['resume'])
+    st.session_state['choosen_skills'] = st.session_state['skills']
     st.session_state['experiences'] = get_experiences(
         st.session_state['resume'])
-    with st.expander("Debug: Raw input"):
-        st.write("resume: ", st.session_state['resume'])
-    with st.expander("Debug: statement"):
-        st.write("statement: ", st.session_state['statement'])
-    with st.expander("Debug: skills"):
-        st.write("Skills: ", st.session_state['skills'])
-    with st.expander("Debug: experiences"):
-        st.write("Experiences: ", st.session_state['experiences'])
 
 
 @st.cache_data(show_spinner=False)
@@ -430,6 +424,23 @@ def analyse_resume(txt_resume: str, temperature: float) -> str:
     return reply_json_str
 
 
+def show_debug_info() -> None:
+    """
+    Displays information about the user's resume, statement, skills, and experiences.
+
+    Displays each piece of information in an expander to make it collapsible.
+    """
+
+    with st.expander("Debug: Raw input"):
+        st.write("resume: ", st.session_state['resume'])
+    with st.expander("Debug: statement"):
+        st.write("statement: ", st.session_state['statement'])
+    with st.expander("Debug: skills"):
+        st.write("Skills: ", st.session_state['skills'])
+    with st.expander("Debug: experiences"):
+        st.write("Experiences: ", st.session_state['experiences'])
+
+
 def parse_resume(txt_resume: str) -> None:
     """
     Caches the result of parsing the provided resume text using JSON \
@@ -450,3 +461,4 @@ def parse_resume(txt_resume: str) -> None:
         print(f"Error: {str(error)}")
     finally:
         parse_expereinces()
+        show_debug_info()
