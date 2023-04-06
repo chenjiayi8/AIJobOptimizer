@@ -87,6 +87,7 @@ def create_project_description(doc, proj):
     para.alignment = WD_PARAGRAPH_ALIGNMENT.LEFT
     para.style.font.size = Pt(11)
     para.paragraph_format.space_after = Pt(0)
+    para.paragraph_format.line_spacing = 1.15
     return para
 
 
@@ -185,6 +186,9 @@ def create_contribution(doc, contribution):
     render_contribution(para, contribution)
     para.alignment = WD_PARAGRAPH_ALIGNMENT.LEFT
     para.style.font.size = Pt(11)
+    para.paragraph_format.space_before = Pt(0)
+    para.paragraph_format.space_after = Pt(0)
+    para.paragraph_format.line_spacing = 1.15
     return para
 
 
@@ -385,8 +389,7 @@ def write_letter(letter, new_font_name='Times New Roman'):
     para = doc.add_paragraph(letter)
     para.style.font.size = Pt(12)
     para.alignment = WD_PARAGRAPH_ALIGNMENT.LEFT
-    paragraph_format = para.paragraph_format
-    paragraph_format.line_spacing_rule = WD_LINE_SPACING.SINGLE
+    para.paragraph_format.line_spacing = 1.15
     for para in doc.paragraphs:
         set_paragraph_font_name(para, new_font_name)
     file_stream = BytesIO()
@@ -418,11 +421,13 @@ def to_docx(bytes_data, statement, skills_str, experiences,
             para.text = statement.strip()
             para.alignment = WD_PARAGRAPH_ALIGNMENT.LEFT
             para.style.font.size = Pt(11)
+            para.paragraph_format.line_spacing = 1.15
 
         if para.text == '{competencies}':
             para.text = skills_str.strip()
             para.alignment = WD_PARAGRAPH_ALIGNMENT.LEFT
             para.style.font.size = Pt(11)
+            para.paragraph_format.line_spacing = 1.15
 
         if para.text == '{experiences}':
             write_experiences(doc, para, experiences)
