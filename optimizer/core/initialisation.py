@@ -54,6 +54,8 @@ def reset():
     then executes ''initialise()'' and ''switch_page(''Job description'')''.
     """
     if st.button("Warning: Reset", help="You will lose all your progress!"):
-        st.session_state = {'txt_resume': st.session_state['txt_resume']}
+        for key in st.session_state:
+            if key != 'txt_resume':
+                del st.session_state[key]
         initialise()
         switch_page('Job description')
