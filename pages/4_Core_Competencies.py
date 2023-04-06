@@ -31,9 +31,11 @@ def parse_skills(reply):
         Returns:
         - skills (list): A list of strings, each representing a parsed skill.
     """
+    def capitalize(skill):
+        return skill[0].capitalize() + skill[1:]
     skills_str = extract_code(reply)
     skills = skills_str.split(',')
-    skills = [skill.strip().capitalize() for skill in skills]
+    skills = [capitalize(skill.strip()) for skill in skills]
     return skills
 
 
