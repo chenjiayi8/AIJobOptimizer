@@ -8,6 +8,7 @@ import copy
 from docx import Document
 from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_LINE_SPACING
 from docx.shared import Pt, Inches
+from simplify_docx import simplify
 import re
 import uuid
 
@@ -211,3 +212,55 @@ def to_docx(bytes_data, statement, skills_str, experiences,
     doc.save(file_stream)
     file_stream.seek(0)
     return file_stream.read()
+
+
+def extract_text_from_docx(doc):
+    """
+    Extracts plain text from a docx file.
+
+    Args:
+        doc: The docx file to extract plain text from.
+
+    Returns:
+        A string containing the plain text extracted from the docx file.
+    """
+    def extract_text(json_obj):
+        text = []
+
+        if isinstance(json_obj, dict):
+            obj_type = json_obj.get("TYPE", "")
+            obj_value = json_obj.get("VALUE", [])
+
+            if obj_type == "text":
+                text.append(obj_value)
+            elif isinstance(obj_value, (list, dict)):
+                text.extend(extract_text(obj_value))
+
+        elif isinstance(json_obj, list):
+            for item in json_obj:
+                text.extend(extract_text(item))
+
+        return text
+
+    json_obj = simplify(doc)
+    result = extract_text(json_obj)
+    text = '\n'.join(result)
+    return text
+
+
+def docx_to_text(bytes_data):
+    """
+    Takes a byte string as input, which represents the binary content of a \
+    docx file.
+    Returns a string that contains the plain text content of the document.
+
+    Parameters:
+    bytes_data (bytes): A byte string that represents the binary content of a \
+    docx file.
+
+    Returns:
+    str: A string that contains the plain text content of the input docx file.
+    """
+    doc = create_docx(bytes_data)
+    result = extract_text_from_docx(doc)
+    return result
