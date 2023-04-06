@@ -25,8 +25,8 @@ template_fields = ['{statement}', '{competencies}', '{experiences}']
 initialise()
 
 
-@st.cache_data(show_spinner=False)
-def query_company_and_role() -> str:
+@st.cache_data()
+def query_company_and_role(txt_jd) -> str:
     """
     Function to query the company and role from a given job description \
     using OpenAI's API.
@@ -41,7 +41,6 @@ def query_company_and_role() -> str:
         The cached data is deleted when the inputs to the function change.
         The spinner is disabled to prevent unnecessary UI clutter.
     """
-    txt_jd = st.session_state['txt_jd']
     messages = [
         {"role": "system", "content": SYSTEM_ROLE},
         {"role": "assistant", "content":  "The job description is following:"},
@@ -171,6 +170,22 @@ def find_experience(experiences, exp_uuid):
             return copy.deepcopy(exp)
 
 
+def get_company_role():
+    """
+    A function that uses the `query_company_and_role()` function to retrieve \
+    the company and role information from the user input stored in the \
+    session state under the key 'txt_jd'. It then extracts the code from \
+    the retrieved information using the `extract_code()` function and returns \
+    it as a string.
+
+    Returns:
+    - str: The extracted code from the retrieved company and role information.
+    """
+    reply = query_company_and_role(st.session_state['txt_jd'])
+    company_role = extract_code(reply)
+    return company_role
+
+
 def write_docx(choices: list, options: dict):
     """
     Generates a Word document containing job seeker's CV given the configured \
@@ -185,10 +200,8 @@ def write_docx(choices: list, options: dict):
     Returns:
         str: Name of the output file if successfully generated, None otherwise.
     """
-    if 'company_role' not in st.session_state:
-        reply = query_company_and_role()
-        company_role = extract_code(reply)
-        st.session_state['company_role'] = company_role
+
+    st.session_state['company_role'] = get_company_role()
     statement = choose_statement()
     skills = choose_skills()
     skills_str = ' | '.join(skills)
@@ -294,11 +307,13 @@ def export_docx() -> None:
     if 'template' in st.session_state:
         doc_bytes, doc_name = write_docx(choices, options)
         st.session_state['dl_link'] = download_button(
-            doc_bytes, doc_name, 'Download resume')
-        col_file, col_download = st.columns([2, 1])
-        with col_file:
-            st.write(
-                f"Your template file: {st.session_state['template']['name']}")
+            doc_bytes, doc_name, 'Download')
+        st.write(
+            f"Current template: __{st.session_state['template']['name']}__")
+        col_resume, col_download = st.columns([2, 1])
+
+        with col_resume:
+            st.write(f"Your resume: __{doc_name}__")
         with col_download:
             st.write(st.session_state['dl_link'], unsafe_allow_html=True)
 
