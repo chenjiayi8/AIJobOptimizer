@@ -85,7 +85,7 @@ def generate_skills(number: int, words: int, temperature: float = 0.2) -> str:
         temperature (float): Controls the randomness and creativity of output.
 
     Returns:
-        reply (str): Extracted skills separated by '|' and enclosed in \
+        reply (str): Extracted skills separated by commas and enclosed in \
         '<code></code>'.
     """
     txt_jd = st.session_state['txt_jd']
@@ -110,6 +110,99 @@ def generate_skills(number: int, words: int, temperature: float = 0.2) -> str:
     return reply
 
 
+def distribute_new_skills():
+    """
+    This function distributes new skills by adding them to the user's master \
+    skills list (`skills`), sorted skills list (`sorted_skills`), and chosen \
+    skills list (`choosen_skills`), for as long as they don't already exist \
+    in those lists. It then removes the new skills from the `new_skills` \
+    list, updates the `max_skills_number` value based on the length of the \
+    `choosen_skills` list.
+
+    Parameters:
+    None
+
+    Returns:
+    None
+
+    """
+    for skill in st.session_state['new_skills']:
+        if skill not in st.session_state['skills']:
+            st.session_state['skills'].append(skill)
+        if skill not in st.session_state['sorted_skills']:
+            st.session_state['sorted_skills'].append(skill)
+        if skill not in st.session_state['choosen_skills']:
+            st.session_state['choosen_skills'].append(skill)
+        st.session_state['new_skills'].remove(skill)
+    st.session_state['max_skills_number'] = len(
+        st.session_state['choosen_skills'])
+
+
+def on_skills_sorted():
+    """
+    This function retrieves the sorted list of skills from the session state \
+    and saves a truncated version of it in the session state. The maximum \
+    number of skills to save is determined by the value stored in the \
+    'max_skills_number' variable of the session state.
+
+    Parameters:
+    None
+
+    Returns:
+    None
+
+    Session State:
+    - 'sorted_skills' (list): The sorted list of skills.
+    - 'max_skills_number' (int): The maximum number of skills to save.
+    - 'choosen_skills' (list): The truncated list of skills that is saved in the session state.
+    """
+    skills = st.session_state['sorted_skills']
+    max_number = st.session_state['max_skills_number']
+    st.session_state['choosen_skills'] = \
+        skills[:max_number] if len(skills) > max_number else skills
+
+
+def on_skills_number_changed():
+    """
+    Updates the list of chosen skills based on the maximum number of skills \
+    allowed.
+
+    If the maximum number of skills allowed is greater than the number of \
+    chosen skills, the skill pool is used (i.e., all sorted skills). \
+    Otherwise, the list of chosen skills is used. The updated list of chosen \
+    skills is stored in session state.
+
+    Args:
+        None
+
+    Returns:
+        None
+    """
+    max_number = st.session_state['max_skills_number']
+    if max_number > len(st.session_state['choosen_skills']):
+        skills = st.session_state['sorted_skills']  # skill pool
+    else:
+        skills = st.session_state['choosen_skills']
+    st.session_state['choosen_skills'] = \
+        skills[:max_number] if len(skills) > max_number else skills
+
+
+def trigger_skills_number_changed():
+    """
+    Updates the maximum number of skills to be displayed and sets the
+    session state 'skills_number_changed' to True.
+
+    Parameters:
+    None
+
+    Returns:
+    None
+    """
+    st.session_state['max_skills_number'] = \
+        st.session_state.max_skills_number_slider
+    st.session_state['skills_number_changed'] = True
+
+
 def edit_skills():
     """
     Method to render a skill-related section on a Streamlit app page. \
@@ -129,19 +222,47 @@ def edit_skills():
     for skill in st.session_state['choosen_skills']:
         if skill not in st.session_state['skills']:
             st.session_state['skills'].append(skill)
+
+    # limit the number of choosen skills
+    if st.session_state['skills_number_changed']:
+        on_skills_number_changed()
+        st.session_state['skills_number_changed'] = False
+        st.experimental_rerun()
+
     st.session_state['choosen_skills'] = st.multiselect(
         "Core Competencies:",
         options=st.session_state['skills'],
         default=st.session_state['choosen_skills'],
         key='choosen_skills_multiselect'
     )
+    if len(st.session_state['skills']) > 0:
+        col_skills_sort, col_max_skills = st.columns([1, 1])
+        with col_skills_sort:
+            if st.button('Sort skills', help="Sort your skills based on their \
+                        relevance to the job description", key="sort_skills"):
+                st.session_state['btn_sort_skills'] = True
+                with st.spinner("Sorting"):
+                    reply = sort_skills(
+                        st.session_state['txt_jd'],
+                        st.session_state['skills']
+                    )
+                    st.session_state['sorted_skills'] = parse_skills(reply)
+                    on_skills_sorted()
+                    st.experimental_rerun()
+
+        with col_max_skills:
+            st.session_state['max_skills_number'] = st.slider(
+                "Total number of skills", 0, len(st.session_state['skills']),
+                value=st.session_state['max_skills_number'],
+                key="max_skills_number_slider",
+                on_change=trigger_skills_number_changed)
 
     col_skills_generate_number, \
         col_skills_generate_words, \
         col_skills_generate_temp = st.columns([1, 1, 1])
     with col_skills_generate_number:
-        skills_number = st.slider(
-            "Number of skills", 3, 10, value=5, key="skills_number")
+        create_skills_number = st.slider(
+            "Number of skills", 3, 10, value=5, key="create_skills_number")
 
     with col_skills_generate_words:
         skills_words = st.slider(
@@ -155,31 +276,21 @@ def edit_skills():
         col_skills_null, \
         col_skills_generate = st.columns([1, 1, 1])
 
-    with col_skills_sort:
-        if st.button('Sort skills', help="Sort your skills based on their \
-                    relevance to the job description", key="sort_skills"):
-            st.session_state['btn_sort_skills'] = True
-            with st.spinner("Sorting"):
-                reply = sort_skills(
-                    st.session_state['txt_jd'],
-                    st.session_state['choosen_skills']
-                )
-                st.session_state['choosen_skills'] = parse_skills(reply)
-                st.experimental_rerun()
-
     with col_skills_null:
         st.write("")
 
     with col_skills_generate:
         if st.button('Generate skills', help="Generate skills from the job \
                     description and your experiences", key="generate_skills"):
-            reply = generate_skills(skills_number, skills_words, skills_temp)
+            reply = generate_skills(
+                create_skills_number, skills_words, skills_temp)
             st.session_state['new_skills'] = parse_skills(reply)
             st.session_state['btn_generate_skills'] = True
             st.session_state['btn_sort_skills'] = False
 
-    if st.session_state['btn_generate_skills']:
-        new_skills = st.multiselect(
+    if st.session_state['btn_generate_skills'] and \
+            len(st.session_state['new_skills']) > 0:
+        st.session_state['new_skills'] = st.multiselect(
             "Experience based Core Competencies",
             st.session_state['new_skills'],
             st.session_state['new_skills']
@@ -187,12 +298,7 @@ def edit_skills():
         if st.button("Add selected skills",
                      help="Click to add selected new skills",
                      key="add_new_skills"):
-            for skill in new_skills:
-                if skill not in st.session_state['skills']:
-                    st.session_state['skills'].append(skill)
-                if skill not in st.session_state['choosen_skills']:
-                    st.session_state['choosen_skills'].append(skill)
-                st.session_state['new_skills'].remove(skill)
+            distribute_new_skills()
             st.experimental_rerun()
 
     if len(st.session_state['choosen_skills']) > 0:

@@ -25,25 +25,31 @@ def initialise():
     None
     """
     # initialise controllers states
-    button_states = ['btn_summary', 'btn_analyse', 'btn_estimate',
-                     'btn_generate_statement', 'btn_sort_skills',
-                     'btn_generate_skills', 'new_statements',
-                     'new_skills']
-    for button in button_states:
-        init_state(button)
+    state_fields = ['btn_summary', 'btn_analyse', 'btn_estimate',
+                    'btn_generate_statement', 'btn_sort_skills',
+                    'btn_generate_skills', 'skills_number_changed']
+    for field in state_fields:
+        init_state(field, False)
 
     # initialise text fields
     text_fields = ['txt_jd', 'txt_resume', 'txt_skills',
                    'statement', 'dl_link', 'letter']
 
-    for text in text_fields:
-        init_state(text, '')
+    for field in text_fields:
+        init_state(field, '')
 
     # initialise list fields
-    list_fields = ['experiences', 'motivations', 'skills', 'choosen_skills']
+    list_fields = ['new_statements', 'new_skills', 'experiences',
+                   'motivations', 'skills', 'sorted_skills', 'choosen_skills']
 
     for field in list_fields:
         init_state(field, [])
+
+    # initialise number fields
+    number_fields = ['max_skills_number']
+
+    for field in number_fields:
+        init_state(field, 0)
 
     custom_layout()
 

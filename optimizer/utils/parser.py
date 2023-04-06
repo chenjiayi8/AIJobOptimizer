@@ -372,7 +372,9 @@ def parse_json(txt_resume: str) -> None:
         skills += value
 
     st.session_state['skills'] = skills
+    st.session_state['sorted_skills'] = skills
     st.session_state['choosen_skills'] = skills
+    st.session_state['max_skills_number'] = len(skills)
     st.session_state['experiences'] = st.session_state['resume']['experiences']
 
 
@@ -388,8 +390,11 @@ def parse_api_json(reply_json_str: str) -> None:
     """
     st.session_state['resume'] = json.loads(reply_json_str)
     st.session_state['statement'] = get_statement(st.session_state['resume'])
-    st.session_state['skills'] = get_skills(st.session_state['resume'])
-    st.session_state['choosen_skills'] = st.session_state['skills']
+    skills = get_skills(st.session_state['resume'])
+    st.session_state['skills'] = skills
+    st.session_state['sorted_skills'] = skills
+    st.session_state['choosen_skills'] = skills
+    st.session_state['max_skills_number'] = len(skills)
     st.session_state['experiences'] = get_experiences(
         st.session_state['resume'])
 
