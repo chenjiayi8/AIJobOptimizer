@@ -100,13 +100,15 @@ def generate_skills(number: int, words: int, temperature: float = 0.2) -> str:
         following:"},
         {"role": "user", "content": experiences_str},
         {"role": "user", "content": f"From my experiences, can you identify \
-        and extract {number} skills which is demanded by the job desription? \
+        and extract {number} skills which are demanded by the job desription? \
         Each skill is less than {words} words."},
-        {"role": "user", "content": "Please seperate the skills by commas. \
-        For example: skill1, skill2, skill3"},
+        {"role": "user", "content": "Can you please list the skills like \
+        skill1, skill2, and skill3 separately using commas instead of 'and' \
+        to join the last two skills, and provide your response in a single \
+        paragraph?"},
         {"role": "user", "content": "Please always surround the output with \
         code tags by using the following syntax:"},
-        {"role": "user", "content": "<code> Your message here </code>"},
+        {"role": "user", "content": "<code>skill1, skill2, skill3</code>"},
     ]
     reply = call_openai_api(MODEL, messages, temperature=temperature)
     return reply
