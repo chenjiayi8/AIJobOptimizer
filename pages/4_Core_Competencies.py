@@ -6,7 +6,7 @@ Functions:
     generate_skills: generate skills based on job description and user experiences
     edit_skills: edit skills using sorting or generating functions
 """
-
+import copy
 import json
 import streamlit as st
 from optimizer.core.initialisation import initialise
@@ -130,14 +130,16 @@ def distribute_new_skills():
     None
 
     """
-    for skill in st.session_state['new_skills']:
+    skills = copy.deepcopy(st.session_state['new_skills'])
+    for skill in skills:
         if skill not in st.session_state['skills']:
             st.session_state['skills'].append(skill)
         if skill not in st.session_state['sorted_skills']:
             st.session_state['sorted_skills'].append(skill)
         if skill not in st.session_state['choosen_skills']:
             st.session_state['choosen_skills'].append(skill)
-        st.session_state['new_skills'].remove(skill)
+
+    st.session_state['new_skills'] = []
     st.session_state['max_skills_number'] = len(
         st.session_state['choosen_skills'])
 
