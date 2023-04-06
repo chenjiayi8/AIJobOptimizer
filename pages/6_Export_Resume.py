@@ -12,7 +12,7 @@ from streamlit.runtime.uploaded_file_manager import UploadedFile
 from optimizer.core.initialisation import initialise, reset
 from optimizer.gpt.api import MODEL, SYSTEM_ROLE, call_openai_api
 from optimizer.utils.extract import extract_code, extract_html_list
-from optimizer.io.docx import to_docx, validate_template
+from optimizer.io.docx_file import to_docx, validate_template
 from optimizer.utils.download import download_button
 
 st.set_page_config(

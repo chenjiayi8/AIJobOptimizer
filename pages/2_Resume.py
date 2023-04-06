@@ -7,6 +7,7 @@ import streamlit as st
 from optimizer.core.initialisation import initialise
 from optimizer.gpt.api import call_openai_api, MODEL, SYSTEM_ROLE
 from optimizer.utils.parser import parse_resume
+from optimizer.io.docx_file import docx_to_text
 
 st.set_page_config(
     page_title="Resume",
@@ -58,6 +59,12 @@ def upload_resume():
     """
     st.markdown("<h2 style='text-align: center;'>Resume</h2>",
                 unsafe_allow_html=True)
+    with st.form("my-form", clear_on_submit=True):
+        uploaded_file = st.file_uploader(
+            "Upload your resume", type='docx')
+        submitted = st.form_submit_button("UPLOAD!")
+    if submitted and uploaded_file is not None:
+        st.session_state['txt_resume'] = docx_to_text(uploaded_file.getvalue())
     st.session_state['txt_resume'] = st.text_area(
         'Your resume',
         st.session_state['txt_resume'],
