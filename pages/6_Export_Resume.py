@@ -72,9 +72,11 @@ def choose_statement() -> str:
     """
     if 'statement_choice' not in st.session_state:
         return st.session_state['statement']
-    statement_choice = st.session_state['statement_choice']
-    statement_index = int(statement_choice.split(' ')[1]) - 1
-    return st.session_state['new_statements'][statement_index]
+    choice = st.session_state['statement_choice']
+    index = int(choice.split(' ')[1]) - 1
+    if index == -1:
+        return st.session_state['statement']
+    return st.session_state['new_statements'][index]
 
 
 def choose_skills():
@@ -119,6 +121,8 @@ def choose_description(project):
                                                    choice_field)):
         return project['description']
     index = int(st.session_state[choice_key].split(' ')[1])-1
+    if index == -1:
+        return project['description']
     return st.session_state[choice_field][index].strip()
 
 
@@ -144,6 +148,8 @@ def choose_contributions(project):
                                                    choice_field)):
         return project['contributions']
     index = int(st.session_state[choice_key].split(' ')[1])-1
+    if index == -1:
+        return project['contributions']
     contributions = st.session_state[choice_field][index].strip(
     )
     if isinstance(contributions, list):
