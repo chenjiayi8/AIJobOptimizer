@@ -388,7 +388,12 @@ def parse_api_json(reply_json_str: str) -> None:
     Returns:
         None
     """
-    st.session_state['resume'] = json.loads(reply_json_str)
+    try:
+        st.session_state['resume'] = json.loads(reply_json_str)
+    except ValueError as error:
+        st.write(f"{error}")
+        st.error(f"Error to parse the reply from GPT:\n{reply_json_str}")
+
     st.session_state['statement'] = get_statement(st.session_state['resume'])
     skills = get_skills(st.session_state['resume'])
     st.session_state['skills'] = skills
@@ -422,7 +427,7 @@ def analyse_resume(txt_resume: str, temperature: float) -> str:
         do it very carefully."},
         {"role": "user", "content": "The following is the resume"},
         {"role": "user", "content": txt_resume},
-        {"role": "user", "content": "Can you give me the information as JSON-like?"},
+        {"role": "user", "content": "Can you extract and provide a JSON string representation of all the information?"},
     ]
     reply = call_openai_api(MODEL, temp_msgs, temperature=temperature)
     reply_json_str = extract_code(reply)
@@ -435,7 +440,8 @@ def show_debug_info() -> None:
 
     Displays each piece of information in an expander to make it collapsible.
     """
-
+    if 'resume' not in st.session_state:
+        return
     with st.expander("Debug: Raw input"):
         st.write("resume: ", st.session_state['resume'])
     with st.expander("Debug: statement"):
