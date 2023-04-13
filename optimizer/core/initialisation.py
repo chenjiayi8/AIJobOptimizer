@@ -40,16 +40,21 @@ def initialise():
 
     # initialise list fields
     list_fields = ['new_statements', 'new_skills', 'experiences',
-                   'motivations', 'skills', 'sorted_skills', 'choosen_skills']
+                   'motivations', 'skills', 'sorted_skills', 'choosen_skills',
+                   'background', 'messages']
 
     for field in list_fields:
         init_state(field, [])
 
-    # initialise number fields
-    number_fields = ['max_skills_number']
-
-    for field in number_fields:
+    # initialise int fields
+    int_fields = ['max_skills_number']
+    for field in int_fields:
         init_state(field, 0)
+
+    # initialise float fields
+    float_fields = ['temperature_message']
+    for field in float_fields:
+        init_state(field, 0.5)
 
     custom_layout()
 
