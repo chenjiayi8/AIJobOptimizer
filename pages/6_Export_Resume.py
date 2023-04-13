@@ -236,11 +236,12 @@ def write_docx(choices: list, options: dict):
     if 'company_role' in st.session_state:
         company_role = st.session_state['company_role']
         company_role = re.sub(r'[^\w_. -]', '_', company_role)
-        company_role = company_role.replace(' ', '_')
+        company_role = company_role.strip().replace(' ', '_')
         output_file_name = f"CV_{company_role}.docx"
     else:
         output_file_name = 'CV_exported.docx'
 
+    st.session_state['experiences_choosen'] = experiences
     output_path = to_docx(st.session_state['template']['bytes_data'],
                           statement, skills_str, experiences)
 
