@@ -35,6 +35,7 @@ def custom_layout() -> None:
         """<style>
         [data-testid="stHorizontalBlock"] {
             align-items: center;
+            vertical-align: middle;
         }
         </style>
         """,
