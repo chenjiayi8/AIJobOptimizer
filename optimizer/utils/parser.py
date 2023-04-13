@@ -427,7 +427,8 @@ def analyse_resume(txt_resume: str, temperature: float) -> str:
         do it very carefully."},
         {"role": "user", "content": "The following is the resume"},
         {"role": "user", "content": txt_resume},
-        {"role": "user", "content": "Can you extract and provide a JSON string representation of all the information?"},
+        {"role": "user", "content": "Can you extract and provide a JSON \
+        string representation of all the information?"},
     ]
     reply = call_openai_api(MODEL, temp_msgs, temperature=temperature)
     reply_json_str = extract_code(reply)
