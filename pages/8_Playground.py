@@ -9,7 +9,7 @@ from optimizer.core.initialisation import initialise
 from optimizer.gpt.api import MODEL, SYSTEM_ROLE, call_openai_api
 
 st.set_page_config(
-    page_title="Playground",
+    page_title="ChatGPT Playground",
     page_icon=":skateboard:",
 )
 
@@ -53,7 +53,7 @@ def init_questions() -> None:
     message is passed to the init_background() function.
     """
 
-    if len(st.session_state['messages']) == 0:
+    if not st.session_state['messages_initalised']:
         st.write("You can ask questions freely or based on selected \
                 background information")
         with st.form("system_role", clear_on_submit=True):
@@ -98,7 +98,7 @@ def get_system_msg(system_role: str) -> dict:
     return system_msg
 
 
-def get_job_description_msg() -> dict:
+def get_job_description_msg() -> dict | None:
     """
     Returns a list containing a single dictionary object. The dictionary \
     object has four key-value pairs: "select" with a value of True, "type" \
@@ -114,10 +114,12 @@ def get_job_description_msg() -> dict:
     None
 
     Returns:
-    jd_msg: dict
+    None or jd_msg: dict
 
 
     """
+    if len(st.session_state['txt_jd']) == 0:
+        return None
     jd_msg = [
         {"select": True, "type": "info", "role": "user",
          "content":
@@ -146,14 +148,17 @@ def choose_skills() -> list:
     return st.session_state['skills']
 
 
-def get_skills_msg() -> dict:
+def get_skills_msg() -> dict | None:
     """
     Returns a list containing a single dictionary object. The dictionary \
     object contains keys "select", "type", "role", and "content" with their \
     corresponding values. The purpose of this function is to generate a \
-    message that informs the user of the current selected skills.
+    message that informs the user of the current selected skills. If the list \
+    is empty, return None
     """
     skills = choose_skills()
+    if len(skills) == 0:
+        return None
     skills_str = ', '.join(skills)
     skills_msg = [
         {"select": True, "type": "info", "role": "user",
@@ -163,26 +168,31 @@ def get_skills_msg() -> dict:
     return skills_msg
 
 
-def choose_experiences() -> dict:
+def choose_experiences() -> dict | list | None:
     """
     Selects experiences as background information.
 
     If experiences_choosen are present in the session_state, it will return \
     them. Otherwise, it will return the experiences originally stored in the \
-    session_state.
+    session_state. Finally if the list of experiences is empty, return None
 
     Parameters:
     None
 
     Returns:
-    A dict of the experiences to select.
+    None or A dict or list of the experiences to select.
     """
+
     if 'experiences_choosen' in st.session_state:
-        return st.session_state['experiences_choosen']
-    return st.session_state['experiences']
+        experiences = st.session_state['experiences_choosen']
+    else:
+        experiences = st.session_state['experiences']
+    if isinstance(experiences, list) and len(experiences) == 0:
+        return None
+    return experiences
 
 
-def get_experiences_msg():
+def get_experiences_msg() -> dict | None:
     """
     Returns a list containing a single dictionary object. The dictionary \
     object contains keys "select", "type", "role", and "content" with their \
@@ -190,6 +200,8 @@ def get_experiences_msg():
     message that informs the user of the current selected experiences.
     """
     experiences = choose_experiences()
+    if experiences is None:
+        return None
     experiences_str = json.dumps(experiences)
     experiences_msg = [
         {"select": True, "type": "info", "role": "user",
@@ -207,6 +219,7 @@ def reset_messages() -> None:
     and allow it to display new ones.
     """
     st.session_state['messages'] = []
+    st.session_state['messages_initalised'] = False
     st.experimental_rerun()
 
 
@@ -225,12 +238,17 @@ def init_background(system_role):
     None
 
     """
+    st.session_state['messages_initalised'] = True
     st.session_state['messages'] = []
     if len(system_role) > 0:
         st.session_state['messages'] += get_system_msg(system_role)
-    st.session_state['messages'] += get_job_description_msg()
-    st.session_state['messages'] += get_skills_msg()
-    st.session_state['messages'] += get_experiences_msg()
+    jd_msg = get_job_description_msg()
+    skills_msg = get_skills_msg()
+    experiences_msg = get_experiences_msg()
+    info_msgs = [jd_msg, skills_msg, experiences_msg]
+    for msg in info_msgs:
+        if msg is not None:
+            st.session_state['messages'] += msg
 
 
 def handle_text_change(index: int) -> None:
@@ -273,7 +291,7 @@ def parse_messages() -> None:
     the middle column (with different formatting for the last message), and \
     a checkbox on the right column.
     """
-    if len(st.session_state['messages']) > 0:
+    if st.session_state['messages_initalised']:
         for index, msg in enumerate(st.session_state['messages']):
             col_left, col_middle, col_right = st.columns([1, 7.5, 1])
             with col_left:
@@ -358,7 +376,7 @@ def append_input() -> None:
     It also adds a slider called "Temperature" with a default range of 0.1 \
     and 1.0 to adjust how "creative" the AI's response is going to be.
     """
-    if len(st.session_state['messages']) > 0:
+    if st.session_state['messages_initalised']:
         with st.form("new_message", clear_on_submit=True):
             new_msg = st.text_area("__Enter your message:__", "",
                                    placeholder="Send a message...")
