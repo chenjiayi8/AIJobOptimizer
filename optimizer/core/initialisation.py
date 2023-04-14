@@ -27,7 +27,7 @@ def initialise():
     # initialise controllers states
     state_fields = ['btn_summary', 'btn_analyse', 'btn_estimate',
                     'btn_generate_statement', 'btn_sort_skills',
-                    'btn_generate_skills', 'skills_number_changed']
+                    'btn_generate_skills', 'skills_number_changed', 'messages_initalised']
     for field in state_fields:
         init_state(field, False)
 
