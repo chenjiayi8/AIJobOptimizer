@@ -18,9 +18,18 @@ initialise()
 COACH_ROLE = SYSTEM_ROLE
 HR_ROLE = "You are a hiring manager. You are shortlisting candidates for a \
 job"
+TRANSLATOR_NL_EN = "You are a translator, who is an expert to translate Dutch \
+    to English. You will translate all my messages to English."
+TRANSLATOR_EN_CN = "You are a translator, who is an expert to translate \
+English to Chinese. You will translate all my messages to Chinese."
+TRANSLATOR_NL_CN = "You are a translator, who is an expert to translate Dutch \
+to Chinese. You will translate all my messages to Chinese."
 ROLES = [
     {"name": "Career coach", "role": COACH_ROLE},
     {"name": "Hiring manger", "role": HR_ROLE},
+    {"name": "NL to CN", "role": TRANSLATOR_NL_CN},
+    {"name": "NL to EN", "role": TRANSLATOR_NL_EN},
+    {"name": "EN to CN", "role": TRANSLATOR_EN_CN},
 ]
 
 
