@@ -9,7 +9,7 @@ from optimizer.core.initialisation import initialise
 from optimizer.gpt.api import MODEL, SYSTEM_ROLE, call_openai_api
 
 st.set_page_config(
-    page_title="ChatGPT Playground",
+    page_title="ChatGPT",
     page_icon=":skateboard:",
 )
 
@@ -52,14 +52,16 @@ def init_questions() -> None:
     information. If a role is selected from the list, the corresponding role \
     message is passed to the init_background() function.
     """
-
+    placeholder = ("1. Write a message to define the role of chatgpt \n"
+                   "2. or leave it empty \n"
+                   "3. or choose a predefined role")
     if not st.session_state['messages_initalised']:
         st.write("You can ask questions freely or based on selected \
                 background information")
         with st.form("system_role", clear_on_submit=True):
-            role = st.text_area(
-                "Define system role", "",
-                placeholder="""1. Write a message to define the role of chatgpt \n2. or leave it empty \n3. or choose a predefined role""")
+            role = st.text_area("Define system role", "",
+                                placeholder=placeholder
+                                )
             col_list = st.columns(len(ROLES)+1)
             with col_list[0]:
                 if st.form_submit_button("Confirm"):
@@ -92,7 +94,7 @@ def get_system_msg(system_role: str) -> dict:
 
     """
     system_msg = [
-        {"select": True, "type": "input", "role": "system",
+        {"select": True, "type": "system", "role": "system",
          "content": system_role},
     ]
     return system_msg
@@ -410,6 +412,33 @@ def append_input() -> None:
             st.experimental_rerun()
 
 
+def get_messages():
+    """
+    Retrieves messages from the st.session_state['messages'] list based on \
+    their type being either "reply" or "input". These messages are then \
+    joined into a string with "\n\n" separators and returned by the function.
+    """
+    messages = []
+    for msg in st.session_state['messages']:
+        if msg['type'] in ['reply', 'input']:
+            messages.append(msg['content'])
+    message_str = '\n\n'.join(messages)
+    return message_str
+
+
+def copy_messages():
+    """
+    This function creates an expander widget in Streamlit, which allows the \
+    user to copy messages to clipboard. The widget expands to display the \
+    messages returned by get_messages() function which are in string format. \
+    The messages are formatted in code-like font and hence can be easily \
+    copied as they are.
+    """
+    with st.expander("Copy messages to clipboard"):
+        message_str = get_messages()
+        st.code(message_str)
+
+
 def custom_questions():
     """
     Adds a section to the Streamlit app with customizable input questions.
@@ -422,11 +451,14 @@ def custom_questions():
     Returns:
     None
     """
-    st.markdown("<h2 style='text-align: center;'>Playground</h2>",
+    st.markdown("<h2 style='text-align: center;'>ChatGPT</h2>",
+                unsafe_allow_html=True)
+    st.markdown(f"<h6 style='text-align: center;'>(Model: {MODEL})</h6>",
                 unsafe_allow_html=True)
     init_questions()
     parse_messages()
     append_input()
+    copy_messages()
 
 
 custom_questions()
