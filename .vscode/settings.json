@@ -1,7 +1,7 @@
 {
   "editor.fontSize": 14,
   "editor.tabSize": 2,
-  "editor.rulers": [80],
+  "editor.rulers": [79],
   "editor.wordWrap": "wordWrapColumn",
   "editor.wordWrapColumn": 79,
   "workbench.colorCustomizations": {
