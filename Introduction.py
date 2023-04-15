@@ -32,7 +32,7 @@ def intro():
         designed to capture employers' attention and increase your \
         success in the job market.
 
-        **👈 Select a page from the dropdown on the left**!
+        **👈 Select a page from the sidebar on the left**!
     """
     )
 
