@@ -5,8 +5,10 @@ based on selected background information
 
 import json
 import streamlit as st
+import streamlit.components.v1 as components
 from optimizer.core.initialisation import initialise
 from optimizer.gpt.api import MODEL, SYSTEM_ROLE, call_openai_api
+from optimizer.utils.copy import copy_button
 
 st.set_page_config(
     page_title="ChatGPT",
@@ -385,8 +387,8 @@ def append_input() -> None:
             col_submit, \
                 col_empty1, \
                 col_temp, \
-                col_empty2, \
-                col_reset = st.columns([1, 0.5, 2, 0.5, 1])
+                col_copy, \
+                col_reset = st.columns([1, 0.5, 2, 1, 1])
             with col_submit:
                 submitted = st.form_submit_button("Send")
             with col_empty1:
@@ -396,8 +398,9 @@ def append_input() -> None:
                     st.slider("Temperature", 0.1, 1.0,
                               st.session_state['temperature_message'])
                 st.write("")
-            with col_empty2:
-                st.write("")
+            with col_copy:
+                my_copy_button = get_copy_button()
+                components.html(my_copy_button, width=100, height=100)
             with col_reset:
                 if st.form_submit_button("Reset", help="Remove all messages"):
                     reset_messages()
@@ -412,11 +415,11 @@ def append_input() -> None:
             st.experimental_rerun()
 
 
-def get_messages():
+def get_messages() -> str:
     """
     Retrieves messages from the st.session_state['messages'] list based on \
     their type being either "reply" or "input". These messages are then \
-    joined into a string with "\n\n" separators and returned by the function.
+    joined into a string with "\\n\\n" separators and returned by the function.
     """
     messages = []
     for msg in st.session_state['messages']:
@@ -426,7 +429,7 @@ def get_messages():
     return message_str
 
 
-def copy_messages():
+def get_copy_button():
     """
     This function creates an expander widget in Streamlit, which allows the \
     user to copy messages to clipboard. The widget expands to display the \
@@ -434,9 +437,11 @@ def copy_messages():
     The messages are formatted in code-like font and hence can be easily \
     copied as they are.
     """
-    with st.expander("Copy messages to clipboard"):
-        message_str = get_messages()
-        st.code(message_str)
+    messages_str = get_messages()
+    my_copy_button = copy_button(
+        messages_str+'\n\n', label='Copy',
+        tips="Copy messages to the clipboard")
+    return my_copy_button
 
 
 def custom_questions():
@@ -458,7 +463,7 @@ def custom_questions():
     init_questions()
     parse_messages()
     append_input()
-    copy_messages()
+    get_copy_button()
 
 
 custom_questions()
