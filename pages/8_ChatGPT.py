@@ -78,7 +78,7 @@ def init_questions() -> None:
                         st.experimental_rerun()
 
 
-def get_system_msg(system_role: str) -> dict:
+def get_system_msg(system_role: str) -> list:
     """
     Takes a system_role parameter. It returns a list of a single dictionary \
     containing 4 key-value pairs: "select" with the value True, "type" with \
@@ -297,12 +297,12 @@ def parse_messages() -> None:
     """
     if st.session_state['messages_initalised']:
         for index, msg in enumerate(st.session_state['messages']):
-            col_left, col_middle, col_right = st.columns([1, 7.5, 1])
+            col_left, col_middle, col_right = st.columns([1, 7, 1])
             with col_left:
                 if msg['type'] == 'info':
                     st.markdown("__Info__")
                 else:
-                    st.markdown(f"__{msg['role']}__")
+                    st.markdown(f"__{msg['role'].capitalize()}:__")
             with col_middle:
                 if index == len(st.session_state['messages']) - 1 and msg['type'] != 'info':
                     st.text_area(msg['role'], msg['content'],
@@ -324,6 +324,37 @@ def parse_messages() -> None:
                     on_change=handle_check_change,
                     args=(index, ),
                     label_visibility="hidden")
+
+
+def style_messages():
+    """
+    sets CSS styling for messages displayed in a Streamlit app.
+    """
+    # style message container with a border and padding
+    st.write(
+        """<style>
+        [data-testid="stHorizontalBlock"] {
+            align-items: center;
+            vertical-align: middle;
+            border: solid;
+            border-width: thin;
+            border-radius: 10px;
+            border-color: rgb(49, 51, 63,0.2);
+            padding: 4px;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
+    # hide the textarea label
+    st.markdown('''
+        <style>
+        div.stTextArea label{
+            display: none
+        }
+        </style>
+    ''', unsafe_allow_html=True)
 
 
 def precondition_msg(msg):
@@ -461,6 +492,7 @@ def custom_questions():
     st.markdown(f"<h6 style='text-align: center;'>(Model: {MODEL})</h6>",
                 unsafe_allow_html=True)
     init_questions()
+    style_messages()
     parse_messages()
     append_input()
     get_copy_button()
