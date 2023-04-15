@@ -17,7 +17,7 @@ import uuid
 import re
 
 
-def copy_button(str_to_copy: str, button_text: str) -> str:
+def copy_button(str_to_copy: str, label: str = "", tips: str = "") -> str:
     """
     Return an HTML string containing code for a copy button and hidden \
     textarea.
@@ -41,10 +41,15 @@ def copy_button(str_to_copy: str, button_text: str) -> str:
     custom_css = f"""
         <style>
             #btn_{button_id} {{
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                font-size: 12px;
+                transform: translate(-50%, -50%);
                 background-color: rgb(255, 255, 255);
                 color: rgb(38, 39, 48);
-                padding: 0.25em 0.38em;
-                position: relative;
+                padding: 8px 14px 8px 14px;
+                margin-top: 5px;
                 text-decoration: none;
                 border-radius: 4px;
                 border-width: 1px;
@@ -64,9 +69,17 @@ def copy_button(str_to_copy: str, button_text: str) -> str:
                 }}
         </style> """
 
+    if len(tips) > 0:
+        button_str = f"""
+                    <button title="{tips}" id="btn_{button_id}">{label}</button>
+                    """
+    else:
+        button_str = f"""
+            <button id="btn_{button_id}">{label}</button>
+            """
     my_copy_button = f"""
         {custom_css}
-        <button id="btn_{button_id}">{button_text}</button>
+        {button_str}
         <textarea id="textarea_{button_id}" style="display:none;">{str_to_copy}</textarea>
         <script>
             document.getElementById("btn_{button_id}").addEventListener("click", function() {{
