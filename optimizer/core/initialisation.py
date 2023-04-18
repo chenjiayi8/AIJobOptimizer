@@ -41,7 +41,7 @@ def initialise():
     # initialise list fields
     list_fields = ['new_statements', 'new_skills', 'experiences',
                    'motivations', 'skills', 'sorted_skills', 'choosen_skills',
-                   'background', 'messages']
+                   'background', 'messages', 'project_choices']
 
     for field in list_fields:
         init_state(field, [])
