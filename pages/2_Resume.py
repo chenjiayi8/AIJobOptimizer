@@ -4,6 +4,7 @@ by calling the OpenAI GPT API.
 """
 
 import streamlit as st
+from st_dropfill_textarea import st_dropfill_textarea
 from optimizer.core.initialisation import initialise
 from optimizer.gpt.api import call_openai_api, MODEL, SYSTEM_ROLE
 from optimizer.utils.parser import parse_resume
@@ -65,8 +66,8 @@ def upload_resume():
         submitted = st.form_submit_button("UPLOAD!")
     if submitted and uploaded_file is not None:
         st.session_state['txt_resume'] = docx_to_text(uploaded_file.getvalue())
-    st.session_state['txt_resume'] = st.text_area(
-        'Your resume',
+    st.session_state['txt_resume'] = st_dropfill_textarea(
+        "Your resume",
         st.session_state['txt_resume'],
         placeholder="Copy and Paste your full resume (max 3 pages)",
         height=300
