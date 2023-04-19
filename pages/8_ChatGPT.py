@@ -4,6 +4,7 @@ based on selected background information
 """
 
 import json
+from st_dropfill_textarea import st_dropfill_textarea
 import streamlit as st
 import streamlit.components.v1 as components
 from optimizer.core.initialisation import initialise
@@ -297,26 +298,35 @@ def parse_messages() -> None:
     """
     if st.session_state['messages_initalised']:
         for index, msg in enumerate(st.session_state['messages']):
-            col_left, col_middle, col_right = st.columns([1, 7, 1])
-            with col_left:
-                if msg['type'] == 'info':
-                    st.markdown("__Info__")
-                else:
-                    st.markdown(f"__{msg['role'].capitalize()}:__")
+            col_middle, col_right = st.columns([8, 1])
+
+            if msg['type'] == 'info':
+                label = "Info: "
+
+            else:
+                label = msg['role'].capitalize() + ': '
             with col_middle:
                 if index == len(st.session_state['messages']) - 1 and msg['type'] != 'info':
-                    st.text_area(msg['role'], msg['content'],
-                                 key=f"msg_{index}",
-                                 height=100+round(len(msg['content'])*0.5),
-                                 on_change=handle_text_change,
-                                 args=(index,),
-                                 label_visibility="hidden")
+                    height = 100+round(len(msg['content'])*0.5)
                 else:
-                    st.text_area(msg['role'], msg['content'],
-                                 key=f"msg_{index}",
-                                 on_change=handle_text_change,
-                                 args=(index,),
-                                 label_visibility="hidden")
+                    height = 200
+
+                msg['content'] = st_dropfill_textarea(
+                    label,
+                    msg['content'],
+                    key=f"msg_{index}",
+                    height=height,
+                    layout="row",
+                    labelWidth=70,
+
+                )
+                # st.text_area(msg['role'], msg['content'],
+                #              key=f"msg_{index}",
+                #              height=height,
+                #              on_change=handle_text_change,
+                #              args=(index,),
+                #              label_visibility="hidden")
+
             with col_right:
                 st.write("# ")
                 st.checkbox(
