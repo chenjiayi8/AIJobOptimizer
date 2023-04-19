@@ -308,7 +308,7 @@ def parse_experience(exp_in: dict) -> dict:
         exp_out['date_range'] = get_date_range(exp_in)
     else:
         exp_out['date_range'] = search_field(
-            exp_in, ['dates', 'date', 'date_range'])
+            exp_in, ['dates', 'date', 'date_range', 'duration'])
     if exp_out['date_range'] is None:
         start_date = search_field(exp_in, ['start_date'])
         end_date = search_field(exp_in, ['end_date'])
