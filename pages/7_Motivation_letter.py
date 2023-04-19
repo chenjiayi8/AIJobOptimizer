@@ -7,7 +7,7 @@ import json
 import uuid
 import re
 import streamlit as st
-
+from st_dropfill_textarea import st_dropfill_textarea
 from optimizer.core.initialisation import initialise
 from optimizer.gpt.api import MODEL, SYSTEM_ROLE, call_openai_api
 from optimizer.io.docx_file import write_letter
@@ -294,22 +294,30 @@ def create_letter():
     None
     """
     placeholder = """
-    Copy and paste your motivation letter as a template:
-    1. Fill ( then revise paragraphs one by one)
-    2. Revise (the entire letter at once)
+    Use a template:
+    1.Upload a template
+    1.1. Drag and drop your motivation letter (docx, txt)
+    1.2. Copy and paste your motivation letter
+    2. Use the template
+    2.1. Button Split: split the letter into different paragraphs
+    2.2. Button Revise: revise the entire letter at once
 
     or
 
-    3. Generate a motivation letter based on your expeirences without a template
+    Without a templrate:
+    Button Generate: generate a motivation letter based on your expeirences
     """
 
-    st.session_state['letter'] = st.text_area(
+    new_letter = st_dropfill_textarea(
         "Your motivation letter",
         st.session_state['letter'],
         height=300,
         placeholder=placeholder
     )
-    col_fill, \
+    if new_letter != st.session_state['letter']:
+        st.session_state['letter'] = new_letter
+        st.experimental_rerun()
+    col_split, \
         col_words, \
         col_temp, \
         col_analyse, \
@@ -321,9 +329,9 @@ def create_letter():
     with col_temp:
         temp = st.slider("Temperature", 0.1, 1.0, 0.8)
 
-    with col_fill:
-        if st.button("Fill", help="Fill your motivation letter to Revise \
-                    paragraphs one by one"):
+    with col_split:
+        if st.button("Split", help="Split your motivation letter into \
+                    individual paragraphs"):
             parse_letter()
             st.experimental_rerun()
 
