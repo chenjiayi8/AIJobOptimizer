@@ -49,6 +49,24 @@ def estimate_match_rate(txt_jd: str, txt_resume: str) -> str:
     return reply
 
 
+def show_debug_info() -> None:
+    """
+    Displays information about the user's resume, statement, skills, and experiences.
+
+    Displays each piece of information in an expander to make it collapsible.
+    """
+    if 'resume' not in st.session_state:
+        return
+    with st.expander("Debug: Raw input"):
+        st.write("resume: ", st.session_state['resume'])
+    with st.expander("Debug: statement"):
+        st.write("statement: ", st.session_state['statement'])
+    with st.expander("Debug: skills"):
+        st.write("Skills: ", st.session_state['skills'])
+    with st.expander("Debug: experiences"):
+        st.write("Experiences: ", st.session_state['experiences'])
+
+
 def upload_resume():
     """
     Takes the resume text from user and parse the text to assign \
@@ -83,7 +101,9 @@ def upload_resume():
 
     with col_analyse:
         if st.button('Analyse', help='Analyse your resume and pre-fill the form'):
-            st.session_state['btn_analyse'] = True
+            with st.spinner('Analysing your resume ...'):
+                parse_resume(st.session_state['txt_resume'])
+                st.session_state['btn_analyse'] = True
 
     with col_empty:
         st.write("")
@@ -93,9 +113,7 @@ def upload_resume():
             st.session_state['btn_estimate'] = True
 
     if st.session_state['btn_analyse']:
-        with st.spinner('Analysing your resume ...'):
-            parse_resume(st.session_state['txt_resume'])
-
+        show_debug_info()
     if st.session_state['btn_estimate']:
         with st.spinner("Estimating the match rate ..."):
             reply = estimate_match_rate(
