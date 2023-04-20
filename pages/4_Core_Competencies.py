@@ -7,7 +7,6 @@ Functions:
     edit_skills: edit skills using sorting or generating functions
 """
 import copy
-import json
 import streamlit as st
 from optimizer.core.initialisation import initialise
 from optimizer.utils.extract import extract_code
@@ -75,7 +74,7 @@ def sort_skills(txt_jd: str, skills: str) -> str:
     return reply
 
 
-def generate_skills(number: int, words: int, temperature: float = 0.2) -> str:
+def generate_skills(number: int, temperature: float = 0.2) -> str:
     """
     This function generates skills from the job description and user \
     experiences.
@@ -91,24 +90,19 @@ def generate_skills(number: int, words: int, temperature: float = 0.2) -> str:
         '<code></code>'.
     """
     txt_jd = st.session_state['txt_jd']
-    experiences_str = json.dumps(st.session_state['experiences'])
     messages = [
         {"role": "system", "content": SYSTEM_ROLE},
         {"role": "assistant", "content":  "The job description is following:"},
         {"role": "assistant", "content":  txt_jd},
-        {"role": "user", "content": "I will give you my experiences as \
-        following:"},
-        {"role": "user", "content": experiences_str},
-        {"role": "user", "content": f"From my experiences, can you identify \
-        and extract {number} skills which are demanded by the job desription? \
-        Each skill is less than {words} words."},
-        {"role": "user", "content": "Can you please list the skills like \
-        skill1, skill2, and skill3 separately using commas instead of 'and' \
-        to join the last two skills, and provide your response in a single \
-        paragraph?"},
+        {"role": "user", "content": f"From the job description, can you \
+        identify {number} specific keywords used by an ATS system?"},
+        {"role": "user", "content": "Can you please list the keywords like \
+        keyword1, keyword2, and keyword3 separately using commas instead of \
+        'and' to join the last two keywords, and provide your response in a \
+        single paragraph?"},
         {"role": "user", "content": "Please always surround the output with \
         code tags by using the following syntax:"},
-        {"role": "user", "content": "<code>skill1, skill2, skill3</code>"},
+        {"role": "user", "content": "<code>keyword1, keyword2, keyword3</code>"},
     ]
     reply = call_openai_api(MODEL, messages, temperature=temperature)
     return reply
@@ -130,7 +124,7 @@ def distribute_new_skills():
     None
 
     """
-    skills = copy.deepcopy(st.session_state['new_skills'])
+    skills = copy.deepcopy(st.session_state['new_skills_select'])
     for skill in skills:
         if skill not in st.session_state['skills']:
             st.session_state['skills'].append(skill)
@@ -140,6 +134,7 @@ def distribute_new_skills():
             st.session_state['choosen_skills'].append(skill)
 
     st.session_state['new_skills'] = []
+    st.session_state['new_skills_select'] = []
     st.session_state['max_skills_number'] = len(
         st.session_state['choosen_skills'])
 
@@ -209,6 +204,34 @@ def trigger_skills_number_changed():
     st.session_state['skills_number_changed'] = True
 
 
+def on_skills_selected_changed(choosen_skills):
+    """
+    This function updates the session state 'choosen_skills' with the \
+    selected skills.
+
+    Parameters:
+    choosen_skills (list): The list of selected skills.
+
+    Returns:
+    None
+    """
+    st.session_state['choosen_skills'] = choosen_skills
+
+
+def on_new_skills_selected(new_skills_selected):
+    """
+    This function updates the session state 'new_skills_select' with the \
+    selected skills.
+
+    Parameters:
+    new_skills_selected (list): The list of selected skills.
+
+    Returns:
+    None
+    """
+    st.session_state['new_skills_select'] = new_skills_selected
+
+
 def edit_skills():
     """
     Method to render a skill-related section on a Streamlit app page. \
@@ -239,13 +262,24 @@ def edit_skills():
         "Core Competencies:",
         options=st.session_state['skills'],
         default=st.session_state['choosen_skills'],
-        key='choosen_skills_multiselect'
+        key='choosen_skills_multiselect',
+        on_change=on_skills_selected_changed,
+        args=(st.session_state['choosen_skills'],)
     )
     if len(st.session_state['skills']) > 0:
-        col_skills_sort, col_max_skills = st.columns([1, 1])
+        col_max_skills, col_skills_sort = st.columns([2, 1])
+
+        with col_max_skills:
+            st.session_state['max_skills_number'] = st.slider(
+                "Total number of skills", 0, len(st.session_state['skills']),
+                value=st.session_state['max_skills_number'],
+                key="max_skills_number_slider",
+                on_change=trigger_skills_number_changed
+            )
+
         with col_skills_sort:
             if st.button('Sort skills', help="Sort your skills based on their \
-                        relevance to the job description", key="sort_skills"):
+                            relevance to the job description", key="sort_skills"):
                 st.session_state['btn_sort_skills'] = True
                 with st.spinner("Sorting"):
                     reply = sort_skills(
@@ -256,52 +290,39 @@ def edit_skills():
                     on_skills_sorted()
                     st.experimental_rerun()
 
-        with col_max_skills:
-            st.session_state['max_skills_number'] = st.slider(
-                "Total number of skills", 0, len(st.session_state['skills']),
-                value=st.session_state['max_skills_number'],
-                key="max_skills_number_slider",
-                on_change=trigger_skills_number_changed)
-
     col_skills_generate_number, \
-        col_skills_generate_words, \
-        col_skills_generate_temp = st.columns([1, 1, 1])
+        col_skills_generate_temp, \
+        col_skills_generate = st.columns([1, 1, 1])
     with col_skills_generate_number:
         create_skills_number = st.slider(
-            "Number of skills", 3, 10, value=5, key="create_skills_number")
-
-    with col_skills_generate_words:
-        skills_words = st.slider(
-            "Words of skill", 3, 10, value=5, key="skills_words")
+            "Number of keywords", 3, 10, value=5, key="create_skills_number")
 
     with col_skills_generate_temp:
         skills_temp = st.slider("Temperature", 0.0, 1.0,
-                                value=0.2, key="skills_temp")
-
-    col_skills_sort, \
-        col_skills_null, \
-        col_skills_generate = st.columns([1, 1, 1])
-
-    with col_skills_null:
-        st.write("")
-
+                                value=0.8, key="skills_temp")
     with col_skills_generate:
-        if st.button('Generate skills', help="Generate skills from the job \
-                    description and your experiences", key="generate_skills"):
+        if st.button('Identify keywords', help="Identify ATS keywords skills \
+                    from the job description and your experiences",
+                     key="generate_skills"):
             reply = generate_skills(
-                create_skills_number, skills_words, skills_temp)
+                create_skills_number, skills_temp)
             st.session_state['new_skills'] = parse_skills(reply)
+            st.session_state['new_skills_select'] = \
+                st.session_state['new_skills']
             st.session_state['btn_generate_skills'] = True
             st.session_state['btn_sort_skills'] = False
 
     if st.session_state['btn_generate_skills'] and \
             len(st.session_state['new_skills']) > 0:
-        st.session_state['new_skills'] = st.multiselect(
-            "Experience based Core Competencies",
+        st.session_state['new_skills_select'] = st.multiselect(
+            "ATS keywords",
             st.session_state['new_skills'],
-            st.session_state['new_skills']
+            default=st.session_state['new_skills_select'],
+            key='new_skills_multiselect',
+            on_change=on_new_skills_selected,
+            args=(st.session_state['new_skills_select'],),
         )
-        if st.button("Add selected skills",
+        if st.button("Add selected keywords",
                      help="Click to add selected new skills",
                      key="add_new_skills"):
             distribute_new_skills()
