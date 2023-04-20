@@ -10,7 +10,10 @@ import streamlit as st
 from dotenv import dotenv_values
 import requests
 
+from optimizer.gpt.token import num_tokens_from_messages
+
 MODEL = "gpt-3.5-turbo"
+TOKEN_LIMIT = 4096
 
 SYSTEM_ROLE = "You are my Career Coach. You will help me revise my resume for a target job."
 
@@ -72,7 +75,10 @@ def call_openai_api(model, messages, temperature=0.1, number_completion=1):
         list or str or None: A list of generated completions, \
             a single generated completion or None if no completion could be generated.
     """
-
+    num_tokens = num_tokens_from_messages(messages, model)
+    if num_tokens > TOKEN_LIMIT*0.9:
+        st.write("### :red[Your input is too long!]")
+        return None
     config = dotenv_values(".env")
     openai_api_key = config['OPENAI_API_KEY']
     url = r"https://api.openai.com/v1/chat/completions"
