@@ -18,17 +18,12 @@ def num_tokens_from_messages(messages: list,
     try:
         encoding = tiktoken.encoding_for_model(model)
     except KeyError:
-        print("Warning: model not found. Using cl100k_base encoding.")
         encoding = tiktoken.get_encoding("cl100k_base")
     if model == "gpt-3.5-turbo":
-        print("Warning: gpt-3.5-turbo may change over time."
-              "Returning num tokens assuming gpt-3.5-turbo-0301.")
         return num_tokens_from_messages(messages, model="gpt-3.5-turbo-0301")
-    elif model == "gpt-4":
-        print("Warning: gpt-4 may change over time. Returning num tokens "
-              "assuming gpt-4-0314.")
+    if model == "gpt-4":
         return num_tokens_from_messages(messages, model="gpt-4-0314")
-    elif model == "gpt-3.5-turbo-0301":
+    if model == "gpt-3.5-turbo-0301":
         # every message follows <|start|>{role/name}\n{content}<|end|>\n
         tokens_per_message = 4
         tokens_per_name = -1  # if there's a name, the role is omitted
@@ -38,9 +33,9 @@ def num_tokens_from_messages(messages: list,
     else:
         raise NotImplementedError(
             f"""num_tokens_from_messages() is not implemented for model \
-            {model}. See https://github.com/openai/openai-python/blob/main/\
-            chatml.md for information on how messages are converted to \
-            tokens.""")
+            {model}. See \
+            https://github.com/openai/openai-python/blob/main/chatml.md \
+            for information on how messages are converted to tokens.""")
     num_tokens = 0
     for message in messages:
         num_tokens += tokens_per_message
