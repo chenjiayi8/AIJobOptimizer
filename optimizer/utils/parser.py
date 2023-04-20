@@ -164,7 +164,6 @@ def query_project_description(project: dict) -> str:
     Returns:
     str: The extracted project description, surrounded by code tags.
     """
-    # project_str = json.dumps(project, indent=2)
     messages = [
         {"role": "system", "content": SECRETARY_ROLE},
         {"role": "user", "content": "The following is the resume"},
@@ -353,8 +352,6 @@ def parse_expereinces() -> None:
 
         experiences.append(experience)
     st.session_state['experiences'] = experiences
-    with st.expander("Debug: preconditioned experiences"):
-        st.write("experiences: ", experiences)
 
 
 # @st.cache_data
@@ -435,24 +432,6 @@ def analyse_resume(txt_resume: str, temperature: float) -> str:
     return reply_json_str
 
 
-def show_debug_info() -> None:
-    """
-    Displays information about the user's resume, statement, skills, and experiences.
-
-    Displays each piece of information in an expander to make it collapsible.
-    """
-    if 'resume' not in st.session_state:
-        return
-    with st.expander("Debug: Raw input"):
-        st.write("resume: ", st.session_state['resume'])
-    with st.expander("Debug: statement"):
-        st.write("statement: ", st.session_state['statement'])
-    with st.expander("Debug: skills"):
-        st.write("Skills: ", st.session_state['skills'])
-    with st.expander("Debug: experiences"):
-        st.write("Experiences: ", st.session_state['experiences'])
-
-
 def parse_resume(txt_resume: str) -> None:
     """
     Caches the result of parsing the provided resume text using JSON \
@@ -473,4 +452,3 @@ def parse_resume(txt_resume: str) -> None:
         print(f"Error: {str(error)}")
     finally:
         parse_expereinces()
-        show_debug_info()
