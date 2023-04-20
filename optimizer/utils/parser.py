@@ -243,7 +243,7 @@ def parse_project(exp_or_project_in: dict) -> dict:
     project['uuid'] = str(uuid.uuid4())
     # locate project title; in some cases, GPT employs description instead
     project['title'] = search_field(
-        exp_or_project_in, ['project', 'description', 'title'])
+        exp_or_project_in, ['title', 'project', 'description'])
     project['description'] = search_field(
         exp_or_project_in, ['project_description', 'project description', 'description'])
 
@@ -357,7 +357,7 @@ def parse_expereinces() -> None:
         st.write("experiences: ", experiences)
 
 
-@st.cache_data
+# @st.cache_data
 def parse_json(txt_resume: str) -> None:
     """
     Parse json str and assign components of resume
