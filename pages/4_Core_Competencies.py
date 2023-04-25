@@ -1,16 +1,13 @@
 """
-This module provides the functions for generating and sorting skills for a job description.
+This page provides the functions for generating and sorting skills for a job description.
 
-Functions:
-    sort_skills: sort skills based on relevance to job description
-    generate_skills: generate skills based on job description and user experiences
-    edit_skills: edit skills using sorting or generating functions
 """
 import copy
 import streamlit as st
 from optimizer.core.initialisation import initialise
+from optimizer.gpt.query import generate_skills, sort_skills
 from optimizer.utils.extract import extract_code
-from optimizer.gpt.api import MODEL, SYSTEM_ROLE, call_openai_api
+
 
 st.set_page_config(
     page_title="Core Competencies",
@@ -36,76 +33,6 @@ def parse_skills(reply):
     skills = skills_str.split(',')
     skills = [capitalize(skill.strip()) for skill in skills]
     return skills
-
-
-@st.cache_data(show_spinner=False)
-def sort_skills(txt_jd: str, skills: str) -> str:
-    """
-    This function takes in two parameters the job description and the user's \
-    skills. It then sends a series of messages to the OpenAI API to rank and \
-    sort the user's skills based on their relevance to the job description.
-
-    Parameters:
-    - txt_jd (str): The job description.
-    - skills (str): A string containing the user's skills.
-
-    Returns:
-    - reply (str): A string containing the sorted user's skills based on \
-    their relevance to the job description.
-    """
-    skills_str = ','.join(skills)
-    messages = [
-        {"role": "system", "content": SYSTEM_ROLE},
-        {"role": "assistant", "content":  "The job description is following:"},
-        {"role": "assistant", "content":  txt_jd},
-        {"role": "user", "content": "I will give you my skills as following:"},
-        {"role": "user", "content": skills_str},
-        {"role": "user", "content": "Please rank my skills in order of \
-        relevance, based on the job description, starting with the most \
-        in-demand skill to the least required."},
-        {"role": "user", "content": "Please remove the duplicated skills"},
-        {"role": "user", "content": "Please list the skills separated by \
-        commas: skill1, skill2, skill3"},
-        {"role": "user", "content": "Please always surround the output with \
-        code tags by using the following syntax:"},
-        {"role": "user", "content": "<code> Your message here </code>"},
-    ]
-    reply = call_openai_api(MODEL, messages, temperature=0.2)
-    return reply
-
-
-def generate_skills(number: int, temperature: float = 0.2) -> str:
-    """
-    This function generates skills from the job description and user \
-    experiences.
-
-    Args:
-        number (int): Number of skills to be extracted from the job \
-        description.
-        words (int): Maximum number of words allowed for each extracted skill.
-        temperature (float): Controls the randomness and creativity of output.
-
-    Returns:
-        reply (str): Extracted skills separated by commas and enclosed in \
-        '<code></code>'.
-    """
-    txt_jd = st.session_state['txt_jd']
-    messages = [
-        {"role": "system", "content": SYSTEM_ROLE},
-        {"role": "assistant", "content":  "The job description is following:"},
-        {"role": "assistant", "content":  txt_jd},
-        {"role": "user", "content": f"From the job description, can you \
-        identify {number} specific keywords used by an ATS system?"},
-        {"role": "user", "content": "Can you please list the keywords like \
-        keyword1, keyword2, and keyword3 separately using commas instead of \
-        'and' to join the last two keywords, and provide your response in a \
-        single paragraph?"},
-        {"role": "user", "content": "Please always surround the output with \
-        code tags by using the following syntax:"},
-        {"role": "user", "content": "<code>keyword1, keyword2, keyword3</code>"},
-    ]
-    reply = call_openai_api(MODEL, messages, temperature=temperature)
-    return reply
 
 
 def distribute_new_skills():
@@ -267,32 +194,9 @@ def edit_skills():
         args=(st.session_state['choosen_skills'],)
     )
     if len(st.session_state['skills']) > 0:
-        col_max_skills, col_skills_sort = st.columns([2, 1])
-
-        with col_max_skills:
-            st.session_state['max_skills_number'] = st.slider(
-                "Total number of skills", 0, len(st.session_state['skills']),
-                value=st.session_state['max_skills_number'],
-                key="max_skills_number_slider",
-                on_change=trigger_skills_number_changed
-            )
-
-        with col_skills_sort:
-            if st.button('Sort skills', help="Sort your skills based on their \
-                            relevance to the job description", key="sort_skills"):
-                st.session_state['btn_sort_skills'] = True
-                with st.spinner("Sorting"):
-                    reply = sort_skills(
-                        st.session_state['txt_jd'],
-                        st.session_state['skills']
-                    )
-                    st.session_state['sorted_skills'] = parse_skills(reply)
-                    on_skills_sorted()
-                    st.experimental_rerun()
-
-    col_skills_generate_number, \
-        col_skills_generate_temp, \
-        col_skills_generate = st.columns([1, 1, 1])
+        col_skills_generate_number, \
+            col_skills_generate_temp, \
+            col_skills_generate = st.columns([1, 1, 1])
     with col_skills_generate_number:
         create_skills_number = st.slider(
             "Number of keywords", 3, 10, value=5, key="create_skills_number")
@@ -327,6 +231,30 @@ def edit_skills():
                      key="add_new_skills"):
             distribute_new_skills()
             st.experimental_rerun()
+
+    col_max_skills, col_skills_sort = st.columns([2, 1])
+
+    with col_max_skills:
+        st.session_state['max_skills_number'] = st.slider(
+            "Total number of skills", 0, len(st.session_state['skills']),
+            value=st.session_state['max_skills_number'],
+            key="max_skills_number_slider",
+            on_change=trigger_skills_number_changed
+        )
+
+    with col_skills_sort:
+        if st.button('Sort skills', help="Sort your skills based on their \
+                        relevance to the job description", key="sort_skills"):
+            st.session_state['btn_sort_skills'] = True
+            with st.spinner("Sorting"):
+                reply = sort_skills(
+                    st.session_state['txt_jd'],
+                    st.session_state['skills'],
+                    skills_temp,
+                )
+                st.session_state['sorted_skills'] = parse_skills(reply)
+                on_skills_sorted()
+                st.experimental_rerun()
 
     if len(st.session_state['choosen_skills']) > 0:
         st.write('#### Final Core Competencies:')

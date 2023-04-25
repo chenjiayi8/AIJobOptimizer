@@ -1,17 +1,15 @@
 """
-This module contains a function to export a resume to a docx file format
-based on user-defined choices. The module imports libraries:
-OrderedDict, copy, re, streamlit, and functions from the optimizer
-package.
+This page contains a function to export a resume to a docx file format
+based on user-defined choices.
 """
 from collections import OrderedDict
-import copy
 import re
 import streamlit as st
 from streamlit.runtime.uploaded_file_manager import UploadedFile
 from optimizer.core.initialisation import initialise, reset
-from optimizer.gpt.api import MODEL, SYSTEM_ROLE, call_openai_api
-from optimizer.utils.extract import extract_code, extract_html_list
+from optimizer.core.resume import choose_contributions, choose_description, \
+    choose_skills, choose_statement, find_experience
+from optimizer.gpt.query import get_company_role
 from optimizer.io.docx_file import to_docx, validate_template
 from optimizer.utils.download import download_button
 
@@ -23,173 +21,6 @@ st.set_page_config(
 template_fields = ['{statement}', '{competencies}', '{experiences}']
 
 initialise()
-
-
-@st.cache_data()
-def query_company_and_role(txt_jd) -> str:
-    """
-    Function to query the company and role from a given job description \
-    using OpenAI's API.
-
-    Returns:
-        - reply (str): A string containing the identified company and role \
-        in the following syntax: {company}_{role}
-
-    Caching:
-        The function is cached using Streamlit's caching mechanism to reduce \
-        API calls.
-        The cached data is deleted when the inputs to the function change.
-        The spinner is disabled to prevent unnecessary UI clutter.
-    """
-    messages = [
-        {"role": "system", "content": SYSTEM_ROLE},
-        {"role": "assistant", "content":  "The job description is following:"},
-        {"role": "assistant", "content":  txt_jd},
-        {"role": "user", "content": "Can you identify the role and the \
-        company from the job description?"},
-        {"role": "user", "content": "Please always surround the output with \
-        code tags by using the following syntax:"},
-        {"role": "user", "content": "<code>{company}_{role}</code>"},
-    ]
-    reply = call_openai_api(MODEL, messages, temperature=0.2)
-    return reply
-
-
-def choose_statement() -> str:
-    """
-    Selects a statement to export.
-
-    If a statement_choice is present in the session_state, this function \
-    will return the corresponding statement from the new_statements list \
-    stored in the session_state. Otherwise, it will return the statement
-    originally stored in the session_state.
-
-    Parameters:
-    None
-
-    Returns:
-    string: The statement to export.
-    """
-    if 'statement_choice' not in st.session_state:
-        return st.session_state['statement']
-    choice = st.session_state['statement_choice']
-    index = int(choice.split(' ')[1]) - 1
-    if index == -1:
-        return st.session_state['statement']
-    return st.session_state['new_statements'][index]
-
-
-def choose_skills():
-    """
-    Selects skills to export.
-
-    If choosen_skills are present in the session_state, it will return them. \
-    Otherwise, it will return the skills originally stored in the \
-    session_state.
-
-    Parameters:
-    None
-
-    Returns:
-    string: The skills to export.
-    """
-    if 'choosen_skills' in st.session_state:
-        if len(st.session_state['choosen_skills']) > 0:
-            return st.session_state['choosen_skills']
-    return st.session_state['skills']
-
-
-def choose_description(project):
-    """
-    Selects a description to export.
-
-    If a description_choice is present in the session_state, this function \
-    will return the corresponding description from the new_descriptions list \
-    stored in the session_state. Otherwise, it will return the description
-    originally stored in the session_state.
-
-    Parameters:
-    None
-
-    Returns:
-    string: The description to export.
-    """
-    choice_key = 'description_choice_'+project['uuid']
-    choice_field = 'new_descriptions_'+project['uuid']
-    # use default description
-    if not all(key in st.session_state for key in (choice_key,
-                                                   choice_field)):
-        return project['description']
-    index = int(st.session_state[choice_key].split(' ')[1])-1
-    if index == -1:
-        return project['description']
-    return st.session_state[choice_field][index].strip()
-
-
-def choose_contributions(project):
-    """
-    Selects contributions to export.
-
-    If a contributions_choice is present in the session_state, this function \
-    will return the corresponding contributions from the new_contributions \
-    list stored in the session_state. Otherwise, it will return the \
-    contributions originally stored in the session_state.
-
-    Parameters:
-    None
-
-    Returns:
-    string: The contributions to export.
-    """
-    choice_key = 'contributions_choice_'+project['uuid']
-    choice_field = 'new_contributions_'+project['uuid']
-    # use default contributions
-    if not all(key in st.session_state for key in (choice_key,
-                                                   choice_field)):
-        return project['contributions']
-    index = int(st.session_state[choice_key].split(' ')[1])-1
-    if index == -1:
-        return project['contributions']
-    contributions = st.session_state[choice_field][index].strip(
-    )
-    if isinstance(contributions, list):
-        return contributions
-    contributions_new = extract_html_list(contributions)
-    return contributions_new
-
-
-def find_experience(experiences, exp_uuid):
-    """
-    Returns the experience dictionary from the given list of experiences \
-    that has the specified UUID.
-
-    Parameters:
-    experiences (list): A list of experience dictionaries.
-    exp_uuid (str): UUID of the experience to be searched.
-
-    Returns:
-    dict: a deep copy of the experience dictionary that has the specified UUID.
-
-    """
-    for exp in experiences:
-        if exp['uuid'] == exp_uuid:
-            return copy.deepcopy(exp)
-
-
-def get_company_role():
-    """
-    A function that uses the `query_company_and_role()` function to retrieve \
-    the company and role information from the user input stored in the \
-    session state under the key 'txt_jd'. It then extracts the code from \
-    the retrieved information using the `extract_code()` function and returns \
-    it as a string.
-
-    Returns:
-    - str: The extracted code from the retrieved company and role information.
-    """
-    reply = query_company_and_role(st.session_state['txt_jd'])
-    company_role = extract_code(reply)
-    return company_role
 
 
 def write_docx(choices: list, options: dict):
@@ -309,7 +140,8 @@ def export_docx() -> None:
     else:
         st.session_state['project_choices'] = \
             st.multiselect('Select relevant projects',
-                           options.keys(), default=st.session_state['project_choices'])
+                           options.keys(),
+                           default=st.session_state['project_choices'])
 
     with st.form("my-form", clear_on_submit=True):
         uploaded_file = st.file_uploader(

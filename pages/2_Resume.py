@@ -1,13 +1,13 @@
 """
-This module contains functions to analyse the resume \
-by calling the OpenAI GPT API.
+This page contains functions to upload a resume and analyse it by calling \
+the OpenAI GPT API.
 """
 
 import json
 import streamlit as st
 from st_dropfill_textarea import st_dropfill_textarea
 from optimizer.core.initialisation import initialise
-from optimizer.gpt.api import call_openai_api, MODEL, SYSTEM_ROLE
+from optimizer.gpt.query import estimate_match_rate
 from optimizer.utils.parser import parse_resume
 from optimizer.io.docx_file import docx_to_text
 
@@ -17,37 +17,6 @@ st.set_page_config(
 )
 
 initialise()
-
-
-@st.cache_data(show_spinner=False)
-def estimate_match_rate(txt_jd: str, txt_resume: str) -> str:
-    """
-    Estimate the match rate between a job description and a resume using OpenAI's GPT-3 API.
-
-    Parameters
-    ----------
-    txt_jd : str
-        The text of the job description.
-    txt_resume : str
-        The text of the resume.
-
-    Returns
-    -------
-    str
-        The estimated match rate between the job description and the resume, as a string.
-
-    """
-    messages = [
-        {"role": "system", "content": SYSTEM_ROLE},
-        {"role": "user", "content":  "The job description is following:"},
-        {"role": "user", "content":  txt_jd},
-        {"role": "user", "content":  "My resume is following:"},
-        {"role": "user", "content":  txt_resume},
-        {"role": "user", "content": "Can you help me estimate the match \
-        rate between my experiences and this job description?"},
-    ]
-    reply = call_openai_api(MODEL, messages, temperature=0.5)
-    return reply
 
 
 def show_debug_info() -> None:
@@ -92,11 +61,12 @@ def upload_resume():
         "Your resume",
         st.session_state['txt_resume'],
         placeholder=placeholder,
-        height=300
+        height=300,
+        key="textarea_resume",
     )
     if new_txt_resume != st.session_state['txt_resume']:
         st.session_state['txt_resume'] = new_txt_resume
-        st.experimental_rerun()
+        # st.experimental_rerun()
 
     col_analyse, col_download, col_estimate = st.columns([1, 1, 1])
 

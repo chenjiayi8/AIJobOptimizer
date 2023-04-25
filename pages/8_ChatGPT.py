@@ -1,14 +1,15 @@
 """
-This module defines a playground to query gpt with question freely or \
+This page defines a playground to query gpt with question freely or \
 based on selected background information
 """
 
-import json
 from st_dropfill_textarea import st_dropfill_textarea
 import streamlit as st
 import streamlit.components.v1 as components
 from optimizer.core.initialisation import initialise
-from optimizer.gpt.api import MODEL, SYSTEM_ROLE, call_openai_api
+from optimizer.gpt.api import MODEL, SYSTEM_ROLE
+from optimizer.gpt.query import get_experiences_msg, get_job_description_msg, \
+    get_skills_msg, get_system_msg, query_gpt
 from optimizer.utils.copy import copy_button
 
 st.set_page_config(
@@ -77,143 +78,6 @@ def init_questions() -> None:
                     if st.form_submit_button(label):
                         init_background(role_msg)
                         st.experimental_rerun()
-
-
-def get_system_msg(system_role: str) -> list:
-    """
-    Takes a system_role parameter. It returns a list of a single dictionary \
-    containing 4 key-value pairs: "select" with the value True, "type" with \
-    the value "input", "role" with the value "system", and "content" with the \
-    value of the system_role parameter. This dictionary represents a system \
-    message that will be added to the message_history list. The purpose of \
-    this message is to inform the user that the system role has been set to \
-    the value of system_role.
-
-    Parameters:
-    system_role: str
-
-    Returns:
-    system_msg: Dict
-
-    """
-    system_msg = [
-        {"select": True, "type": "system", "role": "system",
-         "content": system_role},
-    ]
-    return system_msg
-
-
-def get_job_description_msg() -> dict | None:
-    """
-    Returns a list containing a single dictionary object. The dictionary \
-    object has four key-value pairs: "select" with a value of True, "type" \
-    with a value of "info", "role" with a value of "user", and "content" with \
-    a value that consists of the job description stored in the \
-    st.session_state['txt_jd'] variable formatted into a string preceded by \
-    the text "The job description is follows:". This function can be used to \
-    create a message to inform the user about the job description in a \
-    Streamlit app.
-
-
-    Parameters:
-    None
-
-    Returns:
-    None or jd_msg: dict
-
-
-    """
-    if len(st.session_state['txt_jd']) == 0:
-        return None
-    jd_msg = [
-        {"select": True, "type": "info", "role": "user",
-         "content":
-         f"The job description is follows: \n{st.session_state['txt_jd']}"},
-    ]
-    return jd_msg
-
-
-def choose_skills() -> list:
-    """
-    Selects skills as background information.
-
-    If choosen_skills are present in the session_state, it will return them. \
-    Otherwise, it will return the skills originally stored in the \
-    session_state.
-
-    Parameters:
-    None
-
-    Returns:
-    A list of skills to select.
-    """
-    if 'choosen_skills' in st.session_state:
-        if len(st.session_state['choosen_skills']) > 0:
-            return st.session_state['choosen_skills']
-    return st.session_state['skills']
-
-
-def get_skills_msg() -> dict | None:
-    """
-    Returns a list containing a single dictionary object. The dictionary \
-    object contains keys "select", "type", "role", and "content" with their \
-    corresponding values. The purpose of this function is to generate a \
-    message that informs the user of the current selected skills. If the list \
-    is empty, return None
-    """
-    skills = choose_skills()
-    if len(skills) == 0:
-        return None
-    skills_str = ', '.join(skills)
-    skills_msg = [
-        {"select": True, "type": "info", "role": "user",
-            "content": f"I will give you my skills as follows: \n {skills_str}"
-         },
-    ]
-    return skills_msg
-
-
-def choose_experiences() -> dict | list | None:
-    """
-    Selects experiences as background information.
-
-    If experiences_choosen are present in the session_state, it will return \
-    them. Otherwise, it will return the experiences originally stored in the \
-    session_state. Finally if the list of experiences is empty, return None
-
-    Parameters:
-    None
-
-    Returns:
-    None or A dict or list of the experiences to select.
-    """
-
-    if 'experiences_choosen' in st.session_state:
-        experiences = st.session_state['experiences_choosen']
-    else:
-        experiences = st.session_state['experiences']
-    if isinstance(experiences, list) and len(experiences) == 0:
-        return None
-    return experiences
-
-
-def get_experiences_msg() -> dict | None:
-    """
-    Returns a list containing a single dictionary object. The dictionary \
-    object contains keys "select", "type", "role", and "content" with their \
-    corresponding values. The purpose of this function is to generate a \
-    message that informs the user of the current selected experiences.
-    """
-    experiences = choose_experiences()
-    if experiences is None:
-        return None
-    experiences_str = json.dumps(experiences)
-    experiences_msg = [
-        {"select": True, "type": "info", "role": "user",
-         "content":
-         f"I will give you my experiences as follows: \n{experiences_str}"},
-    ]
-    return experiences_msg
 
 
 def reset_messages() -> None:
@@ -320,12 +184,6 @@ def parse_messages() -> None:
                     labelWidth=70,
 
                 )
-                # st.text_area(msg['role'], msg['content'],
-                #              key=f"msg_{index}",
-                #              height=height,
-                #              on_change=handle_text_change,
-                #              args=(index,),
-                #              label_visibility="hidden")
 
             with col_right:
                 st.write("# ")
@@ -365,51 +223,6 @@ def style_messages():
         }
         </style>
     ''', unsafe_allow_html=True)
-
-
-def precondition_msg(msg):
-    """
-    Iterate over the valid fields, and creates a new dictionary with only the \
-    valid fields from the input msg dictionary, and returns it as output.
-    """
-    valid_fields = ['role', 'content']
-    out = {}
-    for field in valid_fields:
-        out[field] = msg[field]
-    return out
-
-
-def query_gpt(temperature: float) -> None:
-    """
-    Takes a single argument temperature. The function initializes an empty \
-    list called messages. It then iterates over a list called messages \
-    stored in the session state of Streamlit. For each msg in messages, if \
-    the value of msg['select'] evaluates to True, it passes msg to a \
-    function called precondition_msg and appends the result to the messages \
-    list. The function then calls another function called call_openai_api \
-    with arguments 'MODEL', the messages list, and temperature. The returned \
-    value is assigned to a variable called reply. The function then creates a \
-    new dictionary called msg with keys 'select', 'type', 'role' and \
-    'content' and the corresponding values True, 'reply', 'assistant' and \
-    reply respectively. This new dictionary msg is then appended to the \
-    messages list stored in the session state.
-
-    Parameters:
-    temperature (float): The sampling temperature to use when generating \
-    responses.
-
-    Returns:
-    None
-
-    """
-    messages = []
-    for msg in st.session_state['messages']:
-        if msg['select']:
-            messages.append(precondition_msg(msg))
-    reply = call_openai_api(MODEL, messages, temperature=temperature)
-    msg = {'select': True, 'type': 'reply', 'role':
-           'assistant', 'content': reply}
-    st.session_state['messages'].append(msg)
 
 
 def append_input() -> None:

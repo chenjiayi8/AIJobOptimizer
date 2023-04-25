@@ -7,15 +7,11 @@ for further use.
 import copy
 import datetime
 import json
-import re
 import uuid
 import streamlit as st
-from optimizer.gpt.api import MODEL, call_openai_api
-from optimizer.utils.extract import extract_code, extract_by_quotation_mark
-
-
-SECRETARY_ROLE = """You are my secretary. I need you to identify and \
-extract all the information of a resume. You have to do it very carefully."""
+from optimizer.gpt.query import analyse_resume, query_project_contributions,  \
+    query_project_description, query_project_title
+from optimizer.utils.extract import extract_by_quotation_mark
 
 
 def search_field(obj: dict, candidates: list) -> any:
@@ -121,107 +117,6 @@ def get_date_range(exp: dict) -> str:
     str_range = f"{month_start} {exp['start']['year']} - \
                   {month_end} {exp['end']['year']}"
     return str_range
-
-
-@st.cache_data
-def query_project_title(project_info: str) -> str:
-    """
-    This function sends a list of messages to an OpenAI API for processing \
-    and returns the extracted project name from the API response.
-
-    Args:
-    project_info (str): The information about the project that needs to \
-    be queried.
-
-    Returns:
-    str: The extracted project name surrounded with code tags.
-    """
-    messages = [
-        {"role": "system", "content": SECRETARY_ROLE},
-        {"role": "user", "content": "The following is the resume"},
-        {"role": "user", "content": st.session_state['txt_resume']},
-        {"role": "user", "content": f"Can you find the project name with \
-        this infomration: {project_info}?"},
-        {"role": "user", "content": "Please always surround the output \
-        with code tags by using the following syntax:"},
-        {"role": "user", "content": "<code> Your message here </code>"},
-    ]
-    reply = call_openai_api(MODEL, messages, temperature=0.1)
-    result_str = extract_code(reply)
-    if result_str is None:
-        result_str = extract_by_quotation_mark(reply)
-    return result_str
-
-
-@st.cache_data
-def query_project_description(project: dict) -> str:
-    """
-    Returns the project description of a given `project_name`.
-
-    Args:
-    project_name (str): The name of the project to extract the description from.
-
-    Returns:
-    str: The extracted project description, surrounded by code tags.
-    """
-    messages = [
-        {"role": "system", "content": SECRETARY_ROLE},
-        {"role": "user", "content": "The following is the resume"},
-        {"role": "user", "content": st.session_state['txt_resume']},
-        {"role": "user", "content": "The following is one project of \
-        the resume:"},
-        {"role": "user", "content": f"Project name/title: {project['title']}"},
-        {"role": "user", "content": "Can you find the project description \
-        from the resume, located between the project name and key \
-        contributions?"},
-        {"role": "user", "content": "Please always surround the output \
-        with code tags by using the following syntax:"},
-        {"role": "user", "content": "<code> Your message here </code>"},
-    ]
-    reply = call_openai_api(MODEL, messages, temperature=0.1)
-    result_str = extract_code(reply)
-    return result_str
-
-
-@st.cache_data
-def query_project_contributions(project_name: str) -> list | None:
-    """
-    Takes in a project_name and generates a list of key contributions
-    of the project using OpenAI's GPT3 model.
-
-    Parameters:
-    -----------
-    project_name : str
-        The name of the project whose contributions need to be extracted.
-
-    Returns:
-    --------
-    contributions : list of str
-        The list of key contributions of the project. Each string in the
-        list has been stripped of non-alphanumeric characters and whitespaces.
-    """
-    messages = [
-        {"role": "system", "content": SECRETARY_ROLE},
-        {"role": "user", "content": "The following is my resume"},
-        {"role": "user", "content": st.session_state['txt_resume']},
-        {"role": "user", "content": f"Can you extract the key \
-        contributions of Project:  {project_name}?"},
-        {"role": "user", "content": "Please always surround the output \
-        with code tags by using the following syntax:"},
-        {"role": "user", "content": "<code> Your message here </code>"},
-    ]
-    reply = call_openai_api(MODEL, messages, temperature=0.1)
-    result_str = extract_code(reply)
-
-    # assemble contributions list, which contains strings that have \
-    # been stripped of non-alphanumeric characters and whitespace.
-    if result_str is not None:
-        contributions = result_str.strip().split('\n')
-        contributions = [re.sub(r'[^A-Za-z0-9 ]+', '', c)
-                         for c in contributions]
-    else:
-        contributions = []
-    return contributions
 
 
 def parse_project(exp_or_project_in: dict) -> dict:
@@ -399,37 +294,6 @@ def parse_api_json(reply_json_str: str) -> None:
     st.session_state['max_skills_number'] = len(skills)
     st.session_state['experiences'] = get_experiences(
         st.session_state['resume'])
-
-
-@st.cache_data(show_spinner=False)
-def analyse_resume(txt_resume: str, temperature: float) -> str:
-    """Extracts information from a resume using GPT-3.
-
-    Args:
-        txt_resume (str): The text of the resume to analyse.
-        temperature (float): The sampling temperature to use when generating responses.
-
-    Returns:
-        A dictionary-like object that contains the extracted information from the resume.
-
-    Raises:
-        ValueError: If the `txt_resume` argument is an empty string or None.
-        OpenAIAPIError: If the OpenAI API returns an error status code or message.
-    """
-    if txt_resume is None or len(txt_resume) == 0:
-        raise ValueError("Invalid resume")
-    temp_msgs = [
-        {"role": "system", "content": "You are my secretary. I need you to \
-        identify and extract all the information of a resume. You have to \
-        do it very carefully."},
-        {"role": "user", "content": "The following is the resume"},
-        {"role": "user", "content": txt_resume},
-        {"role": "user", "content": "Can you extract and provide a JSON \
-        string representation of all the information?"},
-    ]
-    reply = call_openai_api(MODEL, temp_msgs, temperature=temperature)
-    reply_json_str = extract_code(reply)
-    return reply_json_str
 
 
 def parse_resume(txt_resume: str) -> None:
