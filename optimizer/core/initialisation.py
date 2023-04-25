@@ -47,7 +47,8 @@ def initialise():
         init_state(field, [])
 
     # initialise int fields
-    int_fields = ['max_skills_number']
+    int_fields = ['max_skills_number', 'prompt_tokens',
+                  'completion_tokens', 'total_tokens']
     for field in int_fields:
         init_state(field, 0)
 
