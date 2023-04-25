@@ -340,4 +340,8 @@ def export_docx() -> None:
 export_docx()
 reset()
 with st.expander("Debug: Raw output"):
+    st.write("Usage: ")
+    for field in st.session_state:
+        if 'token' in field:
+            st.write(field, ": ", st.session_state[field])
     st.write("session_state: ", st.session_state)
