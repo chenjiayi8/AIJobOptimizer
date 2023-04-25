@@ -3,6 +3,7 @@ This module contains functions to analyse the resume \
 by calling the OpenAI GPT API.
 """
 
+import json
 import streamlit as st
 from st_dropfill_textarea import st_dropfill_textarea
 from optimizer.core.initialisation import initialise
@@ -97,7 +98,7 @@ def upload_resume():
         st.session_state['txt_resume'] = new_txt_resume
         st.experimental_rerun()
 
-    col_analyse, col_empty, col_estimate = st.columns([1, 2, 1])
+    col_analyse, col_download, col_estimate = st.columns([1, 1, 1])
 
     with col_analyse:
         if st.button('Analyse', help='Analyse your resume and pre-fill the form'):
@@ -105,13 +106,30 @@ def upload_resume():
                 parse_resume(st.session_state['txt_resume'])
                 st.session_state['btn_analyse'] = True
 
-    with col_empty:
-        st.write("")
+    with col_download:
+        if st.session_state['btn_analyse']:
+            help_message = """
+            Download your resume in JSON format to avoid waiting for the \
+            analysis next time.
+            """
+            st.download_button(
+                label="Download",
+                data=json.dumps(st.session_state['resume'], indent=4),
+                file_name="resume.json",
+                mime="application/json",
+                help=help_message
+            )
+        else:
+            st.write("")
 
     with col_estimate:
         if st.button("Estimate", help="Estimate your match rate with the job"):
             st.session_state['btn_estimate'] = True
 
+    help_message = """
+            Download your resume in JSON format to avoid waiting for the \
+            analysis next time.
+    """
     if st.session_state['btn_analyse']:
         show_debug_info()
     if st.session_state['btn_estimate']:
