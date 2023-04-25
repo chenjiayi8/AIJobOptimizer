@@ -92,8 +92,13 @@ def call_openai_api(model, messages, temperature=0.1, number_completion=1):
         "n": number_completion,
     }
     response = requests.post(url, headers=headers,
-                             json=data, timeout=(60, 120))
+                             json=data, timeout=(300, 600))
     response.raise_for_status()
+    response_obj = response.json()
+    for field in ['prompt_tokens',
+                  'completion_tokens', 'total_tokens']:
+        if field in response_obj['usage']:
+            st.session_state[field] += response_obj['usage'][field]
     choices = response.json()['choices']
     replies = []
     for choice in choices:
