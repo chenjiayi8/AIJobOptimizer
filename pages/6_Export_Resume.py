@@ -270,8 +270,8 @@ def create_docx_template(uploaded_file: UploadedFile) -> None:
         st.session_state['template']['name'] = uploaded_file.name
         st.session_state['template']['bytes_data'] = bytes_data
     else:
-        for field in missed_fields:
-            st.error(f"{field} is missing in your template")
+        for missed_field in missed_fields:
+            st.error(f"{missed_field} is missing in your template")
 
 
 def export_docx() -> None:
