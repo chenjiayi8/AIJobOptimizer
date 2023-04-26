@@ -8,6 +8,8 @@ import copy
 import datetime
 import json
 import uuid
+from bs4 import BeautifulSoup
+import requests
 import streamlit as st
 from optimizer.gpt.query import analyse_resume, query_project_contributions,  \
     query_project_description, query_project_title
@@ -316,3 +318,32 @@ def parse_resume(txt_resume: str) -> None:
         print(f"Error: {str(error)}")
     finally:
         parse_expereinces()
+
+
+def parse_linkedin_job_description(page: requests.models.Response) -> str:
+    """
+    Parses the job description from a LinkedIn job posting page.
+
+    Args:
+        page (requests.models.Response): The response object returned by \
+            the `requests.get()` function.
+
+    Returns:
+        str: The job description in json str.
+    """
+    soup = BeautifulSoup(page.content, 'html.parser')
+    if "Not enough credits" in soup.text:
+        st.error("Not enough credits to parse the job description.")
+        return None
+    try:
+        jd_obj = page.json()
+    except json.decoder.JSONDecodeError:
+        st.error("Error to parse the job description.")
+        return None
+    if 'company' in jd_obj and 'title' in jd_obj:
+        company = jd_obj['company']['name']
+        title = jd_obj['title']
+        st.session_state['company_role'] = company + '_' + title
+    scrapped_text = json.dumps(jd_obj, indent=2)
+    scrapped_text = scrapped_text.replace('\\n', '\n')
+    return scrapped_text
