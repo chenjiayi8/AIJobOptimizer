@@ -91,3 +91,26 @@ def extract_html_list(content):
             return match
     print("extract_html_list: ", "find no pattern", content)
     return None
+
+
+def exctract_linkedin_job_id(url):
+    """
+    Extracts the LinkedIn job ID from a job posting URL.
+
+    Args:
+    - url (str): A string containing a LinkedIn job posting URL.
+
+    Returns:
+    - A string containing the LinkedIn job ID, or None if no match is found.
+    """
+    # regular expression to match jobs/view/1234567890
+    pattern1 = r"(?<=jobs/view/)\d+"
+    # regular expression to match currentJobId=1234567890&distance
+    pattern2 = r"(?<=currentJobId=)\d+(?=&)"
+    patterns = [pattern1, pattern2]
+    for pattern in patterns:
+        match = re.findall(pattern, url, flags=re.DOTALL)
+        if len(match) > 0:
+            return match[0]
+
+    return None
