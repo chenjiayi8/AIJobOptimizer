@@ -105,8 +105,8 @@ def exctract_linkedin_job_id(url):
     """
     # regular expression to match jobs/view/1234567890
     pattern1 = r"(?<=jobs/view/)\d+"
-    # regular expression to match currentJobId=1234567890&distance
-    pattern2 = r"(?<=currentJobId=)\d+(?=&)"
+    # regular expression to match currentJobId=1234567890
+    pattern2 = r"(?<=currentJobId=)\d+"
     patterns = [pattern1, pattern2]
     for pattern in patterns:
         match = re.findall(pattern, url, flags=re.DOTALL)
