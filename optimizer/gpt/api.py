@@ -4,56 +4,18 @@ if a specified exception occurs and a function that sends a request to the OpenA
 a completion for the specified model, messages, temperature and n.
 """
 
-import time
-from functools import wraps
+
 import streamlit as st
 from dotenv import dotenv_values
 import requests
 
 from optimizer.gpt.token import num_tokens_from_messages
+from optimizer.utils.web import retry
 
 MODEL = "gpt-3.5-turbo"
 TOKEN_LIMIT = 4096
 
 SYSTEM_ROLE = "You are my Career Coach. You will help me revise my resume for a target job."
-
-
-def retry(exception, tries=5, delay=1, backoff=2, max_delay=120):
-    """
-    Decorator function that retries the wrapped function a specified number of times \
-      if a specified exception occurs.
-
-    Args:
-        exception (Exception): The exception to catch.
-        tries (int, optional): The maximum number of times to retry the function. Defaults to 5.
-        delay (int, optional): The initial delay in seconds between retries. Defaults to 1.
-        backoff (int, optional): The factor by which to increase the delay each retry. \
-            Defaults to 2.
-        max_delay (int, optional): The maximum delay in seconds between retries. Defaults to 120.
-
-    Returns:
-        function: The wrapped function with retry logic.
-    """
-
-    def deco_retry(func):
-        @wraps(func)
-        def f_retry(*args, **kwargs):
-            m_delay = delay
-            num_tries = tries
-            while tries > 1:
-                try:
-                    return func(*args, **kwargs)
-                except exception as error:
-                    with st.empty():
-                        st.write(f"{error}, Retrying in {m_delay} seconds...")
-                        time.sleep(m_delay)
-                        st.write("")
-                    num_tries -= 1
-                    m_delay = min(m_delay * backoff, max_delay)
-            # last attempt
-            return func(*args, **kwargs)
-        return f_retry
-    return deco_retry
 
 
 @retry(requests.exceptions.Timeout, tries=5, delay=1, backoff=2, max_delay=120)
