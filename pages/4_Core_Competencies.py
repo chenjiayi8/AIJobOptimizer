@@ -197,24 +197,24 @@ def edit_skills():
         col_skills_generate_number, \
             col_skills_generate_temp, \
             col_skills_generate = st.columns([1, 1, 1])
-    with col_skills_generate_number:
-        create_skills_number = st.slider(
-            "Number of keywords", 3, 10, value=5, key="create_skills_number")
+        with col_skills_generate_number:
+            create_skills_number = st.slider(
+                "Number of keywords", 3, 10, value=5, key="create_skills_number")
 
-    with col_skills_generate_temp:
-        skills_temp = st.slider("Temperature", 0.0, 1.0,
-                                value=0.8, key="skills_temp")
-    with col_skills_generate:
-        if st.button('Identify keywords', help="Identify ATS keywords skills \
-                    from the job description and your experiences",
-                     key="generate_skills"):
-            reply = generate_skills(
-                create_skills_number, skills_temp)
-            st.session_state['new_skills'] = parse_skills(reply)
-            st.session_state['new_skills_select'] = \
-                st.session_state['new_skills']
-            st.session_state['btn_generate_skills'] = True
-            st.session_state['btn_sort_skills'] = False
+        with col_skills_generate_temp:
+            skills_temp = st.slider("Temperature", 0.0, 1.0,
+                                    value=0.8, key="skills_temp")
+        with col_skills_generate:
+            if st.button('Identify keywords', help="Identify ATS keywords skills \
+                        from the job description and your experiences",
+                         key="generate_skills"):
+                reply = generate_skills(
+                    create_skills_number, skills_temp)
+                st.session_state['new_skills'] = parse_skills(reply)
+                st.session_state['new_skills_select'] = \
+                    st.session_state['new_skills']
+                st.session_state['btn_generate_skills'] = True
+                st.session_state['btn_sort_skills'] = False
 
     if st.session_state['btn_generate_skills'] and \
             len(st.session_state['new_skills']) > 0:
@@ -232,29 +232,30 @@ def edit_skills():
             distribute_new_skills()
             st.experimental_rerun()
 
-    col_max_skills, col_skills_sort = st.columns([2, 1])
+    if len(st.session_state['skills']) > 0:
+        col_max_skills, col_skills_sort = st.columns([2, 1])
 
-    with col_max_skills:
-        st.session_state['max_skills_number'] = st.slider(
-            "Total number of skills", 0, len(st.session_state['skills']),
-            value=st.session_state['max_skills_number'],
-            key="max_skills_number_slider",
-            on_change=trigger_skills_number_changed
-        )
+        with col_max_skills:
+            st.session_state['max_skills_number'] = st.slider(
+                "Total number of skills", 0, len(st.session_state['skills']),
+                value=st.session_state['max_skills_number'],
+                key="max_skills_number_slider",
+                on_change=trigger_skills_number_changed
+            )
 
-    with col_skills_sort:
-        if st.button('Sort skills', help="Sort your skills based on their \
-                        relevance to the job description", key="sort_skills"):
-            st.session_state['btn_sort_skills'] = True
-            with st.spinner("Sorting"):
-                reply = sort_skills(
-                    st.session_state['txt_jd'],
-                    st.session_state['skills'],
-                    skills_temp,
-                )
-                st.session_state['sorted_skills'] = parse_skills(reply)
-                on_skills_sorted()
-                st.experimental_rerun()
+        with col_skills_sort:
+            if st.button('Sort skills', help="Sort your skills based on their \
+                            relevance to the job description", key="sort_skills"):
+                st.session_state['btn_sort_skills'] = True
+                with st.spinner("Sorting"):
+                    reply = sort_skills(
+                        st.session_state['txt_jd'],
+                        st.session_state['skills'],
+                        skills_temp,
+                    )
+                    st.session_state['sorted_skills'] = parse_skills(reply)
+                    on_skills_sorted()
+                    st.experimental_rerun()
 
     if len(st.session_state['choosen_skills']) > 0:
         st.write('#### Final Core Competencies:')
