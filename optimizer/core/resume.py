@@ -11,6 +11,15 @@ import streamlit as st
 from optimizer.utils.extract import extract_code, extract_html_list
 
 
+def choose_job_description() -> str:
+    """
+    Selects a job description to export.
+    """
+    if len(st.session_state['job_analysed']) > 0:
+        return st.session_state['job_analysed']
+    return st.session_state['txt_jd']
+
+
 def parse_statements(replies: list) -> list:
     """
     Given a list of replies, extracts the code from each reply and \
@@ -74,7 +83,7 @@ def choose_skills():
     return st.session_state['skills']
 
 
-def choose_description(project):
+def choose_project_description(project):
     """
     Selects a description to export.
 

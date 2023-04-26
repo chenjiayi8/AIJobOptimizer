@@ -33,7 +33,7 @@ def initialise():
 
     # initialise text fields
     text_fields = ['txt_jd', 'txt_resume', 'txt_skills',
-                   'statement', 'dl_link', 'letter']
+                   'statement', 'dl_link', 'letter', 'job_analysed']
 
     for field in text_fields:
         init_state(field, '')
