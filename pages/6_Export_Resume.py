@@ -7,8 +7,9 @@ import re
 import streamlit as st
 from streamlit.runtime.uploaded_file_manager import UploadedFile
 from optimizer.core.initialisation import initialise, reset
-from optimizer.core.resume import choose_contributions, choose_description, \
-    choose_skills, choose_statement, find_experience
+from optimizer.core.resume import choose_contributions, \
+    choose_project_description, choose_skills, choose_statement, \
+    find_experience
 from optimizer.gpt.query import get_company_role
 from optimizer.io.docx_file import to_docx, validate_template
 from optimizer.utils.download import download_button
@@ -61,7 +62,7 @@ def write_docx(choices: list, options: dict):
 
     for key, exp in experiences.items():
         for project in exp['projects']:
-            project['description'] = choose_description(project)
+            project['description'] = choose_project_description(project)
             project['contributions'] = choose_contributions(project)
 
     if 'company_role' in st.session_state:
