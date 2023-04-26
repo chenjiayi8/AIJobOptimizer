@@ -50,11 +50,12 @@ def job_description():
                     st.error("The URL is not valid. Please try again.")
                     st.stop()
 
-            job_analysed = summary_job_description(st.session_state['txt_jd'])
+            st.session_state['job_analysed'] = summary_job_description(
+                st.session_state['txt_jd'])
             if 'company_role' not in st.session_state:
                 st.session_state['company_role'] = get_company_role()
         st.markdown(f"__Position:__ {st.session_state['company_role'] }")
-        st.markdown(f"__Summary:__ {job_analysed}")
+        st.markdown(f"__Summary:__ {st.session_state['job_analysed']}")
 
 
 job_description()
