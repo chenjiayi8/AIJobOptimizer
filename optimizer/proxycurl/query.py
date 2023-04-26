@@ -23,5 +23,4 @@ def scrap_job_description(url):
         return None
     page = call_proxycurl_api(job_id)
     scrapped_text = parse_linkedin_job_description(page)
-    scrapped_text = scrapped_text.replace('\\n', '\n')
     return scrapped_text
