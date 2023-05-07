@@ -7,7 +7,7 @@ from st_dropfill_textarea import st_dropfill_textarea
 import streamlit as st
 import streamlit.components.v1 as components
 from optimizer.core.initialisation import initialise
-from optimizer.gpt.api import MODEL, SYSTEM_ROLE
+from optimizer.gpt.api import MODELS, SYSTEM_ROLE
 from optimizer.gpt.query import get_experiences_msg, get_job_description_msg, \
     get_skills_msg, get_system_msg, query_gpt
 from optimizer.utils.copy import copy_button
@@ -310,10 +310,10 @@ def custom_questions():
     Returns:
     None
     """
-    st.markdown("<h2 style='text-align: center;'>ChatGPT</h2>",
-                unsafe_allow_html=True)
-    st.markdown(f"<h6 style='text-align: center;'>(Model: {MODEL})</h6>",
-                unsafe_allow_html=True)
+    st.session_state['MODEL'] = st.selectbox(
+        "ChatGPT Model: ", MODELS, MODELS.index(st.session_state['MODEL']),
+        help="Select a model to use for the chatbot, which is also used by \
+        previous pages")
     init_questions()
     style_messages()
     parse_messages()
