@@ -5,6 +5,7 @@ session state and text fields.
 
 import streamlit as st
 from streamlit_extras.switch_page_button import switch_page
+from optimizer.gpt.api import MODELS
 from optimizer.utils.format import custom_layout
 
 
@@ -57,6 +58,8 @@ def initialise():
     for field in float_fields:
         init_state(field, 0.5)
 
+    # initialise GPT MODEL
+    init_state('MODEL', MODELS[0])
     custom_layout()
 
 
