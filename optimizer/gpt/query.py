@@ -7,7 +7,7 @@ import json
 import re
 import streamlit as st
 from optimizer.core.resume import choose_experiences, choose_job_description, choose_skills
-from optimizer.gpt.api import MODEL, SYSTEM_ROLE, call_openai_api
+from optimizer.gpt.api import SYSTEM_ROLE, call_openai_api
 from optimizer.utils.extract import extract_by_quotation_mark, extract_code
 
 
@@ -41,7 +41,7 @@ def query_company_and_role(txt_jd) -> str:
         code tags by using the following syntax:"},
         {"role": "user", "content": "<code>{company}_{role}</code>"},
     ]
-    reply = call_openai_api(MODEL, messages, temperature=0.2)
+    reply = call_openai_api(messages, temperature=0.2)
     return reply
 
 
@@ -84,7 +84,7 @@ def query_project_title(project_info: str) -> str:
         with code tags by using the following syntax:"},
         {"role": "user", "content": "<code> Your message here </code>"},
     ]
-    reply = call_openai_api(MODEL, messages, temperature=0.1)
+    reply = call_openai_api(messages, temperature=0.1)
     result_str = extract_code(reply)
     if result_str is None:
         result_str = extract_by_quotation_mark(reply)
@@ -116,7 +116,7 @@ def query_project_description(project: dict) -> str:
         with code tags by using the following syntax:"},
         {"role": "user", "content": "<code> Your message here </code>"},
     ]
-    reply = call_openai_api(MODEL, messages, temperature=0.1)
+    reply = call_openai_api(messages, temperature=0.1)
     result_str = extract_code(reply)
     return result_str
 
@@ -125,7 +125,7 @@ def query_project_description(project: dict) -> str:
 def query_project_contributions(project_name: str) -> list | None:
     """
     Takes in a project_name and generates a list of key contributions
-    of the project using OpenAI's GPT3 model.
+    of the project using OpenAI's GPT model.
 
     Parameters:
     -----------
@@ -148,7 +148,7 @@ def query_project_contributions(project_name: str) -> list | None:
         with code tags by using the following syntax:"},
         {"role": "user", "content": "<code> Your message here </code>"},
     ]
-    reply = call_openai_api(MODEL, messages, temperature=0.1)
+    reply = call_openai_api(messages, temperature=0.1)
     result_str = extract_code(reply)
 
     # assemble contributions list, which contains strings that have \
@@ -164,7 +164,7 @@ def query_project_contributions(project_name: str) -> list | None:
 
 @st.cache_data(show_spinner=False)
 def analyse_resume(txt_resume: str, temperature: float) -> str:
-    """Extracts information from a resume using GPT-3.
+    """Extracts information from a resume using GPT.
 
     Args:
         txt_resume (str): The text of the resume to analyse.
@@ -185,10 +185,13 @@ def analyse_resume(txt_resume: str, temperature: float) -> str:
         do it very carefully."},
         {"role": "user", "content": "The following is the resume"},
         {"role": "user", "content": txt_resume},
-        {"role": "user", "content": "Can you extract and provide a JSON \
-        string representation of all the information?"},
+        {"role": "user", "content": "Can you provide me with a valid JSON \
+        string that contains all the complete information?"},
+        {"role": "user", "content": "Please always surround the output \
+        with code tags by using the following syntax:"},
+        {"role": "user", "content": "<code> Your message here </code>"},
     ]
-    reply = call_openai_api(MODEL, temp_msgs, temperature=temperature)
+    reply = call_openai_api(temp_msgs, temperature=temperature)
     reply_json_str = extract_code(reply)
     return reply_json_str
 
@@ -232,7 +235,7 @@ def query_gpt(temperature: float) -> None:
     for msg in st.session_state['messages']:
         if msg['select']:
             messages.append(precondition_msg(msg))
-    reply = call_openai_api(MODEL, messages, temperature=temperature)
+    reply = call_openai_api(messages, temperature=temperature)
     msg = {'select': True, 'type': 'reply', 'role':
            'assistant', 'content': reply}
     st.session_state['messages'].append(msg)
@@ -257,14 +260,14 @@ def summary_job_description(txt_jd):
         {"role": "user", "content": "<code> Your message here </code>"},
 
     ]
-    reply = call_openai_api(MODEL, messages, temperature=0.8)
+    reply = call_openai_api(messages, temperature=0.8)
     return extract_code(reply)
 
 
 @st.cache_data(show_spinner=False)
 def estimate_match_rate(txt_jd: str, txt_resume: str) -> str:
     """
-    Estimate the match rate between a job description and a resume using OpenAI's GPT-3 API.
+    Estimate the match rate between a job description and a resume using OpenAI's GPT API.
 
     Parameters
     ----------
@@ -288,7 +291,7 @@ def estimate_match_rate(txt_jd: str, txt_resume: str) -> str:
         {"role": "user", "content": "Can you help me estimate the match \
         rate between my experiences and this job description?"},
     ]
-    reply = call_openai_api(MODEL, messages, temperature=0.5)
+    reply = call_openai_api(messages, temperature=0.5)
     return reply
 
 
@@ -333,7 +336,7 @@ def generate_statements(words: int = 120, temperature: float = 0.8) -> list:
         with code tags by using the following syntax:"},
         {"role": "user", "content": "<code> Your message here </code>"},
     ]
-    replies = call_openai_api(MODEL, messages, temperature=temperature,
+    replies = call_openai_api(messages, temperature=temperature,
                               number_completion=3)
     return replies
 
@@ -371,7 +374,7 @@ def sort_skills(txt_jd: str, skills: str, temperature: float) -> str:
         code tags by using the following syntax:"},
         {"role": "user", "content": "<code> Your message here </code>"},
     ]
-    reply = call_openai_api(MODEL, messages, temperature=temperature)
+    reply = call_openai_api(messages, temperature=temperature)
     return reply
 
 
@@ -405,7 +408,7 @@ def generate_skills(number: int, temperature: float = 0.2) -> str:
         code tags by using the following syntax:"},
         {"role": "user", "content": "<code>keyword1, keyword2, keyword3</code>"},
     ]
-    reply = call_openai_api(MODEL, messages, temperature=temperature)
+    reply = call_openai_api(messages, temperature=temperature)
     return reply
 
 
@@ -445,7 +448,7 @@ def generate_descriptions(project: dict, words: int, temperature: float) -> list
         code tags by using the following syntax:"},
         {"role": "user", "content": "<code> Your message here </code>"},
     ]
-    replies = call_openai_api(MODEL, messages, temperature=temperature,
+    replies = call_openai_api(messages, temperature=temperature,
                               number_completion=3)
     return replies
 
@@ -453,7 +456,7 @@ def generate_descriptions(project: dict, words: int, temperature: float) -> list
 def generate_contributions(project, words, number, temperature):
     """
     Given a project and job description, generates new key contributions \
-    aligned with the job description using OpenAI's GPT-3 API.
+    aligned with the job description using OpenAI's GPT API.
 
     Args:
     project (dict): The project for which new key contributions need to \
@@ -465,7 +468,7 @@ def generate_contributions(project, words, number, temperature):
     may not be as coherent.
 
     Returns:
-    replies (list): A list of key contributions generated by the GPT-3 \
+    replies (list): A list of key contributions generated by the GPT \
     model, aligned with the job description.
     """
     txt_jd = st.session_state['txt_jd']
@@ -495,13 +498,13 @@ def generate_contributions(project, words, number, temperature):
         with code tags by using the following syntax:"},
         {"role": "user", "content": "<code> Your message here </code>"},
     ]
-    replies = call_openai_api(MODEL, messages, temperature=temperature,
+    replies = call_openai_api(messages, temperature=temperature,
                               number_completion=3)
     return replies
 
 
 def create_motivation(index: int, config: dict) -> str:
-    """Generates a paragraph for a motivation letter using OpenAI's GPT-3 \
+    """Generates a paragraph for a motivation letter using OpenAI's GPT \
     and model.
 
     Parameters:
@@ -540,7 +543,7 @@ def create_motivation(index: int, config: dict) -> str:
         in {words} words, connecting my skills and experiences with \
         the job description."},
     ]
-    reply = call_openai_api(MODEL, messages, temperature=temperature)
+    reply = call_openai_api(messages, temperature=temperature)
     return reply
 
 
@@ -587,7 +590,7 @@ def revise_motivation(content, config):
         compelling."},
 
     ]
-    reply = call_openai_api(MODEL, messages, temperature=temperature)
+    reply = call_openai_api(messages, temperature=temperature)
     return reply
 
 
@@ -633,7 +636,7 @@ def revise_motivations(words: int, temperature: float) -> str:
         for this field."},
 
     ]
-    reply = call_openai_api(MODEL, messages, temperature=temperature)
+    reply = call_openai_api(messages, temperature=temperature)
     return reply
 
 
@@ -670,7 +673,7 @@ def generate_motivations(words: int, temperature: float) -> str:
         for me in {words} words, connecting my skills and \
         experiences with the job description."},
     ]
-    reply = call_openai_api(MODEL, messages, temperature=temperature)
+    reply = call_openai_api(messages, temperature=temperature)
     return reply
 
 
