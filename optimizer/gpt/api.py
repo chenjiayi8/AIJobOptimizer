@@ -12,14 +12,15 @@ import requests
 from optimizer.gpt.token import num_tokens_from_messages
 from optimizer.utils.web import retry
 
-MODEL = "gpt-3.5-turbo"
-TOKEN_LIMIT = 4096
+MODELS = ["gpt-3.5-turbo", "gpt-4"]
+TOKEN_LIMITS = {"gpt-3.5-turbo": 4096,
+                "gpt-4": 8192}
 
 SYSTEM_ROLE = "You are my Career Coach. You will help me revise my resume for a target job."
 
 
 @retry(requests.exceptions.Timeout, tries=5, delay=1, backoff=2, max_delay=120)
-def call_openai_api(model, messages, temperature=0.1, number_completion=1):
+def call_openai_api(messages, temperature=0.1, number_completion=1):
     """
     Function that sends a request to the OpenAI API to \
         generate a completion for the specified model, messages, temperature and n.
@@ -37,8 +38,9 @@ def call_openai_api(model, messages, temperature=0.1, number_completion=1):
         list or str or None: A list of generated completions, \
             a single generated completion or None if no completion could be generated.
     """
+    model = st.session_state['MODEL']
     num_tokens = num_tokens_from_messages(messages, model)
-    if num_tokens > TOKEN_LIMIT*0.9:
+    if num_tokens > TOKEN_LIMITS[model]*0.9:
         st.write("### :red[Your input is too long!]")
         return None
     config = dotenv_values(".env")
