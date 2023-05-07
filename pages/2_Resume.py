@@ -7,6 +7,7 @@ import json
 import streamlit as st
 from st_dropfill_textarea import st_dropfill_textarea
 from optimizer.core.initialisation import initialise
+from optimizer.core.resume import get_parsed_resume
 from optimizer.gpt.query import estimate_match_rate
 from optimizer.utils.parser import parse_resume
 from optimizer.io.docx_file import docx_to_text
@@ -84,7 +85,7 @@ def upload_resume():
             """
             st.download_button(
                 label="Download",
-                data=json.dumps(st.session_state['resume'], indent=4),
+                data=json.dumps(get_parsed_resume(), indent=4),
                 file_name="resume.json",
                 mime="application/json",
                 help=help_message
