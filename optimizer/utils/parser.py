@@ -262,8 +262,12 @@ def parse_json(txt_resume: str) -> None:
     st.session_state['resume'] = json.loads(txt_resume)
     st.session_state['statement'] = st.session_state['resume']['statement']
     skills = []
-    for value in st.session_state['resume']['skills'].values():
-        skills += value
+    if isinstance(st.session_state['resume']['skills'], list):
+        for skill in st.session_state['resume']['skills']:
+            skills.append(skill)
+    else:
+        for value in st.session_state['resume']['skills'].values():
+            skills += value
 
     st.session_state['skills'] = skills
     st.session_state['sorted_skills'] = skills
