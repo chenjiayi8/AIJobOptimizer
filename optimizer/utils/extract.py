@@ -93,7 +93,7 @@ def extract_html_list(content):
     return None
 
 
-def exctract_linkedin_job_id(url):
+def extract_linkedin_job_id(url):
     """
     Extracts the LinkedIn job ID from a job posting URL.
 
@@ -110,6 +110,27 @@ def exctract_linkedin_job_id(url):
     patterns = [pattern1, pattern2]
     for pattern in patterns:
         match = re.findall(pattern, url, flags=re.DOTALL)
+        if len(match) > 0:
+            return match[0]
+
+    return None
+
+
+def extract_version_number(version_str):
+    """
+    Extracts the version number from a string.
+
+    Args:
+    - str (str): A string containing a version number.
+
+    Returns:
+    - A string containing the version number, or None if no match is found.
+    """
+    # regular expression to match Version 1: 30 words
+    pattern1 = r"(?<=version\s)\d+(?=:)"
+    patterns = [pattern1]
+    for pattern in patterns:
+        match = re.findall(pattern, version_str.lower(), flags=re.DOTALL)
         if len(match) > 0:
             return match[0]
 

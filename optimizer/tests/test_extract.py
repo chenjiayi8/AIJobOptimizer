@@ -1,8 +1,9 @@
 """Unit tests for extract.py."""
 import unittest
 
-from optimizer.utils.extract import exctract_linkedin_job_id, \
-    extract_by_quotation_mark, extract_code, extract_html_list
+from optimizer.utils.extract import extract_linkedin_job_id, \
+    extract_version_number, extract_by_quotation_mark, extract_code, \
+    extract_html_list
 
 
 class TestExtractByQuotationMark(unittest.TestCase):
@@ -109,23 +110,33 @@ class TestExtractLinkedInJobID(unittest.TestCase):
         """Test that job id is extracted correctly."""
         url = "https://www.linkedin.com/jobs/view/1234567890/"
         expected_job_id = "1234567890"
-        self.assertEqual(exctract_linkedin_job_id(url), expected_job_id)
+        self.assertEqual(extract_linkedin_job_id(url), expected_job_id)
 
     def test_with_current_job_id(self):
         """Test that job id is extracted correctly from search."""
         url = "https://www.linkedin.com/jobs/search/?currentJobId=1234567890&distance=25"
         expected_job_id = "1234567890"
-        self.assertEqual(exctract_linkedin_job_id(url), expected_job_id)
+        self.assertEqual(extract_linkedin_job_id(url), expected_job_id)
 
     def test_with_invalid_url(self):
         """ test with invalid url returns None."""
         url = "https://www.google.com/"
-        self.assertIsNone(exctract_linkedin_job_id(url))
+        self.assertIsNone(extract_linkedin_job_id(url))
 
     def test_with_empty_string(self):
         """ test with empty string returns None."""
         url = ""
-        self.assertIsNone(exctract_linkedin_job_id(url))
+        self.assertIsNone(extract_linkedin_job_id(url))
+
+
+class TestExtractVersionNumber(unittest.TestCase):
+    def test_valid_version_string(self):
+        self.assertEqual(extract_version_number(
+            "This is version 1: some text"), "1")
+
+    def test_invalid_version_string(self):
+        self.assertIsNone(extract_version_number(
+            "This is not a version string"))
 
 
 if __name__ == '__main__':
