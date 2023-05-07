@@ -6,6 +6,7 @@ from collections import OrderedDict
 import streamlit as st
 import streamlit.components.v1 as components
 from optimizer.core.initialisation import init_state, initialise
+from optimizer.core.resume import count_words
 from optimizer.gpt.query import generate_contributions, generate_descriptions
 from optimizer.utils.extract import extract_code
 
@@ -96,15 +97,16 @@ def edit_description(project: dict) -> None:
 
     if st.session_state['generate_description_'+name]:
         options = []
-        option = 'Version ' + str(0)
+        option = f"Version 0: {count_words(project['description'])} words"
         options.append(option)
         st.write('### ' + option)
         st.write(project['description'])
         for j in range(len(st.session_state['new_descriptions_' + name])):
-            option = 'Version ' + str(j+1)
+            new_descriptions = st.session_state['new_descriptions_' + name][j]
+            option = f"Version {j+1}: {count_words(new_descriptions)} words"
             options.append(option)
             st.write('### ' + option)
-            st.write(st.session_state['new_descriptions_' + name][j])
+            st.write(new_descriptions)
 
         if 'description_choice_'+name in st.session_state:
             description_choice_index = options.index(
@@ -179,17 +181,22 @@ def edit_contribtions(project):
             st.session_state['new_contributions_' + name] = new_contributions
     if st.session_state['generate_contributions_'+name]:
         options = []
-        option = 'Version ' + str(0)
+        words = 0
+        for contribution in project['contributions']:
+            words += count_words(contribution)
+        option = f"Version 0: {words} words"
         options.append(option)
         st.write('### ' + option)
         for contribution in project['contributions']:
             st.markdown('- ' + contribution)
         for j in range(len(st.session_state['new_contributions_' + name])):
-            option = 'Version ' + str(j+1)
+            new_contributions = \
+                st.session_state['new_contributions_' + name][j]
+            option = f"Version {j+1}: {count_words(new_contributions)} words"
             options.append(option)
             st.write('### ' + option)
             components.html(
-                st.session_state['new_contributions_' + name][j],
+                new_contributions,
                 scrolling=True)
 
         if 'contributions_choice_'+name in st.session_state:

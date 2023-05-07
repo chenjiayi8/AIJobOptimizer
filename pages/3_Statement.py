@@ -4,7 +4,7 @@ by calling OpenAI GPT API.
 """
 import streamlit as st
 from optimizer.core.initialisation import initialise
-from optimizer.core.resume import parse_statements
+from optimizer.core.resume import count_words, parse_statements
 from optimizer.gpt.query import generate_statements
 
 st.set_page_config(
@@ -43,15 +43,17 @@ def edit_statement() -> None:
 
     if st.session_state['btn_generate_statement']:
         options = []
-        option = 'Version ' + str(0)
+        option = f"Version 0: {count_words(st.session_state['statement'])} \
+        words"
         options.append(option)
         st.write('### ' + option)
         st.write(st.session_state['statement'])
         for i in range(len(st.session_state['new_statements'])):
-            option = 'Version ' + str(i+1)
+            new_statement = st.session_state['new_statements'][i]
+            option = f"Version {i+1}: {count_words(new_statement)} words"
             options.append(option)
             st.write('### ' + option)
-            st.write(st.session_state['new_statements'][i])
+            st.write(new_statement)
         if 'statement_choice' in st.session_state:
             statement_choice_index = options.index(
                 st.session_state['statement_choice'])
