@@ -8,6 +8,7 @@ import re
 import streamlit as st
 from st_dropfill_textarea import st_dropfill_textarea
 from optimizer.core.initialisation import initialise
+from optimizer.core.resume import count_words
 from optimizer.gpt.query import create_motivation, generate_motivations, \
     revise_motivation, revise_motivations
 from optimizer.io.docx_file import write_letter
@@ -36,20 +37,6 @@ def parse_letter():
         motivation['uuid'] = str(uuid.uuid4())
         motivation['content'] = part
         st.session_state['motivations'].append(motivation)
-
-
-def count_words(paragraph: str) -> int:
-    """
-    Counts the number of words in a string.
-
-    Args:
-        paragraph (str): The string to be counted.
-
-    Returns:
-        int: The number of words in the string.
-    """
-    paragraph = paragraph.replace('/', ' ')
-    return len(paragraph.split(' '))
 
 
 def create_letter():
