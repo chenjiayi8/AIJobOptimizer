@@ -5,6 +5,7 @@ descriptions, experiences, and contributions to be exported for a project.
 """
 
 
+from collections import OrderedDict
 import copy
 import streamlit as st
 
@@ -182,3 +183,21 @@ def find_experience(experiences, exp_uuid):
     for exp in experiences:
         if exp['uuid'] == exp_uuid:
             return copy.deepcopy(exp)
+
+
+def get_parsed_resume():
+    """
+    Returns a dictionary containing the parsed resume.
+
+    Parameters:
+    None
+
+    Returns:
+    dict: a dictionary containing the parsed resume.
+
+    """
+    parsed_resume = OrderedDict()
+    fields = ['statement', 'skills', 'experiences']
+    for field in fields:
+        parsed_resume[field] = st.session_state[field]
+    return parsed_resume
