@@ -9,7 +9,7 @@ from collections import OrderedDict
 import copy
 import streamlit as st
 
-from optimizer.utils.extract import extract_code, extract_html_list
+from optimizer.utils.extract import extract_version_number, extract_code, extract_html_list
 
 
 def choose_job_description() -> str:
@@ -58,7 +58,7 @@ def choose_statement() -> str:
     if 'statement_choice' not in st.session_state:
         return st.session_state['statement']
     choice = st.session_state['statement_choice']
-    index = int(choice.split(' ')[1]) - 1
+    index = int(extract_version_number(choice)) - 1
     if index == -1:
         return st.session_state['statement']
     return st.session_state['new_statements'][index]
@@ -105,7 +105,7 @@ def choose_project_description(project):
     if not all(key in st.session_state for key in (choice_key,
                                                    choice_field)):
         return project['description']
-    index = int(st.session_state[choice_key].split(' ')[1])-1
+    index = int(extract_version_number(st.session_state[choice_key]))-1
     if index == -1:
         return project['description']
     return st.session_state[choice_field][index].strip()
@@ -156,7 +156,7 @@ def choose_contributions(project):
     if not all(key in st.session_state for key in (choice_key,
                                                    choice_field)):
         return project['contributions']
-    index = int(st.session_state[choice_key].split(' ')[1])-1
+    index = int(extract_version_number(st.session_state[choice_key]))-1
     if index == -1:
         return project['contributions']
     contributions = st.session_state[choice_field][index].strip(
@@ -201,3 +201,17 @@ def get_parsed_resume():
     for field in fields:
         parsed_resume[field] = st.session_state[field]
     return parsed_resume
+
+
+def count_words(paragraph: str) -> int:
+    """
+    Counts the number of words in a string.
+
+    Args:
+        paragraph (str): The string to be counted.
+
+    Returns:
+        int: The number of words in the string.
+    """
+    paragraph = paragraph.replace('/', ' ')
+    return len(paragraph.split(' '))
