@@ -97,10 +97,6 @@ def upload_resume():
         if st.button("Estimate", help="Estimate your match rate with the job"):
             st.session_state['btn_estimate'] = True
 
-    help_message = """
-            Download your resume in JSON format to avoid waiting for the \
-            analysis next time.
-    """
     if st.session_state['btn_analyse']:
         show_debug_info()
     if st.session_state['btn_estimate']:
