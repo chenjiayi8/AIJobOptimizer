@@ -35,9 +35,6 @@ def job_description():
         height=300
     )
     if st.button('Summary'):
-        st.session_state['btn_summary'] = True
-
-    if st.session_state['btn_summary']:
         with st.spinner("Summarying the job ..."):
             if is_valid_url(st.session_state['txt_jd']):
                 scrapped_text = scrap_job_description(
@@ -54,6 +51,9 @@ def job_description():
                 st.session_state['txt_jd'])
             if 'company_role' not in st.session_state:
                 st.session_state['company_role'] = get_company_role()
+        st.session_state['btn_summary'] = True
+
+    if st.session_state['btn_summary']:
         st.markdown(f"__Position:__ {st.session_state['company_role'] }")
         st.markdown(f"__Summary:__ {st.session_state['job_analysed']}")
 
