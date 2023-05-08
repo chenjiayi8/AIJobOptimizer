@@ -310,10 +310,14 @@ def custom_questions():
     Returns:
     None
     """
-    st.session_state['MODEL'] = st.selectbox(
+    new_model = st.selectbox(
         "ChatGPT Model: ", MODELS, MODELS.index(st.session_state['MODEL']),
         help="Select a model to use for the chatbot, which is also used by \
         previous pages")
+    if new_model != st.session_state['MODEL']:
+        st.session_state['MODEL'] = new_model
+        st.cache_data.clear()
+        st.experimental_rerun()
     init_questions()
     style_messages()
     parse_messages()
