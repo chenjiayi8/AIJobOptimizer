@@ -351,7 +351,7 @@ def insert_messages():
 
         if insertted and len(new_msg) > 0:
             st.session_state['messages'] += [
-                {"select": True, "type": message_types[role],
+                {"id": str(uuid.uuid4()), "select": True, "type": message_types[role],
                     "role": role, "content": new_msg},
             ]
             st.experimental_rerun()
