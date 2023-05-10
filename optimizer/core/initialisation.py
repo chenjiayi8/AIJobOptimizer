@@ -18,7 +18,7 @@ def init_state(name, value=False):
         st.session_state[name] = value
 
 
-def initialise():
+def initialise(formated=True):
     """
     Initialises controllers states and text fields
 
@@ -60,7 +60,13 @@ def initialise():
 
     # initialise GPT MODEL
     init_state('MODEL', MODELS[0])
-    custom_layout()
+
+    # initialise layout options
+    init_state('layouts', ['centered', 'wide'])
+    init_state('layout', st.session_state['layouts'][0])
+
+    if formated:
+        custom_layout()
 
 
 def reset():
@@ -68,9 +74,10 @@ def reset():
     Resets the current session while keeping the text input of resume. It \
     then executes ''initialise()'' and ''switch_page(''Job description'')''.
     """
+    keep_list = ['txt_resume', 'layouts', 'layout', 'MODEL']
     if st.button("Warning: Reset", help="You will lose all your progress!"):
         for key in st.session_state:
-            if key != 'txt_resume':
+            if key not in keep_list:
                 del st.session_state[key]
         initialise()
         switch_page('Job description')
