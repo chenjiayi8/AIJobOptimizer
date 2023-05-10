@@ -14,13 +14,14 @@ from optimizer.gpt.query import get_experiences_msg, get_job_description_msg, \
     get_skills_msg, get_system_msg, query_gpt
 from optimizer.utils.copy import copy_button
 
+initialise(formated=False)
+
 st.set_page_config(
     page_title="ChatGPT",
     page_icon=":skateboard:",
     layout=st.session_state["layout"],
 )
 
-initialise(formated=False)
 
 COACH_ROLE = SYSTEM_ROLE
 HR_ROLE = "You are a hiring manager. You are shortlisting candidates for a \
