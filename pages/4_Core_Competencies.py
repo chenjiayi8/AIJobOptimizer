@@ -12,6 +12,7 @@ from optimizer.utils.extract import extract_code
 st.set_page_config(
     page_title="Core Competencies",
     page_icon=":toolbox:",
+    layout=st.session_state["layout"],
 )
 
 initialise()

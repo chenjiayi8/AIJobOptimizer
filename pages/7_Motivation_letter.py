@@ -17,6 +17,7 @@ from optimizer.utils.download import download_button
 st.set_page_config(
     page_title="Motivation letter",
     page_icon=":page_facing_up:",
+    layout=st.session_state["layout"],
 )
 
 initialise()

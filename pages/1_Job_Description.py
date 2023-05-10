@@ -12,6 +12,7 @@ from optimizer.utils.web import is_valid_url
 st.set_page_config(
     page_title="Job Description",
     page_icon=":microscope:",
+    layout=st.session_state["layout"],
 )
 
 initialise()

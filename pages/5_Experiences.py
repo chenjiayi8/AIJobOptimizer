@@ -13,6 +13,7 @@ from optimizer.utils.extract import extract_code
 st.set_page_config(
     page_title="Experiences",
     page_icon=":male-office-worker:",
+    layout=st.session_state["layout"],
 )
 
 initialise()

@@ -15,6 +15,7 @@ from optimizer.io.docx_file import docx_to_text
 st.set_page_config(
     page_title="Resume",
     page_icon=":notebook:",
+    layout=st.session_state["layout"],
 )
 
 initialise()

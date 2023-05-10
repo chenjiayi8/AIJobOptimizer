@@ -10,6 +10,7 @@ from optimizer.gpt.query import generate_statements
 st.set_page_config(
     page_title="Personal Statement",
     page_icon=":open_book:",
+    layout=st.session_state["layout"],
 )
 
 
