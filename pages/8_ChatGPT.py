@@ -6,7 +6,7 @@ based on selected background information
 from st_dropfill_textarea import st_dropfill_textarea
 import streamlit as st
 import streamlit.components.v1 as components
-from optimizer.core.initialisation import initialise
+from optimizer.core.initialisation import init_state
 from optimizer.gpt.api import MODELS, SYSTEM_ROLE
 from optimizer.gpt.query import get_experiences_msg, get_job_description_msg, \
     get_skills_msg, get_system_msg, query_gpt
@@ -17,7 +17,7 @@ st.set_page_config(
     page_icon=":skateboard:",
 )
 
-initialise()
+init_state("MODEL", MODELS[0])
 
 COACH_ROLE = SYSTEM_ROLE
 HR_ROLE = "You are a hiring manager. You are shortlisting candidates for a \
@@ -298,6 +298,38 @@ def get_copy_button():
     return my_copy_button
 
 
+def insert_messages():
+    """
+    Inserts the messages stored in the Streamlit's session state with a new \
+    user/assistant message. Firstly, it checks whether there are already \
+    messages in the session state. If there are, it creates a new form called \
+    "insert_message" with a text area where the user can type their message \
+    and a select box to choose whose belongs to the message. This function \
+    tries to utilise in-context learning of the GPT model.
+    """
+    if st.session_state['messages_initalised']:
+        with st.form("insert_message", clear_on_submit=True):
+            message_types = {'user': 'input', 'assistant': 'reply'}
+            new_msg = st.text_area("__Enter your message:__", "",
+                                   placeholder="Append a message...")
+            col_role, \
+                col_insert, col_empty = st.columns([1, 1, 2])
+            with col_role:
+                role = st.selectbox("Role", message_types.keys(), index=0)
+            with col_insert:
+                insertted = st.form_submit_button("Insert")
+            with col_empty:
+                st.write("")
+
+        if insertted and len(new_msg) > 0:
+
+            st.session_state['messages'] += [
+                {"select": True, "type": message_types[role],
+                    "role": role, "content": new_msg},
+            ]
+            st.experimental_rerun()
+
+
 def custom_questions():
     """
     Adds a section to the Streamlit app with customizable input questions.
@@ -328,3 +360,6 @@ def custom_questions():
 custom_questions()
 with st.expander("Debug: messages"):
     st.write("Messages", st.session_state['messages'])
+
+with st.expander("Advanced"):
+    insert_messages()
