@@ -5,6 +5,7 @@ information from a resume.
 """
 import json
 import re
+import uuid
 import streamlit as st
 from optimizer.core.resume import choose_experiences, choose_job_description, choose_skills
 from optimizer.gpt.api import SYSTEM_ROLE, call_openai_api
@@ -236,7 +237,7 @@ def query_gpt(temperature: float) -> None:
         if msg['select']:
             messages.append(precondition_msg(msg))
     reply = call_openai_api(messages, temperature=temperature)
-    msg = {'select': True, 'type': 'reply', 'role':
+    msg = {'id': str(uuid.uuid4()), 'select': True, 'type': 'reply', 'role':
            'assistant', 'content': reply}
     st.session_state['messages'].append(msg)
 
@@ -695,8 +696,8 @@ def get_system_msg(system_role: str) -> list:
 
     """
     system_msg = [
-        {"select": True, "type": "system", "role": "system",
-         "content": system_role},
+        {"id": str(uuid.uuid4()), "select": True, "type": "system",
+         "role": "system", "content": system_role},
     ]
     return system_msg
 
@@ -724,8 +725,8 @@ def get_job_description_msg() -> dict | None:
     if len(st.session_state['txt_jd']) == 0:
         return None
     jd_msg = [
-        {"select": True, "type": "info", "role": "user",
-         "content":
+        {"id": str(uuid.uuid4()), "select": True, "type": "info",
+         "role": "user", "content":
          f"The job description is follows: \n{st.session_state['txt_jd']}"},
     ]
     return jd_msg
@@ -744,7 +745,7 @@ def get_skills_msg() -> dict | None:
         return None
     skills_str = ', '.join(skills)
     skills_msg = [
-        {"select": True, "type": "info", "role": "user",
+        {"id": str(uuid.uuid4()), "select": True, "type": "info", "role": "user",
             "content": f"I will give you my skills as follows: \n {skills_str}"
          },
     ]
@@ -763,7 +764,7 @@ def get_experiences_msg() -> dict | None:
         return None
     experiences_str = json.dumps(experiences)
     experiences_msg = [
-        {"select": True, "type": "info", "role": "user",
+        {"id": str(uuid.uuid4()), "select": True, "type": "info", "role": "user",
          "content":
          f"I will give you my experiences as follows: \n{experiences_str}"},
     ]
