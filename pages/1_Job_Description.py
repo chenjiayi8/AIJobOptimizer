@@ -8,14 +8,13 @@ from optimizer.gpt.query import get_company_role, summary_job_description
 from optimizer.proxycurl.query import scrap_job_description
 from optimizer.utils.web import is_valid_url
 
+initialise()
 
 st.set_page_config(
     page_title="Job Description",
     page_icon=":microscope:",
     layout=st.session_state["layout"],
 )
-
-initialise()
 
 
 def job_description():

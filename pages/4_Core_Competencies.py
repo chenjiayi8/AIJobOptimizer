@@ -8,14 +8,13 @@ from optimizer.core.initialisation import initialise
 from optimizer.gpt.query import generate_skills, sort_skills
 from optimizer.utils.extract import extract_code
 
+initialise()
 
 st.set_page_config(
     page_title="Core Competencies",
     page_icon=":toolbox:",
     layout=st.session_state["layout"],
 )
-
-initialise()
 
 
 def parse_skills(reply):
