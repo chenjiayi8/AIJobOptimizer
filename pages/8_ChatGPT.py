@@ -8,7 +8,7 @@ import uuid
 from st_dropfill_textarea import st_dropfill_textarea
 import streamlit as st
 import streamlit.components.v1 as components
-from optimizer.core.initialisation import init_state
+from optimizer.core.initialisation import initialise
 from optimizer.gpt.api import MODELS, SYSTEM_ROLE
 from optimizer.gpt.query import get_experiences_msg, get_job_description_msg, \
     get_skills_msg, get_system_msg, query_gpt
@@ -17,10 +17,10 @@ from optimizer.utils.copy import copy_button
 st.set_page_config(
     page_title="ChatGPT",
     page_icon=":skateboard:",
+    layout=st.session_state["layout"],
 )
 
-init_state("MODEL", MODELS[0])
-init_state("messages_initalised", False)
+initialise(formated=False)
 
 COACH_ROLE = SYSTEM_ROLE
 HR_ROLE = "You are a hiring manager. You are shortlisting candidates for a \
