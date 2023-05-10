@@ -8,7 +8,14 @@ from optimizer.core.initialisation import initialise
 st.set_page_config(
     page_title="AIJobOptimizer",
     page_icon="👋",
+    layout=st.session_state["layout"],
 )
+
+
+def format_layout_option(key):
+    """ This function formats the layout options for the main window."""
+    options = {'centered': "Default screen", 'wide': "Wide screen"}
+    return options[key]
 
 
 def intro():
@@ -34,8 +41,19 @@ def intro():
 
         **👈 Select a page from the sidebar on the left**!
     """
+
+
     )
 
+    st.write("# ")
+    layout_new = st.selectbox(
+        "**Select a layout**", st.session_state['layouts'],
+        index=st.session_state['layouts'].index(st.session_state['layout']),
+        format_func=format_layout_option)
+    if layout_new != st.session_state['layout']:
+        st.session_state['layout'] = layout_new
+        st.experimental_rerun()
 
-initialise()
+
+initialise(formated=False)
 intro()
