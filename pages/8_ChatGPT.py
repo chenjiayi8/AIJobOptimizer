@@ -343,7 +343,8 @@ def insert_messages():
             col_role, \
                 col_insert, col_empty = st.columns([1, 1, 2])
             with col_role:
-                role = st.selectbox("Role", message_types.keys(), index=0)
+                role = st.selectbox("Role", message_types.keys(
+                ), index=0, format_func=lambda x: x.capitalize())
             with col_insert:
                 insertted = st.form_submit_button("Insert")
             with col_empty:
