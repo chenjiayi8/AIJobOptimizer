@@ -14,13 +14,13 @@ from optimizer.gpt.query import create_motivation, generate_motivations, \
 from optimizer.io.docx_file import write_letter
 from optimizer.utils.download import download_button
 
-initialise()
-
 st.set_page_config(
     page_title="Motivation letter",
     page_icon=":page_facing_up:",
     layout=st.session_state["layout"],
 )
+
+initialise()
 
 
 def parse_letter():

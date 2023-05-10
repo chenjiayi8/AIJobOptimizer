@@ -14,8 +14,6 @@ from optimizer.gpt.query import get_company_role
 from optimizer.io.docx_file import to_docx, validate_template
 from optimizer.utils.download import download_button
 
-initialise()
-
 st.set_page_config(
     page_title="Export resume to docx",
     page_icon=":page_facing_up:",
@@ -23,6 +21,8 @@ st.set_page_config(
 )
 
 template_fields = ['{statement}', '{competencies}', '{experiences}']
+
+initialise()
 
 
 def write_docx(choices: list, options: dict):

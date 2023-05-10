@@ -10,13 +10,13 @@ from optimizer.core.resume import count_words
 from optimizer.gpt.query import generate_contributions, generate_descriptions
 from optimizer.utils.extract import extract_code
 
-initialise()
-
 st.set_page_config(
     page_title="Experiences",
     page_icon=":male-office-worker:",
     layout=st.session_state["layout"],
 )
+
+initialise()
 
 
 def parse_descriptions(replies: list) -> list:

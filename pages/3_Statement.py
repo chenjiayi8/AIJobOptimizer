@@ -7,8 +7,6 @@ from optimizer.core.initialisation import initialise
 from optimizer.core.resume import count_words, parse_statements
 from optimizer.gpt.query import generate_statements
 
-initialise()
-
 st.set_page_config(
     page_title="Personal Statement",
     page_icon=":open_book:",
@@ -67,4 +65,5 @@ def edit_statement() -> None:
             'Choose final statement', options, index=statement_choice_index)
 
 
+initialise()
 edit_statement()
