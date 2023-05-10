@@ -195,7 +195,7 @@ def parse_messages() -> None:
                 label = msg['role'].capitalize() + ': '
             with col_left:
                 if index == len(st.session_state['messages']) - 1 and msg['type'] != 'info':
-                    height = 100+round(len(msg['content'])*0.3)
+                    height = 100+round(len(msg['content'])*0.4)
                 else:
                     height = 200
 
