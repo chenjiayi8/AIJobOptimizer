@@ -3,6 +3,8 @@ This page defines a playground to query gpt with question freely or \
 based on selected background information
 """
 
+import copy
+import uuid
 from st_dropfill_textarea import st_dropfill_textarea
 import streamlit as st
 import streamlit.components.v1 as components
@@ -18,6 +20,7 @@ st.set_page_config(
 )
 
 init_state("MODEL", MODELS[0])
+init_state("messages_initalised", False)
 
 COACH_ROLE = SYSTEM_ROLE
 HR_ROLE = "You are a hiring manager. You are shortlisting candidates for a \
@@ -152,6 +155,27 @@ def handle_check_change(index):
     msg['select'] = not msg['select']
 
 
+def regenerate_response(index):
+    """
+    Regenerate the response of a message at the given index of the 'messages' \
+    list in the session_state object.
+
+    Parameters:
+        index (int): The index of the dictionary to modify in 'messages' list.
+
+    Returns:
+        None. The function modifies the 'content' key of a dictionary in-place.
+    """
+    old_messages = copy.deepcopy(st.session_state['messages'])
+    st.session_state['messages'].clear()
+    for ind, msg in enumerate(old_messages):
+        if ind <= index:
+            st.session_state['messages'].append(msg)
+        if ind > index and not msg['select']:
+            st.session_state['messages'].append(msg)
+    query_gpt(st.session_state['temperature_message'])
+
+
 def parse_messages() -> None:
     """
     Iterates over the dictionaries inside the 'messages' list in the \
@@ -162,36 +186,41 @@ def parse_messages() -> None:
     """
     if st.session_state['messages_initalised']:
         for index, msg in enumerate(st.session_state['messages']):
-            col_middle, col_right = st.columns([8, 1])
+            col_left, col_middle, col_right = st.columns([8, 1, 1])
 
             if msg['type'] == 'info':
                 label = "Info: "
 
             else:
                 label = msg['role'].capitalize() + ': '
-            with col_middle:
+            with col_left:
                 if index == len(st.session_state['messages']) - 1 and msg['type'] != 'info':
-                    height = 100+round(len(msg['content'])*0.5)
+                    height = 100+round(len(msg['content'])*0.3)
                 else:
                     height = 200
 
                 msg['content'] = st_dropfill_textarea(
                     label,
                     msg['content'],
-                    key=f"msg_{index}",
+                    key=msg['id'],
                     height=height,
                     layout="row",
                     labelWidth=70,
-
                 )
 
-            with col_right:
+            with col_middle:
                 st.write("# ")
                 st.checkbox(
                     "Select", msg['select'], key=f"check_{index}",
                     on_change=handle_check_change,
                     args=(index, ),
                     label_visibility="hidden")
+            with col_right:
+                if msg['select'] and msg['type'] == 'input':
+                    if st.button(":new:", key=f"regen_{index}",
+                                 help="Regenerate response"):
+                        regenerate_response(index)
+                        st.experimental_rerun()
 
 
 def style_messages():
@@ -261,11 +290,10 @@ def append_input() -> None:
 
         if submitted and len(new_msg) > 0:
             st.session_state['messages'] += [
-                {"select": True, "type": "input",
+                {"id": str(uuid.uuid4()), "select": True, "type": "input",
                     "role": "user", "content": new_msg},
             ]
             query_gpt(st.session_state['temperature_message'])
-
             st.experimental_rerun()
 
 
@@ -322,7 +350,6 @@ def insert_messages():
                 st.write("")
 
         if insertted and len(new_msg) > 0:
-
             st.session_state['messages'] += [
                 {"select": True, "type": message_types[role],
                     "role": role, "content": new_msg},
