@@ -46,7 +46,8 @@ def query_company_and_role(txt_jd) -> str:
     return reply
 
 
-def get_company_role():
+@st.cache_data(show_spinner=False)
+def get_company_role(txt_jd):
     """
     A function that uses the `query_company_and_role()` function to retrieve \
     the company and role information from the user input stored in the \
@@ -57,7 +58,7 @@ def get_company_role():
     Returns:
     - str: The extracted code from the retrieved company and role information.
     """
-    reply = query_company_and_role(st.session_state['txt_jd'])
+    reply = query_company_and_role(txt_jd)
     company_role = extract_code(reply)
     return company_role
 
@@ -413,7 +414,8 @@ def generate_skills(number: int, temperature: float = 0.2) -> str:
     return reply
 
 
-def generate_descriptions(project: dict, words: int, temperature: float) -> list:
+def generate_descriptions(
+        project: dict, words: int, temperature: float) -> list:
     """
     This function generates descriptions based on the job requirements and \
     other inputs provided by the user. It takes in the following parameters:
@@ -745,10 +747,9 @@ def get_skills_msg() -> dict | None:
         return None
     skills_str = ', '.join(skills)
     skills_msg = [
-        {"id": str(uuid.uuid4()), "select": True, "type": "info", "role": "user",
-            "content": f"I will give you my skills as follows: \n {skills_str}"
-         },
-    ]
+        {"id": str(uuid.uuid4()),
+         "select": True, "type": "info", "role": "user",
+         "content": f"I will give you my skills as follows: \n {skills_str}"},]
     return skills_msg
 
 
@@ -764,7 +765,8 @@ def get_experiences_msg() -> dict | None:
         return None
     experiences_str = json.dumps(experiences)
     experiences_msg = [
-        {"id": str(uuid.uuid4()), "select": True, "type": "info", "role": "user",
+        {"id": str(uuid.uuid4()),
+         "select": True, "type": "info", "role": "user",
          "content":
          f"I will give you my experiences as follows: \n{experiences_str}"},
     ]
