@@ -58,7 +58,7 @@ def job_description():
     if new_company_role != st.session_state['company_role']:
         st.session_state['company_role'] = new_company_role
         st.experimental_rerun()
-    st.markdown(f"__Summary:__ {st.session_state['job_analysed']}")
+    st.markdown(f"__Summary:__\n {st.session_state['job_analysed']}")
 
 
 job_description()
