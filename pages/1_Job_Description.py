@@ -52,13 +52,15 @@ def job_description():
             st.session_state['company_role'] = get_company_role(
                 st.session_state['txt_jd'])
 
-    new_company_role = st.text_input(
-        "__Position:__", st.session_state['company_role'],
-        key="input_company_role")
-    if new_company_role != st.session_state['company_role']:
-        st.session_state['company_role'] = new_company_role
-        st.experimental_rerun()
-    st.markdown(f"__Summary:__\n {st.session_state['job_analysed']}")
+    if st.session_state['company_role'] != "":
+        new_company_role = st.text_input(
+            "__Position:__", st.session_state['company_role'],
+            key="input_company_role")
+        if new_company_role != st.session_state['company_role']:
+            st.session_state['company_role'] = new_company_role
+            st.experimental_rerun()
+    if st.session_state['job_analysed'] != "":
+        st.markdown(f"__Summary:__\n {st.session_state['job_analysed']}")
 
 
 job_description()
