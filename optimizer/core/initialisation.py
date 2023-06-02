@@ -28,13 +28,14 @@ def initialise(formated=True):
     # initialise controllers states
     state_fields = ['btn_summary', 'btn_analyse', 'btn_estimate',
                     'btn_generate_statement', 'btn_sort_skills',
-                    'btn_generate_skills', 'skills_number_changed', 'messages_initalised']
+                    'btn_generate_skills', 'skills_number_changed',
+                    'messages_initalised']
     for field in state_fields:
         init_state(field, False)
 
     # initialise text fields
-    text_fields = ['txt_jd', 'txt_resume', 'txt_skills',
-                   'statement', 'dl_link', 'letter', 'job_analysed']
+    text_fields = ['txt_jd', 'txt_resume', 'txt_skills', 'statement',
+                   'dl_link', 'letter', 'company_role', 'job_analysed']
 
     for field in text_fields:
         init_state(field, '')
@@ -67,6 +68,10 @@ def initialise(formated=True):
 
     if formated:
         custom_layout()
+
+
+def get_layout():
+    return st.session_state["layout"] if "layout" in st.session_state else "centered"
 
 
 def reset():
