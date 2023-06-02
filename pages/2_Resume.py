@@ -6,7 +6,7 @@ the OpenAI GPT API.
 import json
 import streamlit as st
 from st_dropfill_textarea import st_dropfill_textarea
-from optimizer.core.initialisation import initialise
+from optimizer.core.initialisation import initialise, get_layout
 from optimizer.core.resume import get_parsed_resume
 from optimizer.gpt.query import estimate_match_rate
 from optimizer.utils.parser import parse_resume
@@ -15,7 +15,7 @@ from optimizer.io.docx_file import docx_to_text
 st.set_page_config(
     page_title="Resume",
     page_icon=":notebook:",
-    layout=st.session_state["layout"],
+    layout=get_layout(),
 )
 
 initialise()
@@ -73,7 +73,8 @@ def upload_resume():
     col_analyse, col_download, col_estimate = st.columns([1, 1, 1])
 
     with col_analyse:
-        if st.button('Analyse', help='Analyse your resume and pre-fill the form'):
+        if st.button('Analyse',
+                     help='Analyse your resume and pre-fill the form'):
             with st.spinner('Analysing your resume ...'):
                 parse_resume(st.session_state['txt_resume'])
                 st.session_state['btn_analyse'] = True

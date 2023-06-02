@@ -6,7 +6,7 @@ from collections import OrderedDict
 import re
 import streamlit as st
 from streamlit.runtime.uploaded_file_manager import UploadedFile
-from optimizer.core.initialisation import initialise, reset
+from optimizer.core.initialisation import initialise, reset, get_layout
 from optimizer.core.resume import choose_contributions, \
     choose_project_description, choose_skills, choose_statement, \
     find_experience
@@ -17,7 +17,7 @@ from optimizer.utils.download import download_button
 st.set_page_config(
     page_title="Export resume to docx",
     page_icon=":page_facing_up:",
-    layout=st.session_state["layout"],
+    layout=get_layout(),
 )
 
 template_fields = ['{statement}', '{competencies}', '{experiences}']
@@ -40,7 +40,9 @@ def write_docx(choices: list, options: dict):
         str: Name of the output file if successfully generated, None otherwise.
     """
 
-    st.session_state['company_role'] = get_company_role()
+    if st.session_state['company_role'] == "":
+        st.session_state['company_role'] = \
+            get_company_role(st.session_state['txt_jd'])
     statement = choose_statement()
     skills = choose_skills()
     skills_str = ' | '.join(skills)

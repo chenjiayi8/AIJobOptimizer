@@ -3,14 +3,14 @@ This page provides functions for generating and editing personal statement \
 by calling OpenAI GPT API.
 """
 import streamlit as st
-from optimizer.core.initialisation import initialise
+from optimizer.core.initialisation import initialise, get_layout
 from optimizer.core.resume import count_words, parse_statements
 from optimizer.gpt.query import generate_statements
 
 st.set_page_config(
     page_title="Personal Statement",
     page_icon=":open_book:",
-    layout=st.session_state["layout"],
+    layout=get_layout(),
 )
 
 

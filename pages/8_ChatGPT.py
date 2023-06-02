@@ -8,7 +8,7 @@ import uuid
 from st_dropfill_textarea import st_dropfill_textarea
 import streamlit as st
 import streamlit.components.v1 as components
-from optimizer.core.initialisation import initialise
+from optimizer.core.initialisation import initialise, get_layout
 from optimizer.gpt.api import MODELS, SYSTEM_ROLE
 from optimizer.gpt.query import get_experiences_msg, get_job_description_msg, \
     get_skills_msg, get_system_msg, query_gpt
@@ -17,7 +17,7 @@ from optimizer.utils.copy import copy_button
 st.set_page_config(
     page_title="ChatGPT",
     page_icon=":skateboard:",
-    layout=st.session_state["layout"],
+    layout=get_layout(),
 )
 
 initialise(formated=False)
@@ -194,7 +194,8 @@ def parse_messages() -> None:
             else:
                 label = msg['role'].capitalize() + ': '
             with col_left:
-                if index == len(st.session_state['messages']) - 1 and msg['type'] != 'info':
+                if index == len(
+                        st.session_state['messages']) - 1 and msg['type'] != 'info':
                     height = 100+round(len(msg['content'])*0.4)
                 else:
                     height = 200
@@ -352,9 +353,9 @@ def insert_messages():
 
         if insertted and len(new_msg) > 0:
             st.session_state['messages'] += [
-                {"id": str(uuid.uuid4()), "select": True, "type": message_types[role],
-                    "role": role, "content": new_msg},
-            ]
+                {"id": str(uuid.uuid4()),
+                 "select": True, "type": message_types[role],
+                 "role": role, "content": new_msg},]
             st.experimental_rerun()
 
 

@@ -7,7 +7,7 @@ import uuid
 import re
 import streamlit as st
 from st_dropfill_textarea import st_dropfill_textarea
-from optimizer.core.initialisation import initialise
+from optimizer.core.initialisation import initialise, get_layout
 from optimizer.core.resume import count_words
 from optimizer.gpt.query import create_motivation, generate_motivations, \
     revise_motivation, revise_motivations
@@ -17,7 +17,7 @@ from optimizer.utils.download import download_button
 st.set_page_config(
     page_title="Motivation letter",
     page_icon=":page_facing_up:",
-    layout=st.session_state["layout"],
+    layout=get_layout(),
 )
 
 initialise()
@@ -106,13 +106,16 @@ def create_letter():
             st.experimental_rerun()
 
     with col_analyse:
-        if st.button("Revise", help="Revise the entire motivation letter at once"):
+        if st.button(
+                "Revise", help="Revise the entire motivation letter at once"):
             st.session_state['letter'] = revise_motivations(words, temp)
             parse_letter()
             st.experimental_rerun()
 
     with col_generate:
-        if st.button("Generate", help="Generate a motivation letter based on your expeirences"):
+        if st.button(
+            "Generate",
+                help="Generate a motivation letter based on your expeirences"):
             st.session_state['letter'] = generate_motivations(words, temp)
             parse_letter()
             st.experimental_rerun()

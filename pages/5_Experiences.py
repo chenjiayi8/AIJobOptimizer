@@ -5,7 +5,7 @@ projects for a job description.
 from collections import OrderedDict
 import streamlit as st
 import streamlit.components.v1 as components
-from optimizer.core.initialisation import init_state, initialise
+from optimizer.core.initialisation import init_state, initialise, get_layout
 from optimizer.core.resume import count_words
 from optimizer.gpt.query import generate_contributions, generate_descriptions
 from optimizer.utils.extract import extract_code
@@ -13,7 +13,7 @@ from optimizer.utils.extract import extract_code
 st.set_page_config(
     page_title="Experiences",
     page_icon=":male-office-worker:",
-    layout=st.session_state["layout"],
+    layout=get_layout(),
 )
 
 initialise()

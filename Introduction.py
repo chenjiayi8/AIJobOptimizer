@@ -3,15 +3,16 @@ The "Introduction" page provides an overview of the module
 """
 
 import streamlit as st
-from optimizer.core.initialisation import initialise
+from optimizer.core.initialisation import initialise, get_layout
 
-initialise(formated=False)
 
 st.set_page_config(
     page_title="AIJobOptimizer",
     page_icon="👋",
-    layout=st.session_state["layout"],
+    layout=get_layout(),
 )
+
+initialise(formated=False)
 
 
 def format_layout_option(key):

@@ -4,7 +4,7 @@ This page provides the functions for generating and sorting skills for a job des
 """
 import copy
 import streamlit as st
-from optimizer.core.initialisation import initialise
+from optimizer.core.initialisation import initialise, get_layout
 from optimizer.gpt.query import generate_skills, sort_skills
 from optimizer.utils.extract import extract_code
 
@@ -12,7 +12,7 @@ from optimizer.utils.extract import extract_code
 st.set_page_config(
     page_title="Core Competencies",
     page_icon=":toolbox:",
-    layout=st.session_state["layout"],
+    layout=get_layout(),
 )
 
 initialise()
@@ -200,15 +200,18 @@ def edit_skills():
             col_skills_generate = st.columns([1, 1, 1])
         with col_skills_generate_number:
             create_skills_number = st.slider(
-                "Number of keywords", 3, 10, value=5, key="create_skills_number")
+                "Number of keywords", 3, 10, value=5,
+                key="create_skills_number")
 
         with col_skills_generate_temp:
             skills_temp = st.slider("Temperature", 0.0, 1.0,
                                     value=0.8, key="skills_temp")
         with col_skills_generate:
-            if st.button('Identify keywords', help="Identify ATS keywords skills \
+            if st.button(
+                'Identify keywords',
+                help="Identify ATS keywords skills \
                         from the job description and your experiences",
-                         key="generate_skills"):
+                    key="generate_skills"):
                 reply = generate_skills(
                     create_skills_number, skills_temp)
                 st.session_state['new_skills'] = parse_skills(reply)
