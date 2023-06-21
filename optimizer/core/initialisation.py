@@ -71,6 +71,12 @@ def initialise(formated=True):
 
 
 def get_layout():
+    """
+    Returns the current layout of the Streamlit app.
+
+    Returns:
+    str: The current layout of the Streamlit app.
+    """
     return st.session_state["layout"] if "layout" in st.session_state else "centered"
 
 
