@@ -54,6 +54,20 @@ def get_default_mode():
     return get_model_name_by_index(0)
 
 
+def get_model_index_by_name(model_name):
+    """
+    Returns the index of the specified model.
+
+    Args:
+        model_name (str): The name of the model.
+
+    Returns:
+        int: The index of the specified model.
+    """
+    model_names = get_model_names()
+    return model_names.index(model_name)
+
+
 @retry(requests.exceptions.Timeout, tries=5, delay=1, backoff=2, max_delay=120)
 def call_openai_api(messages, temperature=0.1, number_completion=1):
     """
