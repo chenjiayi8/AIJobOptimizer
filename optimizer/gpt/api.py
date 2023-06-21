@@ -20,6 +20,16 @@ MODELS = {"gpt-3.5-turbo": 4096,
 SYSTEM_ROLE = "You are my Career Coach. You will help me revise my resume for a target job."
 
 
+def get_model_names():
+    """
+    Returns a list of the names of the available models.
+
+    Returns:
+        list: A list of the names of the available models.
+    """
+    return list(MODELS.keys())
+
+
 @retry(requests.exceptions.Timeout, tries=5, delay=1, backoff=2, max_delay=120)
 def call_openai_api(messages, temperature=0.1, number_completion=1):
     """
