@@ -9,7 +9,7 @@ from st_dropfill_textarea import st_dropfill_textarea
 import streamlit as st
 import streamlit.components.v1 as components
 from optimizer.core.initialisation import initialise, get_layout
-from optimizer.gpt.api import MODELS, SYSTEM_ROLE
+from optimizer.gpt.api import get_model_names, get_model_index_by_name, SYSTEM_ROLE
 from optimizer.gpt.query import get_experiences_msg, get_job_description_msg, \
     get_skills_msg, get_system_msg, query_gpt
 from optimizer.utils.copy import copy_button
@@ -372,7 +372,8 @@ def custom_questions():
     None
     """
     new_model = st.selectbox(
-        "ChatGPT Model: ", MODELS, MODELS.index(st.session_state['MODEL']),
+        "ChatGPT Model: ", get_model_names(),
+        get_model_index_by_name(st.session_state['MODEL']),
         help="Select a model to use for the chatbot, which is also used by \
         previous pages")
     if new_model != st.session_state['MODEL']:
