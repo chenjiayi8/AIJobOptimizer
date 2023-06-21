@@ -93,9 +93,7 @@ def get_experiences(resume: dict) -> list | None:
     candidates = ['experience', 'experiences',
                   'work_experiences', 'professional_experience']
     experiences = search_field(resume, candidates)
-    if experiences is not None:
-        return experiences
-    return ""
+    return experiences
 
 
 def get_date_range(exp: dict) -> str:
