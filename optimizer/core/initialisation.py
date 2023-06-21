@@ -3,13 +3,14 @@ This module provides utility functions for initializing Streamlit \
 session state and text fields.
 """
 
+from typing import Any
 import streamlit as st
 from streamlit_extras.switch_page_button import switch_page
 from optimizer.gpt.api import MODELS
 from optimizer.utils.format import custom_layout
 
 
-def init_state(name, value=False):
+def init_state(name, value: Any = False):
     """
     Initialise session_state with provide field name and value
     """
