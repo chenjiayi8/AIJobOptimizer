@@ -89,7 +89,7 @@ def call_openai_api(messages, temperature=0.1, number_completion=1):
     """
     model = st.session_state['MODEL']
     num_tokens = num_tokens_from_messages(messages, model)
-    if num_tokens > TOKEN_LIMITS[model]*0.9:
+    if num_tokens > MODELS[model]*0.9:
         st.write("### :red[Your input is too long!]")
         return None
     config = dotenv_values(".env")
