@@ -322,7 +322,8 @@ def parse_resume(txt_resume: str) -> None:
         parse_expereinces()
 
 
-def parse_linkedin_job_description(page: requests.models.Response) -> str:
+def parse_linkedin_job_description(
+        page: requests.models.Response) -> str | None:
     """
     Parses the job description from a LinkedIn job posting page.
 
@@ -331,7 +332,7 @@ def parse_linkedin_job_description(page: requests.models.Response) -> str:
             the `requests.get()` function.
 
     Returns:
-        str: The job description in json str.
+        str: The job description in json str or None if there is an error.
     """
     soup = BeautifulSoup(page.content, 'html.parser')
     if "Not enough credits" in soup.text:
