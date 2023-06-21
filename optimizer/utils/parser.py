@@ -139,7 +139,8 @@ def parse_project(exp_or_project_in: dict) -> dict:
     project['title'] = search_field(
         exp_or_project_in, ['title', 'project', 'description'])
     project['description'] = search_field(
-        exp_or_project_in, ['project_description', 'project description', 'description'])
+        exp_or_project_in,
+        ['project_description', 'project description', 'description'])
 
     # Check if the value of key 'description' in 'project' is None or \
     # equal to the value of key 'title' in 'project', and if true, \
