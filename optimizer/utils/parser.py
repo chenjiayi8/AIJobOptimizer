@@ -3,7 +3,7 @@ This module contains functions to parse resume data in JSON format, \
 and extract information like personal statement, skills and experiences \
 for further use.
 """
-
+from typing import Any
 import copy
 import datetime
 import json
@@ -16,7 +16,7 @@ from optimizer.gpt.query import analyse_resume, query_project_contributions,  \
 from optimizer.utils.extract import extract_by_quotation_mark
 
 
-def search_field(obj: dict, candidates: list) -> any:
+def search_field(obj: dict, candidates: list) -> Any:
     """
     Search for the first matching field in the given object, selected from a list of candidates.
 
