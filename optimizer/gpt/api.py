@@ -30,6 +30,20 @@ def get_model_names():
     return list(MODELS.keys())
 
 
+def get_model_name_by_index(index):
+    """
+    Returns the name of the model at the specified index.
+
+    Args:
+        index (int): The index of the model.
+
+    Returns:
+        str: The name of the model at the specified index.
+    """
+    model_names = get_model_names()
+    return model_names[index]
+
+
 @retry(requests.exceptions.Timeout, tries=5, delay=1, backoff=2, max_delay=120)
 def call_openai_api(messages, temperature=0.1, number_completion=1):
     """
