@@ -53,7 +53,7 @@ def get_statement(resume: dict) -> str | None:
     return ""
 
 
-def get_skills(resume: dict) -> list | None:
+def get_skills(resume: dict) -> list:
     """
     Searches the input `resume` dictionary for a list of skills. \
     The function searches for skills under different keys such as 'skills', \
