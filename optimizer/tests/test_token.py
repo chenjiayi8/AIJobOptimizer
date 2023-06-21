@@ -2,7 +2,7 @@
 import unittest
 
 from optimizer.gpt.token import num_tokens_from_string, num_tokens_from_messages
-from optimizer.gpt.api import MODELS
+from optimizer.gpt.api import get_default_mode
 
 
 class TestNumTokensFromString(unittest.TestCase):
@@ -11,7 +11,7 @@ class TestNumTokensFromString(unittest.TestCase):
     def test_num_tokens_from_string(self):
         """Unit test for num_tokens_from_string."""
         string = "tiktoken is great!"
-        encoding_name = MODELS[0]
+        encoding_name = get_default_mode()
         num_tokens = num_tokens_from_string(string, encoding_name)
         self.assertEqual(num_tokens, 6)
 
@@ -21,6 +21,6 @@ class TestNumTokensFromString(unittest.TestCase):
             {"role": "user", "content": "Tell me who you are."},
             {"role": "assistant", "name": "GPT", "content": "I am GPT."},
         ]
-        encoding_name = MODELS[0]
+        encoding_name = get_default_mode()
         num_tokens = num_tokens_from_messages(messages, encoding_name)
         self.assertEqual(num_tokens, 25)
