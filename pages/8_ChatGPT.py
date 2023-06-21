@@ -351,7 +351,7 @@ def insert_messages():
             with col_empty:
                 st.write("")
 
-        if insertted and len(new_msg) > 0:
+        if insertted and role is not None and len(new_msg) > 0:
             st.session_state['messages'] += [
                 {"id": str(uuid.uuid4()),
                  "select": True, "type": message_types[role],
