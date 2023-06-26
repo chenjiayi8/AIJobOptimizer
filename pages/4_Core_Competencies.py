@@ -161,6 +161,16 @@ def on_new_skills_selected(new_skills_selected):
     st.session_state['new_skills_select'] = new_skills_selected
 
 
+def append_new_skill(new_skill):
+    """
+    Append a new skill to the 'new_skills_select' key in the session state \
+    and distribute the new skills.
+
+    """
+    st.session_state['new_skills_select'] = [new_skill]
+    distribute_new_skills()
+
+
 def edit_skills():
     """
     Method to render a skill-related section on a Streamlit app page. \
@@ -270,6 +280,14 @@ def edit_skills():
                 reset_skills()
                 st.experimental_rerun()
 
+    if len(st.session_state['skills']) > 0:
+        with st.form("my-new-skill", clear_on_submit=True):
+            new_skill = st.text_input(
+                "Add a new skill", placeholder="Type a new skill")
+            submitted = st.form_submit_button("Add")
+        if submitted and new_skill not in st.session_state['skills']:
+            append_new_skill(new_skill)
+            st.experimental_rerun()
     if len(st.session_state['choosen_skills']) > 0:
         st.write('#### Final Core Competencies:')
         st.write(f"{' | '.join(st.session_state['choosen_skills'])}")
