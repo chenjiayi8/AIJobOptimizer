@@ -7,6 +7,7 @@ import streamlit as st
 from optimizer.core.initialisation import initialise, get_layout
 from optimizer.gpt.query import generate_skills, sort_skills
 from optimizer.utils.extract import extract_code
+from optimizer.utils.parser import reset_skills
 
 
 st.set_page_config(
@@ -237,7 +238,8 @@ def edit_skills():
             st.experimental_rerun()
 
     if len(st.session_state['skills']) > 0:
-        col_max_skills, col_skills_sort = st.columns([2, 1])
+        col_max_skills, col_skills_sort, col_skills_reset = \
+            st.columns([2, 1, 1])
 
         with col_max_skills:
             st.session_state['max_skills_number'] = st.slider(
@@ -260,6 +262,13 @@ def edit_skills():
                     st.session_state['sorted_skills'] = parse_skills(reply)
                     on_skills_sorted()
                     st.experimental_rerun()
+
+        with col_skills_reset:
+            if st.button('Reset skills',
+                         help="Reset your skills",
+                         key="reset_skills"):
+                reset_skills()
+                st.experimental_rerun()
 
     if len(st.session_state['choosen_skills']) > 0:
         st.write('#### Final Core Competencies:')

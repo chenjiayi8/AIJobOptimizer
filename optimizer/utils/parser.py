@@ -79,6 +79,35 @@ def get_skills(resume: dict) -> list:
     return []
 
 
+def reset_skills():
+    """
+    Reset the skills list based on the skills stored in the session state.
+
+    If the 'skills' key in the session state is a list, then the function \
+    will append each skill to the 'skills' list.
+    If the 'skills' key in the session state is a dictionary, then the \
+    function will append each value to the 'skills' list.
+
+    The function will update the following session state keys:
+    - 'skills': the updated skills list
+    - 'sorted_skills': the sorted skills list
+    - 'choosen_skills': the choosen skills list
+    - 'max_skills_number': the length of the updated skills list
+    """
+    skills = []
+    if isinstance(st.session_state['resume']['skills'], list):
+        for skill in st.session_state['resume']['skills']:
+            skills.append(skill)
+    else:
+        for value in st.session_state['resume']['skills'].values():
+            skills += value
+
+    st.session_state['skills'] = skills
+    st.session_state['sorted_skills'] = skills
+    st.session_state['choosen_skills'] = skills
+    st.session_state['max_skills_number'] = len(skills)
+
+
 def get_experiences(resume: dict) -> list | None:
     """
     Search for experience-related fields in a resume and return them if found.
@@ -260,18 +289,7 @@ def parse_json(txt_resume: str) -> None:
     """
     st.session_state['resume'] = json.loads(txt_resume)
     st.session_state['statement'] = st.session_state['resume']['statement']
-    skills = []
-    if isinstance(st.session_state['resume']['skills'], list):
-        for skill in st.session_state['resume']['skills']:
-            skills.append(skill)
-    else:
-        for value in st.session_state['resume']['skills'].values():
-            skills += value
-
-    st.session_state['skills'] = skills
-    st.session_state['sorted_skills'] = skills
-    st.session_state['choosen_skills'] = skills
-    st.session_state['max_skills_number'] = len(skills)
+    reset_skills()
     st.session_state['experiences'] = st.session_state['resume']['experiences']
 
 
