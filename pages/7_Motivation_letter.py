@@ -191,12 +191,15 @@ def edit_motivations() -> None:
     for index, motivation in enumerate(st.session_state['motivations']):
         col_content, col_revise = st.columns([6, 1])
         with col_content:
-            motivation['content'] = st.text_area(
+            temp = st.text_area(
                 f"motivation {index}",
                 motivation['content'],
                 height=200,
                 key='content_'+motivation['uuid']
             )
+            if temp != motivation['content']:
+                motivation['content'] = temp
+                st.experimental_rerun()
 
         with col_revise:
             if len(motivation['content']) != 0:
