@@ -34,10 +34,13 @@ def edit_statement() -> None:
         statement_temp = st.slider("Temperature", 0.0, 1.0, 0.8)
     with col_statement:
         if st.button('Generate statement'):
+            st.session_state['btn_generate_statement'] = False
             replies = generate_statements(
                 statement_words,
                 statement_temp
             )
+            if 'statement_choice' in st.session_state:
+                del st.session_state['statement_choice']
             new_statements = parse_statements(replies)
             st.session_state['new_statements'] = new_statements
             st.session_state['btn_generate_statement'] = True
