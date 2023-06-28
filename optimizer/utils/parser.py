@@ -16,6 +16,29 @@ from optimizer.gpt.query import analyse_resume, query_project_contributions,  \
 from optimizer.utils.extract import extract_by_quotation_mark
 
 
+def snakecase(arg: str, delimiter: str, upper_case: bool) -> str:
+    """
+    Convert a string to snake case based on the specified delimiter and case \
+    style.
+
+    Parameters:
+    arg (str): The string to convert.
+    delimiter (str): The delimiter to split the string into parts.
+    upper_case (bool): Determines whether the resulting string should be in \
+    uppercase or lowercase.
+
+    Returns:
+    str: The converted snake case string.
+
+    """
+    parts = arg.split(delimiter)
+    if upper_case:
+        parts = [part.upper() for part in parts]
+    else:
+        parts = [part.lower() for part in parts]
+    return delimiter.join(parts)
+
+
 def camelcase(arg: str, upper_case: bool) -> str:
     """Convert the given string to camel case format.
 
