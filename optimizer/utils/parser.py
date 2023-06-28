@@ -162,8 +162,9 @@ def get_experiences(resume: dict) -> list | None:
         list | None: A list with experience-related fields if found, otherwise None.
     """
 
-    candidates = ['experience', 'experiences',
-                  'work_experiences', 'professional_experience']
+    candidates = ['experience', 'experiences', 'work_experiences',
+                  'work_experience', 'professional_experience',
+                  'professional_experiences']
     experiences = search_field(resume, candidates)
     return experiences
 
