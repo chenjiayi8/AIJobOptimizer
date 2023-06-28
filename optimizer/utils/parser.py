@@ -16,6 +16,26 @@ from optimizer.gpt.query import analyse_resume, query_project_contributions,  \
 from optimizer.utils.extract import extract_by_quotation_mark
 
 
+def camelcase(arg: str, upper_case: bool) -> str:
+    """Convert the given string to camel case format.
+
+    Args:
+        arg (str): The string which needs to be converted to camel \
+        case.
+        upper_case (bool): Whether to convert the first letter to \
+        upper case.
+
+    Returns:
+        str: The camel case formatted string.
+        """
+    parts = arg.split('_')
+    if len(parts) == 1:
+        parts = arg.split(' ')
+    if upper_case:
+        return ''.join(x.title() for x in parts)
+    return parts[0] + ''.join(x.title() for x in parts[1:])
+
+
 def search_field(obj: dict, candidates: list) -> Any:
     """
     Search for the first matching field in the given object, selected from a list of candidates.
