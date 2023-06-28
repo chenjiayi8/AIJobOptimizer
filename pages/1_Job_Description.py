@@ -46,8 +46,11 @@ def job_description():
                     st.error("The URL is not valid. Please try again.")
                     st.stop()
 
-            st.session_state['job_analysed'] = summary_job_description(
+            job_analysed = summary_job_description(
                 st.session_state['txt_jd'])
+
+            if job_analysed is not None:
+                st.session_state['job_analysed'] = job_analysed
 
             st.session_state['company_role'] = get_company_role(
                 st.session_state['txt_jd'])
