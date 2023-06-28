@@ -70,12 +70,32 @@ def search_field(obj: dict, candidates: list) -> Any:
     Returns:
         The value of the first matching field found in the object, or None if no such field exists.
     """
-    candidate = (v for i, v in enumerate(candidates) if v in obj)
+    new_list = []
+    for candidate in candidates:
+        # add the candidate itself to the list
+        new_list.append(candidate)
+        # example: Core_Competencies
+        new_list.append(snakecase(candidate, '_', True))
+        # example: core_competencies
+        new_list.append(snakecase(candidate, '_', False))
+        # example: Core Competencies
+        new_list.append(snakecase(candidate, ' ', True))
+        # example: core competencies
+        new_list.append(snakecase(candidate, ' ', False))
+        # example: CoreCompetencies
+        new_list.append(camelcase(candidate, True))
+        # example: coreCompetencies
+        new_list.append(camelcase(candidate, False))
+        # example: Duration
+        new_list.append(candidate.capitalize())
+
+    # remove duplicates
+    new_list = list(set(new_list))
+    candidate = (v for i, v in enumerate(new_list) if v in obj)
     key = next(candidate, None)
     if key is not None:
         return obj[key]
-    else:
-        return None
+    return None
 
 
 def get_statement(resume: dict) -> str | None:
