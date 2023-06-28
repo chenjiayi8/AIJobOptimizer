@@ -204,11 +204,14 @@ def get_date_range(exp: dict) -> str:
     date_start = datetime.datetime(year=int(exp['start']['year']),
                                    month=int(exp['start']['month']), day=1)
     month_start = date_start.strftime('%b')
-    date_end = datetime.datetime(year=int(exp['end']['year']),
-                                 month=int(exp['end']['month']), day=1)
-    month_end = date_end.strftime('%b')
-    str_range = f"{month_start} {exp['start']['year']} - \
-                  {month_end} {exp['end']['year']}"
+    if 'end' in exp:
+        date_end = datetime.datetime(year=int(exp['end']['year']),
+                                     month=int(exp['end']['month']), day=1)
+        month_end = date_end.strftime('%b')
+        str_range = f"{month_start} {exp['start']['year']} - \
+                    {month_end} {exp['end']['year']}"
+    else:
+        str_range = f"{month_start} {exp['start']['year']} - Present"
     return str_range
 
 
