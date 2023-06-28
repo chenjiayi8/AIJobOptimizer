@@ -16,8 +16,6 @@ def choose_job_description() -> str:
     """
     Selects a job description to export.
     """
-    if len(st.session_state['job_analysed']) > 0:
-        return st.session_state['job_analysed']
     return st.session_state['txt_jd']
 
 
