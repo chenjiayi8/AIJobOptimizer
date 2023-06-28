@@ -33,7 +33,7 @@ def camelcase(arg: str, upper_case: bool) -> str:
         parts = arg.split(' ')
     if upper_case:
         return ''.join(x.title() for x in parts)
-    return parts[0] + ''.join(x.title() for x in parts[1:])
+    return parts[0].lower() + ''.join(x.title() for x in parts[1:])
 
 
 def search_field(obj: dict, candidates: list) -> Any:
