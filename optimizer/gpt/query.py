@@ -194,7 +194,11 @@ def analyse_resume(txt_resume: str, temperature: float) -> str:
         {"role": "user", "content": "<code> Your message here </code>"},
     ]
     reply = call_openai_api(temp_msgs, temperature=temperature)
-    reply_json_str = extract_code(reply)
+    try:
+        reply_obj = json.loads(reply)
+        reply_json_str = json.dumps(reply_obj, indent=4)
+    except json.JSONDecodeError:
+        reply_json_str = extract_code(reply)
     return reply_json_str
 
 
