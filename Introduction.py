@@ -12,7 +12,7 @@ st.set_page_config(
     layout=get_layout(),
 )
 
-initialise(formated=False)
+initialise(formatted=False)
 
 
 def format_layout_option(key):

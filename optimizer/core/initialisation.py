@@ -19,7 +19,7 @@ def init_state(name, value: Any = False):
         st.session_state[name] = value
 
 
-def initialise(formated=True):
+def initialise(formatted=True):
     """
     Initialises controllers states and text fields
 
@@ -67,7 +67,7 @@ def initialise(formated=True):
     init_state('layouts', ['centered', 'wide'])
     init_state('layout', st.session_state['layouts'][0])
 
-    if formated:
+    if formatted:
         custom_layout()
 
 
