@@ -81,7 +81,7 @@ def query_project_title(project_info: str) -> str:
         {"role": "user", "content": "The following is the resume"},
         {"role": "user", "content": st.session_state['txt_resume']},
         {"role": "user", "content": f"Can you find the project name with \
-        this infomration: {project_info}?"},
+        this information: {project_info}?"},
         {"role": "user", "content": "Please always surround the output \
         with code tags by using the following syntax:"},
         {"role": "user", "content": "<code> Your message here </code>"},
@@ -496,7 +496,7 @@ def generate_contributions(project, words, number, temperature):
         {number} new key contributions in {words} words, to align with the \
         job description?"},
         {"role": "user", "content": "Formatting the output as html in \
-        unordered list; identifiying the keywords relevant with the job \
+        unordered list; identifying the keywords relevant with the job \
         description."},
         {"role": "user", "content": "Please always surround the keywords \
         with bold tags by using the following syntax:"},
