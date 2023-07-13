@@ -20,7 +20,7 @@ st.set_page_config(
     layout=get_layout(),
 )
 
-initialise(formated=False)
+initialise(formatted=False)
 
 COACH_ROLE = SYSTEM_ROLE
 HR_ROLE = "You are a hiring manager. You are shortlisting candidates for a \
