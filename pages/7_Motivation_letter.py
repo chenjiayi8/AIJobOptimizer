@@ -20,7 +20,7 @@ st.set_page_config(
     layout=get_layout(),
 )
 
-initialise()
+initialise(formatted=False)
 
 
 def parse_letter():
