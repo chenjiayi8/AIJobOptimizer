@@ -74,8 +74,8 @@ def create_letter():
 
     or
 
-    Without a templrate:
-    Button Generate: generate a motivation letter based on your expeirences
+    Without a template:
+    Button Generate: generate a motivation letter based on your experiences
     """
 
     new_letter = st_dropfill_textarea(
