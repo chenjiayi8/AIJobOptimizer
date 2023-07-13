@@ -600,7 +600,7 @@ def revise_motivation(content, config):
     return reply
 
 
-def revise_motivations(words: int, temperature: float) -> str:
+def revise_motivations(config: dict) -> str:
     """
     Generates a motivation letter by calling OpenAI API using the \
     provided session state parameters.
@@ -634,15 +634,17 @@ def revise_motivations(words: int, temperature: float) -> str:
         {"role": "user", "content": "I will give you my motivation letter as \
         following:"},
         {"role": "user", "content": letter},
-        {"role": "user", "content": f"Compose a motivation letter in {words} \
+        {"role": "user", "content": f"Compose a motivation letter in \
+        {config['words']} \
         words that highlights my unique experiences and skills, demonstrating \
         how they make me an ideal candidate for the desired position. Be sure \
         to discuss any relevant educational background, work experiences, \
         accomplishments, and personal traits that contribute to my passion \
         for this field."},
-
+        {"role": "user", "content": f"Please write as a non-native English \
+        speaker at the {config['level']} level"},
     ]
-    reply = call_openai_api(messages, temperature=temperature)
+    reply = call_openai_api(messages, temperature=config['temperature'])
     return reply
 
 
