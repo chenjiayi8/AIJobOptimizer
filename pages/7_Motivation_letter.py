@@ -87,17 +87,27 @@ def create_letter():
     if new_letter != st.session_state['letter']:
         st.session_state['letter'] = new_letter
         st.experimental_rerun()
-    col_split, \
-        col_words, \
-        col_temp, \
-        col_analyse, \
-        col_generate = st.columns([
-            0.75, 1, 1, 1, 1])
+
+    col_words, col_temp,  col_level = st.columns([1, 1, 1,])
+
     with col_words:
         words = st.slider('Words', 200, 800, 500)
 
     with col_temp:
         temp = st.slider("Temperature", 0.1, 1.0, 0.8)
+
+    with col_level:
+        levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
+        level = st.selectbox(
+            'Language level', levels, levels.index('B2'),
+            help='Select your language level')
+
+    config = {}
+    config['words'] = words
+    config['temperature'] = temp
+    config['level'] = level
+
+    col_split, col_analyse, col_generate = st.columns([1, 1, 1])
 
     with col_split:
         if st.button("Split", help="Split your motivation letter into \
@@ -108,15 +118,17 @@ def create_letter():
     with col_analyse:
         if st.button(
                 "Revise", help="Revise the entire motivation letter at once"):
-            st.session_state['letter'] = revise_motivations(words, temp)
+            st.session_state['letter'] = revise_motivations(config)
             parse_letter()
             st.experimental_rerun()
 
     with col_generate:
         if st.button(
             "Generate",
-                help="Generate a motivation letter based on your expeirences"):
-            st.session_state['letter'] = generate_motivations(words, temp)
+                help="Generate a motivation letter based on your experiences"):
+            st.session_state['letter'] = generate_motivations(
+                config
+            )
             parse_letter()
             st.experimental_rerun()
 
