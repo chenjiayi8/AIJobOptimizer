@@ -176,8 +176,7 @@ def analyse_resume(txt_resume: str, temperature: float) -> str:
         A dictionary-like object that contains the extracted information from the resume.
 
     Raises:
-        ValueError: If the `txt_resume` argument is an empty string or None.
-        OpenAIAPIError: If the OpenAI API returns an error status code or message.
+        JSONDecodeError: If the response from the OpenAI API is not a valid JSON string.
     """
     if txt_resume is None or len(txt_resume) == 0:
         raise ValueError("Invalid resume")
