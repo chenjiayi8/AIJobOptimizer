@@ -573,8 +573,6 @@ def revise_motivation(content, config):
     skills = choose_skills()
     skills_str = ','.join(skills)
     experiences_str = json.dumps(choose_experiences())
-    words = config['words']
-    temperature = config['temp']
     messages = [
         {"role": "system", "content": SYSTEM_ROLE},
         {"role": "assistant", "content":  "The job description is following:"},
@@ -590,14 +588,15 @@ def revise_motivation(content, config):
         motivation letter as following:"},
         {"role": "user", "content": content},
         {"role": "user", "content": f"Please revise this paragraph \
-        of my motivation letter in {words} words, ensuring that it \
+        of my motivation letter in {config['words']} words, ensuring that it \
         effectively highlights my relevant experiences and skills in the \
         context of the position I am applying for. Feel free to make any \
         necessary changes in terms of structure or tone to make it more \
         compelling."},
-
+        {"role": "user", "content": f"Please revise as a non-native English \
+        speaker at the {config['level']} level"},
     ]
-    reply = call_openai_api(messages, temperature=temperature)
+    reply = call_openai_api(messages, temperature=config['temperature'])
     return reply
 
 
