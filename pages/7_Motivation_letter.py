@@ -183,13 +183,19 @@ def edit_motivations() -> None:
         create_letter()
         return
 
-    col_words, col_temp, col_reset = st.columns([1, 1, 1])
+    col_words, col_temp, col_level, col_reset = st.columns([1, 1, 1, 1])
 
     with col_words:
         motivation_words = st.slider("Words", 5, 300, 100)
 
     with col_temp:
         motivation_temp = st.slider("Temperature", 0.1, 1.0, 0.8)
+
+    with col_level:
+        levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
+        level = st.selectbox(
+            'Language level', levels, levels.index('B2'),
+            help='Select your language level')
 
     with col_reset:
         if st.button("Reset letter"):
@@ -199,12 +205,13 @@ def edit_motivations() -> None:
 
     config = {}
     config['words'] = motivation_words
-    config['temp'] = motivation_temp
+    config['temperature'] = motivation_temp
+    config['level'] = level
     for index, motivation in enumerate(st.session_state['motivations']):
         col_content, col_revise = st.columns([6, 1])
         with col_content:
             temp = st.text_area(
-                f"motivation {index}",
+                f"Paragraph {index+1}",
                 motivation['content'],
                 height=200,
                 key='content_'+motivation['uuid']
@@ -241,14 +248,14 @@ def edit_motivations() -> None:
             else:
                 if st.button(
                     "Generate",
-                    key='generate_moti_'+motivation['uuid'],
+                    key='generate_motivation_'+motivation['uuid'],
                     help="Generate a paragraph based on previous letter"
                 ):
                     motivation['content'] = create_motivation(index, config)
                     st.experimental_rerun()
                 if st.button(
                     "Delete",
-                    key="delete_moti_"+motivation['uuid'],
+                    key="delete_motivation_"+motivation['uuid'],
                     help="Remove this paragraph"
                 ):
                     delete_motivation(index)
