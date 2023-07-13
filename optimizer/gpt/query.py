@@ -522,8 +522,6 @@ def create_motivation(index: int, config: dict) -> str:
     Returns:
     str: The generated paragraph.
     """
-    words = config['words']
-    temperature = config['temp']
     txt_jd = st.session_state['txt_jd']
     skills = st.session_state['skills']
     skills_str = ','.join(skills)
@@ -547,10 +545,12 @@ def create_motivation(index: int, config: dict) -> str:
         motivation letter as following:"},
         {"role": "user", "content": previous_letter},
         {"role": "user", "content": f"Please continue to write one paragraph \
-        in {words} words, connecting my skills and experiences with \
+        in {config['words']} words, connecting my skills and experiences with \
         the job description."},
+        {"role": "user", "content": f"Please write as a non-native English \
+        speaker at the {config['level']} level"},
     ]
-    reply = call_openai_api(messages, temperature=temperature)
+    reply = call_openai_api(messages, temperature=config['temperature'])
     return reply
 
 
