@@ -302,7 +302,7 @@ def write_experiences(doc, para, experiences):
     """
     para_placeholder = para
     paragraphs = []
-    for exp in experiences.values():
+    for exp in experiences:
         para = create_company(doc, exp)
         para_projects = create_projects(doc, exp)
         paragraphs.append(para)
