@@ -671,6 +671,7 @@ def generate_motivations(config: dict) -> str:
     skills = choose_skills()
     skills_str = ','.join(skills)
     experiences_str = json.dumps(choose_experiences())
+    prompt = st.session_state['letter']
     messages = [
         {"role": "system", "content": SYSTEM_ROLE},
         {"role": "assistant", "content":  "The job description is following:"},
@@ -681,7 +682,13 @@ def generate_motivations(config: dict) -> str:
         {"role": "user", "content": skills_str},
         {"role": "user", "content": "I will give you my experiences as \
         following:"},
-        {"role": "user", "content": experiences_str},
+        {"role": "user", "content": experiences_str}
+    ]
+    if len(prompt) > 0:
+        messages += [
+            {"role": "user", "content": f"According to the prompt: {prompt}"}
+        ]
+    messages += [
         {"role": "user", "content": f"Please write a motivation letter \
         for me in {config['words']} words, connecting my skills and \
         experiences with the job description."},
