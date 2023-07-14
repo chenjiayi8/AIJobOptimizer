@@ -24,8 +24,11 @@ def edit_statement() -> None:
     """
     st.markdown("<h2 style='text-align: center;'>Personal statement</h2>",
                 unsafe_allow_html=True)
-    st.session_state['statement'] = st.text_area(
+    statement = st.text_area(
         'Personal statement', st.session_state['statement'], height=300)
+    if statement != st.session_state['statement']:
+        st.session_state['statement'] = statement
+        st.experimental_rerun()
     col_statement_words, col_statement_temp, col_statement = st.columns([
                                                                         1, 1, 1])
     with col_statement_words:
