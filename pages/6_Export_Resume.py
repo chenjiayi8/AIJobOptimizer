@@ -2,14 +2,13 @@
 This page contains a function to export a resume to a docx file format
 based on user-defined choices.
 """
-from collections import OrderedDict
+
 import re
 import streamlit as st
 from streamlit.runtime.uploaded_file_manager import UploadedFile
 from optimizer.core.initialisation import initialise, reset, get_layout
-from optimizer.core.resume import choose_contributions, \
-    choose_project_description, choose_skills, choose_statement, \
-    find_experience
+from optimizer.core.resume import choose_experiences, choose_skills, \
+    choose_statement, get_chosen_experiences
 from optimizer.gpt.query import get_company_role
 from optimizer.io.docx_file import to_docx, validate_template
 from optimizer.utils.download import download_button
@@ -25,17 +24,13 @@ template_fields = ['{statement}', '{competencies}', '{experiences}']
 initialise()
 
 
-def write_docx(choices: list, options: dict):
+def write_docx():
     """
     Generates a Word document containing job seeker's CV given the configured \
     template.
 
     Args:
-        choices (list): List containing the experience and projects that \
-        are to be included in the CV.
-        options (dict): Dictionary containing the experience and projects \
-        along with their unique ids.
-
+        None
     Returns:
         str: Name of the output file if successfully generated, None otherwise.
     """
@@ -46,27 +41,7 @@ def write_docx(choices: list, options: dict):
     statement = choose_statement()
     skills = choose_skills()
     skills_str = ' | '.join(skills)
-    experiences = OrderedDict()  # experiences are ordered
-    for choice in choices:
-        proj_uuid = options[choice]['proj_uuid']
-        exp_uuid = options[choice]['exp_uuid']
-        if exp_uuid not in experiences:
-            exp = find_experience(st.session_state['experiences'], exp_uuid)
-            exp['choosen_projects'] = [proj_uuid]
-            experiences[exp_uuid] = exp
-        else:
-            experiences[exp_uuid]['choosen_projects'].append(proj_uuid)
-
-    for key, exp in experiences.items():
-        for project in exp['projects']:
-            if project['uuid'] not in exp['choosen_projects']:
-                exp['projects'].remove(project)
-        experiences[key] = exp
-
-    for key, exp in experiences.items():
-        for project in exp['projects']:
-            project['description'] = choose_project_description(project)
-            project['contributions'] = choose_contributions(project)
+    experiences = choose_experiences()
 
     if 'company_role' in st.session_state:
         company_role = st.session_state['company_role']
@@ -76,7 +51,6 @@ def write_docx(choices: list, options: dict):
     else:
         output_file_name = 'CV_exported.docx'
 
-    st.session_state['experiences_choosen'] = experiences
     output_path = to_docx(st.session_state['template']['bytes_data'],
                           statement, skills_str, experiences)
 
