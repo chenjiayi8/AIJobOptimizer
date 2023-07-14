@@ -379,8 +379,10 @@ def sort_skills(txt_jd: str, skills: str, temperature: float) -> str:
         {"role": "user", "content": "Please always surround the output with \
         code tags by using the following syntax:"},
         {"role": "user", "content": "<code> Your message here </code>"},
+        {"role": "user", "content": "This is an example of your final output: \
+        <code> skill1, skill2, skill3 </code>"},
     ]
-    reply = call_openai_api(messages, temperature=temperature)
+    reply = call_openai_api(messages, temperature=temperature, model='gpt-4')
     return reply
 
 
