@@ -14,6 +14,21 @@ st.set_page_config(
 )
 
 
+def format_statement_choice(index: int) -> str:
+    """
+    This function formats the statement choice for display.
+        Args:
+            index (int): The index of the statement choice.
+        Returns:
+            str: The formatted statement choice.
+    """
+    if index == 0:
+        count = count_words(st.session_state['statement'])
+    else:
+        count = count_words(st.session_state['new_statements'][index - 1])
+    return 'Version ' + str(index) + ': ' + str(count) + ' words'
+
+
 def edit_statement() -> None:
     """
     This function generates a personal statement for the user and allows \
@@ -38,37 +53,39 @@ def edit_statement() -> None:
     with col_statement:
         if st.button('Generate statement'):
             st.session_state['btn_generate_statement'] = False
+            # default choice
+            st.session_state['statement_choice'] = 0
             replies = generate_statements(
                 statement_words,
                 statement_temp
             )
-            if 'statement_choice' in st.session_state:
-                del st.session_state['statement_choice']
             new_statements = parse_statements(replies)
             st.session_state['new_statements'] = new_statements
             st.session_state['btn_generate_statement'] = True
 
     if st.session_state['btn_generate_statement']:
         options = []
-        option = f"Version 0: {count_words(st.session_state['statement'])} \
-        words"
+        option = 0
         options.append(option)
-        st.write('### ' + option)
+        st.write('### ' + format_statement_choice(option))
         st.write(st.session_state['statement'])
         for i in range(len(st.session_state['new_statements'])):
             new_statement = st.session_state['new_statements'][i]
-            option = f"Version {i+1}: {count_words(new_statement)} words"
-            options.append(option)
-            st.write('### ' + option)
+            options.append(i+1)
+            st.write('### ' + format_statement_choice(i+1))
             st.write(new_statement)
-        if 'statement_choice' in st.session_state:
-            statement_choice_index = options.index(
-                st.session_state['statement_choice'])
-        else:
-            statement_choice_index = 0
 
-        st.session_state['statement_choice'] = st.selectbox(
-            'Choose final statement', options, index=statement_choice_index)
+        choice_index = options.index(
+            st.session_state['statement_choice'])
+
+        statement_choice = st.selectbox(
+            'Choose final statement',
+            options,
+            format_func=format_statement_choice,
+            index=choice_index)
+        if statement_choice != st.session_state['statement_choice']:
+            st.session_state['statement_choice'] = statement_choice
+            st.experimental_rerun()
 
 
 initialise()
