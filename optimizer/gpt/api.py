@@ -68,7 +68,10 @@ def get_model_index_by_name(model_name):
 
 
 @retry(requests.exceptions.Timeout, tries=5, delay=1, backoff=2, max_delay=120)
-def call_openai_api(messages, temperature=0.1, number_completion=1):
+def call_openai_api(messages,
+                    temperature=0.1,
+                    number_completion=1,
+                    model=None):
     """
     Function that sends a request to the OpenAI API to \
         generate a completion for the specified model, messages, temperature and n.
@@ -86,7 +89,8 @@ def call_openai_api(messages, temperature=0.1, number_completion=1):
         list or str or None: A list of generated completions, \
             a single generated completion or None if no completion could be generated.
     """
-    model = st.session_state['MODEL']
+    if model is None:
+        model = st.session_state['MODEL']
     num_tokens = num_tokens_from_messages(messages, model)
     if num_tokens > MODELS[model]*0.9:
         st.write("### :red[Your input is too long!]")
