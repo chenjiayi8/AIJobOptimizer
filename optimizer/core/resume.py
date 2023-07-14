@@ -55,8 +55,7 @@ def choose_statement() -> str:
     """
     if 'statement_choice' not in st.session_state:
         return st.session_state['statement']
-    choice = st.session_state['statement_choice']
-    index = int(extract_version_number(choice)) - 1
+    index = st.session_state['statement_choice'] - 1
     if index == -1:
         return st.session_state['statement']
     return st.session_state['new_statements'][index]
