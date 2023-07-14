@@ -113,7 +113,7 @@ def choose_experiences() -> dict | list | None:
     """
     Selects experiences as background information.
 
-    If experiences_choosen are present in the session_state, it will return \
+    If experiences_chosen are present in the session_state, it will return \
     them. Otherwise, it will return the experiences originally stored in the \
     session_state. Finally if the list of experiences is empty, return None
 
@@ -124,8 +124,8 @@ def choose_experiences() -> dict | list | None:
     None or A dict or list of the experiences to select.
     """
 
-    if 'experiences_choosen' in st.session_state:
-        experiences = st.session_state['experiences_choosen']
+    if 'experiences_chosen' in st.session_state:
+        experiences = st.session_state['experiences_chosen']
     else:
         experiences = st.session_state['experiences']
     if isinstance(experiences, list) and len(experiences) == 0:
