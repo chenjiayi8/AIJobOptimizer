@@ -31,5 +31,7 @@
   "[python]": {
     "editor.defaultFormatter": "ms-python.autopep8"
   },
-  "git.ignoreLimitWarning": true
+  "git.ignoreLimitWarning": true,
+  "cSpell.language": "en-GB",
+  "cSpell.words": ["openai", "streamlit"]
 }
