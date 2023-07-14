@@ -112,14 +112,19 @@ def export_docx() -> None:
             options[project_title]['exp_uuid'] = exp['uuid']
 
     if len(st.session_state['project_choices']) == 0:
-        st.session_state['project_choices'] = \
+        project_choices = \
             st.multiselect('Select relevant projects',
                            options.keys(), default=options)
     else:
-        st.session_state['project_choices'] = \
+        project_choices = \
             st.multiselect('Select relevant projects',
                            options.keys(),
                            default=st.session_state['project_choices'])
+    if project_choices != st.session_state['project_choices']:
+        st.session_state['project_choices'] = project_choices
+        st.session_state['experiences_chosen'] = \
+            get_chosen_experiences(project_choices, options)
+        st.experimental_rerun()
 
     with st.form("my-form", clear_on_submit=True):
         uploaded_file = st.file_uploader(
@@ -131,8 +136,7 @@ def export_docx() -> None:
     if 'template' in st.session_state and \
             'project_choices' in st.session_state:
         template_name = st.session_state['template']['name']
-        doc_bytes, doc_name = write_docx(
-            st.session_state['project_choices'], options)
+        doc_bytes, doc_name = write_docx()
         st.session_state['dl_link'] = download_button(
             doc_bytes, doc_name, 'Download')
         st.write(
