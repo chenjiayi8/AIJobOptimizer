@@ -213,3 +213,40 @@ def count_words(paragraph: str) -> int:
     """
     paragraph = paragraph.replace('/', ' ')
     return len(paragraph.split(' '))
+
+
+def get_chosen_experiences(choices: list, options: dict) -> list:
+    """
+    Returns a list of experiences that have been selected by the user.
+
+    Parameters:
+    choices (list): A list of choices made by the user.
+    options (dict): A dictionary containing the experiences of the user.
+
+    Returns:
+    list: a list of experiences that have been selected by the user.
+
+    """
+    experiences = OrderedDict()  # experiences are ordered
+    for choice in choices:
+        proj_uuid = options[choice]['proj_uuid']
+        exp_uuid = options[choice]['exp_uuid']
+        if exp_uuid not in experiences:
+            exp = find_experience(st.session_state['experiences'], exp_uuid)
+            exp['chosen_projects'] = [proj_uuid]
+            experiences[exp_uuid] = exp
+        else:
+            experiences[exp_uuid]['chosen_projects'].append(proj_uuid)
+
+    for key, exp in experiences.items():
+        for project in exp['projects']:
+            if project['uuid'] not in exp['chosen_projects']:
+                exp['projects'].remove(project)
+        experiences[key] = exp
+
+    for key, exp in experiences.items():
+        for project in exp['projects']:
+            project['description'] = choose_project_description(project)
+            project['contributions'] = choose_contributions(project)
+
+    return list(experiences.values())
