@@ -11,6 +11,7 @@ from optimizer.core.resume import get_parsed_resume
 from optimizer.gpt.query import estimate_match_rate
 from optimizer.utils.parser import parse_resume
 from optimizer.io.docx_file import docx_to_text
+from streamlit_extras.switch_page_button import switch_page
 
 st.set_page_config(
     page_title="Resume",
@@ -52,17 +53,28 @@ def upload_resume():
         "<h2 style='text-align: center;'>Resume</h2>", unsafe_allow_html=True
     )
     with st.form("my-form", clear_on_submit=True):
-        uploaded_file = st.file_uploader("Upload your resume", type="docx")
+        uploaded_file = st.file_uploader(
+            "Upload your resume", type=["docx", "txt", "html", "json"]
+        )
         submitted = st.form_submit_button("UPLOAD!")
     if submitted and uploaded_file is not None:
-        st.session_state["txt_resume"] = docx_to_text(uploaded_file.getvalue())
-        st.experimental_rerun()
+        if (
+            uploaded_file.type
+            == "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        ):
+            st.session_state["txt_resume"] = docx_to_text(
+                uploaded_file.getvalue()
+            )
+        else:
+            st.session_state["txt_resume"] = uploaded_file.getvalue().decode(
+                "utf-8"
+            )
     placeholder = (
-        "* Drag and drop your resume (docx, text, html or json)\n"
-        "* Or Copy and Paste your full resume\n"
+        "* Upload your resume (docx, text, html or json)\n"
+        "* Or Copy and Paste your resume\n"
         "* Max 3 pages\n"
     )
-    new_txt_resume = st_dropfill_textarea(
+    new_txt_resume = st.text_area(
         "Your resume",
         st.session_state["txt_resume"],
         placeholder=placeholder,
