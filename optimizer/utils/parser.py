@@ -436,3 +436,21 @@ def parse_linkedin_job_description(
     scrapped_text = json.dumps(jd_obj, indent=2)
     scrapped_text = scrapped_text.replace('\\n', '\n')
     return scrapped_text
+
+
+def parse_skills_string(skill_str: str) -> list:
+    """
+    Parses a string containing a list of skills and returns a list of skills.
+
+    Args:
+        skill_str (str): A string containing a list of skills.
+
+    Returns:
+        list: A list of skills.
+    """
+    splitters = [";", ",", "|"]
+    results = [skill_str.split(splitter) for splitter in splitters]
+    counts = [len(result) for result in results]
+    if max(counts) > 0:
+        return results[counts.index(max(counts))]
+    return []
