@@ -7,7 +7,7 @@ import streamlit as st
 from optimizer.core.initialisation import initialise, get_layout
 from optimizer.gpt.query import generate_skills, sort_skills
 from optimizer.utils.extract import extract_code
-from optimizer.utils.parser import reset_skills
+from optimizer.utils.parser import parse_skills_string, reset_skills
 
 
 st.set_page_config(
@@ -32,7 +32,7 @@ def parse_skills(reply):
     def capitalize(skill):
         return skill[0].capitalize() + skill[1:]
     skills_str = extract_code(reply)
-    skills = skills_str.split(',')
+    skills = parse_skills_string(skills_str)
     skills = [capitalize(skill.strip()) for skill in skills]
     return skills
 
