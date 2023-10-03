@@ -55,10 +55,7 @@ def upload_resume():
             "Upload your resume", type='docx')
         submitted = st.form_submit_button("UPLOAD!")
     if submitted and uploaded_file is not None:
-        st.session_state['txt_resume'] = docx_to_text(uploaded_file.getvalue())
-    placeholder = ("* Drag and drop your resume (docx, text, html or json)\n"
-                   "* Or Copy and Paste your full resume\n"
-                   "* Max 3 pages\n")
+        st.experimental_rerun()
     new_txt_resume = st_dropfill_textarea(
         "Your resume",
         st.session_state['txt_resume'],
