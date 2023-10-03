@@ -175,14 +175,7 @@ def reset_skills():
     - 'choosen_skills': the choosen skills list
     - 'max_skills_number': the length of the updated skills list
     """
-    skills = []
-    if isinstance(st.session_state["resume"]["skills"], list):
-        for skill in st.session_state["resume"]["skills"]:
-            skills.append(skill)
-    else:
-        for value in st.session_state["resume"]["skills"].values():
-            skills += value
-
+    skills = get_skills(st.session_state["resume"])
     st.session_state["skills"] = skills
     st.session_state["sorted_skills"] = skills
     st.session_state["choosen_skills"] = skills
