@@ -1,0 +1,9 @@
+apps:
+  - script: ".devcontainer/watch-conflict.py"
+    cwd: "."
+    name: 'watch-conflict'
+    interpreter: 'python3'
+    log: ".devcontainer/watch-conflict.log"  # Combined log file (stdout + stderr)
+    error_file: /dev/null
+    out_file: /dev/null
+
