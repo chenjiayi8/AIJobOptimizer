@@ -63,7 +63,7 @@ def initialise(formatted=True):
         "motivations",
         "skills",
         "sorted_skills",
-        "choosen_skills",
+        "chosen_skills",
         "background",
         "messages",
         "project_choices",

@@ -172,13 +172,13 @@ def reset_skills():
     The function will update the following session state keys:
     - 'skills': the updated skills list
     - 'sorted_skills': the sorted skills list
-    - 'choosen_skills': the choosen skills list
+    - 'chosen_skills': the chosen skills list
     - 'max_skills_number': the length of the updated skills list
     """
     skills = get_skills(st.session_state["resume"])
     st.session_state["skills"] = skills
     st.session_state["sorted_skills"] = skills
-    st.session_state["choosen_skills"] = skills
+    st.session_state["chosen_skills"] = skills
     st.session_state["max_skills_number"] = len(skills)
 
 
@@ -409,7 +409,7 @@ def parse_api_json(reply_json_str: str) -> None:
     skills = get_skills(st.session_state["resume"])
     st.session_state["skills"] = skills
     st.session_state["sorted_skills"] = skills
-    st.session_state["choosen_skills"] = skills
+    st.session_state["chosen_skills"] = skills
     st.session_state["max_skills_number"] = len(skills)
     st.session_state["experiences"] = get_experiences(
         st.session_state["resume"]

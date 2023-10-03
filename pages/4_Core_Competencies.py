@@ -43,10 +43,10 @@ def distribute_new_skills():
     """
     This function distributes new skills by adding them to the user's master \
     skills list (`skills`), sorted skills list (`sorted_skills`), and chosen \
-    skills list (`choosen_skills`), for as long as they don't already exist \
+    skills list (`chosen_skills`), for as long as they don't already exist \
     in those lists. It then removes the new skills from the `new_skills` \
     list, updates the `max_skills_number` value based on the length of the \
-    `choosen_skills` list.
+    `chosen_skills` list.
 
     Parameters:
     None
@@ -61,13 +61,13 @@ def distribute_new_skills():
             st.session_state["skills"].append(skill)
         if skill not in st.session_state["sorted_skills"]:
             st.session_state["sorted_skills"].append(skill)
-        if skill not in st.session_state["choosen_skills"]:
-            st.session_state["choosen_skills"].append(skill)
+        if skill not in st.session_state["chosen_skills"]:
+            st.session_state["chosen_skills"].append(skill)
 
     st.session_state["new_skills"] = []
     st.session_state["new_skills_select"] = []
     st.session_state["max_skills_number"] = len(
-        st.session_state["choosen_skills"]
+        st.session_state["chosen_skills"]
     )
 
 
@@ -87,11 +87,11 @@ def on_skills_sorted():
     Session State:
     - 'sorted_skills' (list): The sorted list of skills.
     - 'max_skills_number' (int): The maximum number of skills to save.
-    - 'choosen_skills' (list): The truncated list of skills that is saved in the session state.
+    - 'chosen_skills' (list): The truncated list of skills that is saved in the session state.
     """
     skills = st.session_state["sorted_skills"]
     max_number = st.session_state["max_skills_number"]
-    st.session_state["choosen_skills"] = (
+    st.session_state["chosen_skills"] = (
         skills[:max_number] if len(skills) > max_number else skills
     )
 
@@ -113,11 +113,11 @@ def on_skills_number_changed():
         None
     """
     max_number = st.session_state["max_skills_number"]
-    if max_number > len(st.session_state["choosen_skills"]):
+    if max_number > len(st.session_state["chosen_skills"]):
         skills = st.session_state["sorted_skills"]  # skill pool
     else:
-        skills = st.session_state["choosen_skills"]
-    st.session_state["choosen_skills"] = (
+        skills = st.session_state["chosen_skills"]
+    st.session_state["chosen_skills"] = (
         skills[:max_number] if len(skills) > max_number else skills
     )
 
@@ -139,18 +139,18 @@ def trigger_skills_number_changed():
     st.session_state["skills_number_changed"] = True
 
 
-def on_skills_selected_changed(choosen_skills):
+def on_skills_selected_changed(chosen_skills):
     """
-    This function updates the session state 'choosen_skills' with the \
+    This function updates the session state 'chosen_skills' with the \
     selected skills.
 
     Parameters:
-    choosen_skills (list): The list of selected skills.
+    chosen_skills (list): The list of selected skills.
 
     Returns:
     None
     """
-    st.session_state["choosen_skills"] = choosen_skills
+    st.session_state["chosen_skills"] = chosen_skills
 
 
 def on_new_skills_selected(new_skills_selected):
@@ -194,23 +194,23 @@ def edit_skills():
         "<h2 style='text-align: center;'>Skills</h2>", unsafe_allow_html=True
     )
 
-    for skill in st.session_state["choosen_skills"]:
+    for skill in st.session_state["chosen_skills"]:
         if skill not in st.session_state["skills"]:
             st.session_state["skills"].append(skill)
 
-    # limit the number of choosen skills
+    # limit the number of chosen skills
     if st.session_state["skills_number_changed"]:
         on_skills_number_changed()
         st.session_state["skills_number_changed"] = False
         st.experimental_rerun()
 
-    st.session_state["choosen_skills"] = st.multiselect(
+    st.session_state["chosen_skills"] = st.multiselect(
         "Core Competencies:",
         options=st.session_state["skills"],
-        default=st.session_state["choosen_skills"],
-        key="choosen_skills_multiselect",
+        default=st.session_state["chosen_skills"],
+        key="chosen_skills_multiselect",
         on_change=on_skills_selected_changed,
-        args=(st.session_state["choosen_skills"],),
+        args=(st.session_state["chosen_skills"],),
     )
     if len(st.session_state["skills"]) > 0:
         (
@@ -317,9 +317,9 @@ def edit_skills():
         if submitted and new_skill not in st.session_state["skills"]:
             append_new_skill(new_skill)
             st.experimental_rerun()
-    if len(st.session_state["choosen_skills"]) > 0:
+    if len(st.session_state["chosen_skills"]) > 0:
         st.write("#### Final Core Competencies:")
-        st.write(f"{' | '.join(st.session_state['choosen_skills'])}")
+        st.write(f"{' | '.join(st.session_state['chosen_skills'])}")
 
 
 edit_skills()

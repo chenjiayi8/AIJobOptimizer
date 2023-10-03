@@ -69,7 +69,7 @@ def choose_skills():
     """
     Selects skills.
 
-    If choosen_skills are present in the session_state, it will return them. \
+    If chosen_skills are present in the session_state, it will return them. \
     Otherwise, it will return the skills originally stored in the \
     session_state.
 
@@ -79,9 +79,9 @@ def choose_skills():
     Returns:
     string: The skills to export.
     """
-    if "choosen_skills" in st.session_state:
-        if len(st.session_state["choosen_skills"]) > 0:
-            return st.session_state["choosen_skills"]
+    if "chosen_skills" in st.session_state:
+        if len(st.session_state["chosen_skills"]) > 0:
+            return st.session_state["chosen_skills"]
     return st.session_state["skills"]
 
 
