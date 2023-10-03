@@ -13,24 +13,15 @@
     "**/.git": true,
     "**/.DS_Store": true
   },
+  "editor.defaultFormatter": "ms-python.black-formatter",
   "editor.formatOnSave": true,
   "editor.formatOnPaste": true,
   "python.terminal.activateEnvInCurrentTerminal": true,
-  "python.defaultInterpreterPath": "${workspaceFolder}/env/bin/python",
-  "python.linting.enabled": true,
-  "python.linting.pylintEnabled": true,
-  "python.linting.pylintArgs": ["--disable=W0718"],
+  "python.defaultInterpreterPath": "/home/vscode/env/bin/python",
+  "black-formatter.args": ["--line-length", "79"],
+  "pylint.args": ["--disable=E0611"],
   "python.analysis.typeCheckingMode": "off",
-  "python.formatting.provider": "autopep8",
-  "python.formatting.autopep8Args": [
-    "--max-line-length",
-    "79",
-    "--experimental"
-  ],
   "python.testing.pytestEnabled": true,
-  "[python]": {
-    "editor.defaultFormatter": "ms-python.autopep8"
-  },
   "git.ignoreLimitWarning": true,
   "cSpell.language": "en-GB",
   "cSpell.words": ["openai", "streamlit"]
