@@ -36,8 +36,8 @@ def copy_button(str_to_copy: str, label: str = "", tips: str = "") -> str:
         str: a string containing the entire HTML code for the copy button and \
         textarea.
     """
-    button_uuid = str(uuid.uuid4()).replace('-', '')
-    button_id = re.sub(r'\d+', '', button_uuid)
+    button_uuid = str(uuid.uuid4()).replace("-", "")
+    button_id = re.sub(r"\d+", "", button_uuid)
     custom_css = f"""
         <style>
             #btn_{button_id} {{

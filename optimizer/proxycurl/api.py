@@ -20,15 +20,14 @@ def call_proxycurl_api(job_id: str) -> requests.Response:
         requests.Response: HTTP response object
     """
     config = dotenv_values(".env")
-    proxycurl_api_key = config['PROXYCURL_API_KEY']
-    api_endpoint = 'https://nubela.co/proxycurl/api/linkedin/job'
-    header_dic = {'Authorization': 'Bearer ' + proxycurl_api_key}
+    proxycurl_api_key = config["PROXYCURL_API_KEY"]
+    api_endpoint = "https://nubela.co/proxycurl/api/linkedin/job"
+    header_dic = {"Authorization": "Bearer " + proxycurl_api_key}
     params = {
-        'url': f'https://www.linkedin.com/jobs/view/{job_id}/',
+        "url": f"https://www.linkedin.com/jobs/view/{job_id}/",
     }
-    response = requests.get(api_endpoint,
-                            params=params,
-                            headers=header_dic,
-                            timeout=(300, 600))
+    response = requests.get(
+        api_endpoint, params=params, headers=header_dic, timeout=(300, 600)
+    )
 
     return response

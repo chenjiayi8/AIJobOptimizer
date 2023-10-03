@@ -9,9 +9,18 @@ from st_dropfill_textarea import st_dropfill_textarea
 import streamlit as st
 import streamlit.components.v1 as components
 from optimizer.core.initialisation import initialise, get_layout
-from optimizer.gpt.api import get_model_names, get_model_index_by_name, SYSTEM_ROLE
-from optimizer.gpt.query import get_experiences_msg, get_job_description_msg, \
-    get_skills_msg, get_system_msg, query_gpt
+from optimizer.gpt.api import (
+    get_model_names,
+    get_model_index_by_name,
+    SYSTEM_ROLE,
+)
+from optimizer.gpt.query import (
+    get_experiences_msg,
+    get_job_description_msg,
+    get_skills_msg,
+    get_system_msg,
+    query_gpt,
+)
 from optimizer.utils.copy import copy_button
 
 st.set_page_config(
@@ -59,25 +68,29 @@ def init_questions() -> None:
     information. If a role is selected from the list, the corresponding role \
     message is passed to the init_background() function.
     """
-    placeholder = ("1. Write a message to define the role of chatgpt \n"
-                   "2. or leave it empty \n"
-                   "3. or choose a predefined role")
-    if not st.session_state['messages_initalised']:
-        st.write("You can ask questions freely or based on selected \
-                background information")
+    placeholder = (
+        "1. Write a message to define the role of chatgpt \n"
+        "2. or leave it empty \n"
+        "3. or choose a predefined role"
+    )
+    if not st.session_state["messages_initalised"]:
+        st.write(
+            "You can ask questions freely or based on selected \
+                background information"
+        )
         with st.form("system_role", clear_on_submit=True):
-            role = st.text_area("Define system role", "",
-                                placeholder=placeholder
-                                )
-            col_list = st.columns(len(ROLES)+1)
+            role = st.text_area(
+                "Define system role", "", placeholder=placeholder
+            )
+            col_list = st.columns(len(ROLES) + 1)
             with col_list[0]:
                 if st.form_submit_button("Confirm"):
                     init_background(role)
                     st.experimental_rerun()
             for index, role in enumerate(ROLES):
-                with col_list[index+1]:
-                    label = role['name']
-                    role_msg = role['role']
+                with col_list[index + 1]:
+                    label = role["name"]
+                    role_msg = role["role"]
                     if st.form_submit_button(label):
                         init_background(role_msg)
                         st.experimental_rerun()
@@ -90,8 +103,8 @@ def reset_messages() -> None:
     function is likely used to clear any previous messages in the application \
     and allow it to display new ones.
     """
-    st.session_state['messages'] = []
-    st.session_state['messages_initalised'] = False
+    st.session_state["messages"] = []
+    st.session_state["messages_initalised"] = False
     st.experimental_rerun()
 
 
@@ -110,17 +123,17 @@ def init_background(system_role):
     None
 
     """
-    st.session_state['messages_initalised'] = True
-    st.session_state['messages'] = []
+    st.session_state["messages_initalised"] = True
+    st.session_state["messages"] = []
     if len(system_role) > 0:
-        st.session_state['messages'] += get_system_msg(system_role)
+        st.session_state["messages"] += get_system_msg(system_role)
     jd_msg = get_job_description_msg()
     skills_msg = get_skills_msg()
     experiences_msg = get_experiences_msg()
     info_msgs = [jd_msg, skills_msg, experiences_msg]
     for msg in info_msgs:
         if msg is not None:
-            st.session_state['messages'] += msg
+            st.session_state["messages"] += msg
 
 
 def handle_text_change(index: int) -> None:
@@ -135,9 +148,9 @@ def handle_text_change(index: int) -> None:
         None. The function modifies the 'content' key of a dictionary in-place.
     """
 
-    msg = st.session_state['messages'][index]
+    msg = st.session_state["messages"][index]
     new_content = st.session_state[f"msg_{index}"]
-    msg['content'] = new_content
+    msg["content"] = new_content
 
 
 def handle_check_change(index):
@@ -151,8 +164,8 @@ def handle_check_change(index):
     Returns:
         None. The function modifies the 'select' key of a dictionary in-place.
     """
-    msg = st.session_state['messages'][index]
-    msg['select'] = not msg['select']
+    msg = st.session_state["messages"][index]
+    msg["select"] = not msg["select"]
 
 
 def regenerate_response(index):
@@ -166,14 +179,14 @@ def regenerate_response(index):
     Returns:
         None. The function modifies the 'content' key of a dictionary in-place.
     """
-    old_messages = copy.deepcopy(st.session_state['messages'])
-    st.session_state['messages'].clear()
+    old_messages = copy.deepcopy(st.session_state["messages"])
+    st.session_state["messages"].clear()
     for ind, msg in enumerate(old_messages):
         if ind <= index:
-            st.session_state['messages'].append(msg)
-        if ind > index and not msg['select']:
-            st.session_state['messages'].append(msg)
-    query_gpt(st.session_state['temperature_message'])
+            st.session_state["messages"].append(msg)
+        if ind > index and not msg["select"]:
+            st.session_state["messages"].append(msg)
+    query_gpt(st.session_state["temperature_message"])
 
 
 def parse_messages() -> None:
@@ -184,26 +197,28 @@ def parse_messages() -> None:
     the middle column (with different formatting for the last message), and \
     a checkbox on the right column.
     """
-    if st.session_state['messages_initalised']:
-        for index, msg in enumerate(st.session_state['messages']):
+    if st.session_state["messages_initalised"]:
+        for index, msg in enumerate(st.session_state["messages"]):
             col_left, col_middle, col_right = st.columns([8, 1, 1])
 
-            if msg['type'] == 'info':
+            if msg["type"] == "info":
                 label = "Info: "
 
             else:
-                label = msg['role'].capitalize() + ': '
+                label = msg["role"].capitalize() + ": "
             with col_left:
-                if index == len(
-                        st.session_state['messages']) - 1 and msg['type'] != 'info':
-                    height = 100+round(len(msg['content'])*0.4)
+                if (
+                    index == len(st.session_state["messages"]) - 1
+                    and msg["type"] != "info"
+                ):
+                    height = 100 + round(len(msg["content"]) * 0.4)
                 else:
                     height = 200
 
-                msg['content'] = st_dropfill_textarea(
+                msg["content"] = st_dropfill_textarea(
                     label,
-                    msg['content'],
-                    key=msg['id'],
+                    msg["content"],
+                    key=msg["id"],
                     height=height,
                     layout="row",
                     labelWidth=70,
@@ -212,14 +227,20 @@ def parse_messages() -> None:
             with col_middle:
                 st.write("# ")
                 st.checkbox(
-                    "Select", msg['select'], key=f"check_{index}",
+                    "Select",
+                    msg["select"],
+                    key=f"check_{index}",
                     on_change=handle_check_change,
-                    args=(index, ),
-                    label_visibility="hidden")
+                    args=(index,),
+                    label_visibility="hidden",
+                )
             with col_right:
-                if msg['select'] and msg['type'] == 'input':
-                    if st.button(":new:", key=f"regen_{index}",
-                                 help="Regenerate response"):
+                if msg["select"] and msg["type"] == "input":
+                    if st.button(
+                        ":new:",
+                        key=f"regen_{index}",
+                        help="Regenerate response",
+                    ):
                         regenerate_response(index)
                         st.experimental_rerun()
 
@@ -242,17 +263,20 @@ def style_messages():
         }
         </style>
         """,
-        unsafe_allow_html=True
+        unsafe_allow_html=True,
     )
 
     # hide the textarea label
-    st.markdown('''
+    st.markdown(
+        """
         <style>
         div.stTextArea label{
             display: none
         }
         </style>
-    ''', unsafe_allow_html=True)
+    """,
+        unsafe_allow_html=True,
+    )
 
 
 def append_input() -> None:
@@ -264,23 +288,25 @@ def append_input() -> None:
     It also adds a slider called "Temperature" with a default range of 0.1 \
     and 1.0 to adjust how "creative" the AI's response is going to be.
     """
-    if st.session_state['messages_initalised']:
+    if st.session_state["messages_initalised"]:
         with st.form("new_message", clear_on_submit=True):
-            new_msg = st.text_area("__Enter your message:__", "",
-                                   placeholder="Send a message...")
-            col_submit, \
-                col_empty1, \
-                col_temp, \
-                col_copy, \
-                col_reset = st.columns([1, 0.5, 2, 1, 1])
+            new_msg = st.text_area(
+                "__Enter your message:__", "", placeholder="Send a message..."
+            )
+            col_submit, col_empty1, col_temp, col_copy, col_reset = st.columns(
+                [1, 0.5, 2, 1, 1]
+            )
             with col_submit:
                 submitted = st.form_submit_button("Send")
             with col_empty1:
                 st.write("")
             with col_temp:
-                st.session_state['temperature_message'] = \
-                    st.slider("Temperature", 0.1, 1.0,
-                              st.session_state['temperature_message'])
+                st.session_state["temperature_message"] = st.slider(
+                    "Temperature",
+                    0.1,
+                    1.0,
+                    st.session_state["temperature_message"],
+                )
                 st.write("")
             with col_copy:
                 my_copy_button = get_copy_button()
@@ -290,11 +316,16 @@ def append_input() -> None:
                     reset_messages()
 
         if submitted and len(new_msg) > 0:
-            st.session_state['messages'] += [
-                {"id": str(uuid.uuid4()), "select": True, "type": "input",
-                    "role": "user", "content": new_msg},
+            st.session_state["messages"] += [
+                {
+                    "id": str(uuid.uuid4()),
+                    "select": True,
+                    "type": "input",
+                    "role": "user",
+                    "content": new_msg,
+                },
             ]
-            query_gpt(st.session_state['temperature_message'])
+            query_gpt(st.session_state["temperature_message"])
             st.experimental_rerun()
 
 
@@ -305,10 +336,10 @@ def get_messages() -> str:
     joined into a string with "\\n\\n" separators and returned by the function.
     """
     messages = []
-    for msg in st.session_state['messages']:
-        if msg['type'] in ['reply', 'input']:
-            messages.append(msg['content'])
-    message_str = '\n\n'.join(messages)
+    for msg in st.session_state["messages"]:
+        if msg["type"] in ["reply", "input"]:
+            messages.append(msg["content"])
+    message_str = "\n\n".join(messages)
     return message_str
 
 
@@ -322,8 +353,10 @@ def get_copy_button():
     """
     messages_str = get_messages()
     my_copy_button = copy_button(
-        messages_str+'\n\n', label='Copy',
-        tips="Copy messages to the clipboard")
+        messages_str + "\n\n",
+        label="Copy",
+        tips="Copy messages to the clipboard",
+    )
     return my_copy_button
 
 
@@ -336,26 +369,37 @@ def insert_messages():
     and a select box to choose whose belongs to the message. This function \
     tries to utilise in-context learning of the GPT model.
     """
-    if st.session_state['messages_initalised']:
+    if st.session_state["messages_initalised"]:
         with st.form("insert_message", clear_on_submit=True):
-            message_types = {'user': 'input', 'assistant': 'reply'}
-            new_msg = st.text_area("__Enter your message:__", "",
-                                   placeholder="Append a message...")
-            col_role, \
-                col_insert, col_empty = st.columns([1, 1, 2])
+            message_types = {"user": "input", "assistant": "reply"}
+            new_msg = st.text_area(
+                "__Enter your message:__",
+                "",
+                placeholder="Append a message...",
+            )
+            col_role, col_insert, col_empty = st.columns([1, 1, 2])
             with col_role:
-                role = st.selectbox("Role", message_types.keys(
-                ), index=0, format_func=lambda x: x.capitalize())
+                role = st.selectbox(
+                    "Role",
+                    message_types.keys(),
+                    index=0,
+                    format_func=lambda x: x.capitalize(),
+                )
             with col_insert:
                 insertted = st.form_submit_button("Insert")
             with col_empty:
                 st.write("")
 
         if insertted and role is not None and len(new_msg) > 0:
-            st.session_state['messages'] += [
-                {"id": str(uuid.uuid4()),
-                 "select": True, "type": message_types[role],
-                 "role": role, "content": new_msg},]
+            st.session_state["messages"] += [
+                {
+                    "id": str(uuid.uuid4()),
+                    "select": True,
+                    "type": message_types[role],
+                    "role": role,
+                    "content": new_msg,
+                },
+            ]
             st.experimental_rerun()
 
 
@@ -372,12 +416,14 @@ def custom_questions():
     None
     """
     new_model = st.selectbox(
-        "ChatGPT Model: ", get_model_names(),
-        get_model_index_by_name(st.session_state['MODEL']),
+        "ChatGPT Model: ",
+        get_model_names(),
+        get_model_index_by_name(st.session_state["MODEL"]),
         help="Select a model to use for the chatbot, which is also used by \
-        previous pages")
-    if new_model != st.session_state['MODEL']:
-        st.session_state['MODEL'] = new_model
+        previous pages",
+    )
+    if new_model != st.session_state["MODEL"]:
+        st.session_state["MODEL"] = new_model
         st.cache_data.clear()
         st.experimental_rerun()
     init_questions()
@@ -389,7 +435,7 @@ def custom_questions():
 
 custom_questions()
 with st.expander("Debug: messages"):
-    st.write("Messages", st.session_state['messages'])
+    st.write("Messages", st.session_state["messages"])
 
 with st.expander("Advanced"):
     insert_messages()

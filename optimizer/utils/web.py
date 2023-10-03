@@ -39,7 +39,9 @@ def retry(exception, tries=5, delay=1, backoff=2, max_delay=120):
                     m_delay = min(m_delay * backoff, max_delay)
             # last attempt
             return func(*args, **kwargs)
+
         return f_retry
+
     return deco_retry
 
 

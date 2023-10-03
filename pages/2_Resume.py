@@ -27,16 +27,16 @@ def show_debug_info() -> None:
 
     Displays each piece of information in an expander to make it collapsible.
     """
-    if 'resume' not in st.session_state:
+    if "resume" not in st.session_state:
         return
     with st.expander("Debug: Raw input"):
-        st.write("resume: ", st.session_state['resume'])
+        st.write("resume: ", st.session_state["resume"])
     with st.expander("Debug: statement"):
-        st.write("statement: ", st.session_state['statement'])
+        st.write("statement: ", st.session_state["statement"])
     with st.expander("Debug: skills"):
-        st.write("Skills: ", st.session_state['skills'])
+        st.write("Skills: ", st.session_state["skills"])
     with st.expander("Debug: experiences"):
-        st.write("Experiences: ", st.session_state['experiences'])
+        st.write("Experiences: ", st.session_state["experiences"])
 
 
 def upload_resume():
@@ -48,36 +48,43 @@ def upload_resume():
     Returns:
     None
     """
-    st.markdown("<h2 style='text-align: center;'>Resume</h2>",
-                unsafe_allow_html=True)
+    st.markdown(
+        "<h2 style='text-align: center;'>Resume</h2>", unsafe_allow_html=True
+    )
     with st.form("my-form", clear_on_submit=True):
-        uploaded_file = st.file_uploader(
-            "Upload your resume", type='docx')
+        uploaded_file = st.file_uploader("Upload your resume", type="docx")
         submitted = st.form_submit_button("UPLOAD!")
     if submitted and uploaded_file is not None:
+        st.session_state["txt_resume"] = docx_to_text(uploaded_file.getvalue())
         st.experimental_rerun()
+    placeholder = (
+        "* Drag and drop your resume (docx, text, html or json)\n"
+        "* Or Copy and Paste your full resume\n"
+        "* Max 3 pages\n"
+    )
     new_txt_resume = st_dropfill_textarea(
         "Your resume",
-        st.session_state['txt_resume'],
+        st.session_state["txt_resume"],
         placeholder=placeholder,
         height=300,
         key="textarea_resume",
     )
-    if new_txt_resume != st.session_state['txt_resume']:
-        st.session_state['txt_resume'] = new_txt_resume
+    if new_txt_resume != st.session_state["txt_resume"]:
+        st.session_state["txt_resume"] = new_txt_resume
         # st.experimental_rerun()
 
     col_analyse, col_download, col_estimate = st.columns([1, 1, 1])
 
     with col_analyse:
-        if st.button('Analyse',
-                     help='Analyse your resume and pre-fill the form'):
-            with st.spinner('Analysing your resume ...'):
-                parse_resume(st.session_state['txt_resume'])
-                st.session_state['btn_analyse'] = True
+        if st.button(
+            "Analyse", help="Analyse your resume and pre-fill the form"
+        ):
+            with st.spinner("Analysing your resume ..."):
+                parse_resume(st.session_state["txt_resume"])
+                st.session_state["btn_analyse"] = True
 
     with col_download:
-        if st.session_state['btn_analyse']:
+        if st.session_state["btn_analyse"]:
             help_message = """
             Download your resume in JSON format to avoid waiting for the \
             analysis next time.
@@ -87,24 +94,26 @@ def upload_resume():
                 data=json.dumps(get_parsed_resume(), indent=4),
                 file_name="resume.json",
                 mime="application/json",
-                help=help_message
+                help=help_message,
             )
         else:
             st.write("")
 
     with col_estimate:
         if st.button("Estimate", help="Estimate your match rate with the job"):
-            st.session_state['btn_estimate'] = True
+            st.session_state["btn_estimate"] = True
 
-    if st.session_state['btn_analyse']:
+    if st.session_state["btn_analyse"]:
         show_debug_info()
-    if st.session_state['btn_estimate']:
+    if st.session_state["btn_estimate"]:
         with st.spinner("Estimating the match rate ..."):
             reply = estimate_match_rate(
-                st.session_state['txt_jd'], st.session_state['txt_resume'])
+                st.session_state["txt_jd"], st.session_state["txt_resume"]
+            )
             st.markdown(
                 "### Can you help me estimate the match rate between \
-                my experiences and this job description?")
+                my experiences and this job description?"
+            )
             st.write(reply)
 
 

@@ -64,8 +64,8 @@ def create_project_name(doc, proj):
     para = doc.add_paragraph()
     para.alignment = WD_PARAGRAPH_ALIGNMENT.LEFT
     para.style.font.size = Pt(11)
-    para.add_run('Project: ').bold = True
-    para.add_run(proj['title'])
+    para.add_run("Project: ").bold = True
+    para.add_run(proj["title"])
     para.paragraph_format.space_after = Pt(0)
     return para
 
@@ -83,7 +83,7 @@ def create_project_description(doc, proj):
         A Word paragraph object containing the project description.
     """
     para = doc.add_paragraph()
-    para.add_run(proj['description']).italic = True
+    para.add_run(proj["description"]).italic = True
     para.alignment = WD_PARAGRAPH_ALIGNMENT.LEFT
     para.style.font.size = Pt(11)
     para.paragraph_format.space_after = Pt(0)
@@ -103,7 +103,7 @@ def create_contribution_head(doc):
     docx.text.paragraph.Paragraph: the created Paragraph instance containing the header.
     """
     para = doc.add_paragraph()
-    run_head = para.add_run('Key Contributions:')
+    run_head = para.add_run("Key Contributions:")
     run_head.italic = True
     run_head.bold = True
     para.alignment = WD_PARAGRAPH_ALIGNMENT.LEFT
@@ -132,11 +132,11 @@ def render_contribution(para, contribution):
         ValueError: If the number of `<b>` tags does not match the number of \
         `</b>` tags.
     """
-    left_bold = [m.start() for m in re.finditer('<b>', contribution)]
-    right_bold = [m.start() for m in re.finditer('</b>', contribution)]
+    left_bold = [m.start() for m in re.finditer("<b>", contribution)]
+    right_bold = [m.start() for m in re.finditer("</b>", contribution)]
     start = 0
     if len(left_bold) != len(right_bold):
-        raise ValueError('tag open and close not matched')
+        raise ValueError("tag open and close not matched")
     if len(left_bold) == 0:
         para.add_run(contribution)
         return
@@ -144,10 +144,10 @@ def render_contribution(para, contribution):
     for left, right in zip(left_bold, right_bold):
         if start < left:
             para.add_run(contribution[start:left])
-        para.add_run(contribution[left+3:right]).bold = True
+        para.add_run(contribution[left + 3 : right]).bold = True
         start = right + 4
     if right_bold[-1] < len(contribution):
-        para.add_run(contribution[right_bold[-1]+4:])
+        para.add_run(contribution[right_bold[-1] + 4 :])
 
 
 def add_bullet_point(para):
@@ -166,8 +166,8 @@ def add_bullet_point(para):
     para.paragraph_format.first_line_indent = Inches(-0.25)
     para.paragraph_format.tab_stops.add_tab_stop(Inches(0.5))
     # Replace 'Symbol' with the desired font
-    para.style.font.name = 'Times New Roman'
-    para.text = '\u25CF    ' + para.text  # Prepend bullet point character
+    para.style.font.name = "Times New Roman"
+    para.text = "\u25CF    " + para.text  # Prepend bullet point character
 
 
 def create_contribution(doc, contribution):
@@ -205,7 +205,7 @@ def create_contributions(doc, proj):
     document.
     """
     paras = []
-    for contribution in proj['contributions']:
+    for contribution in proj["contributions"]:
         paras.append(create_contribution(doc, contribution))
     return paras
 
@@ -247,7 +247,7 @@ def create_projects(doc, exp):
         A list of paragraph elements to be added to the given document.
     """
     paras = []
-    for proj in exp['projects']:
+    for proj in exp["projects"]:
         paras += create_project(doc, proj)
 
     return paras
@@ -277,10 +277,10 @@ def create_company(doc, exp):
     """
     str_range = f"({exp['date_range']})"
     para = doc.add_paragraph()
-    para.add_run(exp['title']).bold = True
-    para.add_run(' at ')
-    para.add_run(exp['company'])
-    padding = ' '*round(3)
+    para.add_run(exp["title"]).bold = True
+    para.add_run(" at ")
+    para.add_run(exp["company"])
+    padding = " " * round(3)
     para.add_run(padding)
     para.add_run(str_range)
     para.paragraph_format.space_before = Pt(9)
@@ -368,7 +368,7 @@ def validate_template(bytes_data, template_fields):
     return targets
 
 
-def write_letter(letter, new_font_name='Times New Roman'):
+def write_letter(letter, new_font_name="Times New Roman"):
     """
     Creates a Word document consisting of a single paragraph with the given \
     letter content. The font size of the paragraph is set to 12pt, alignment \
@@ -398,8 +398,13 @@ def write_letter(letter, new_font_name='Times New Roman'):
     return file_stream.read()
 
 
-def to_docx(bytes_data, statement, skills_str, experiences,
-            new_font_name='Times New Roman'):
+def to_docx(
+    bytes_data,
+    statement,
+    skills_str,
+    experiences,
+    new_font_name="Times New Roman",
+):
     """
     Create a .docx file from bytes data.
 
@@ -417,19 +422,19 @@ def to_docx(bytes_data, statement, skills_str, experiences,
     """
     doc = create_docx(bytes_data)
     for para in doc.paragraphs:
-        if para.text == '{statement}':
+        if para.text == "{statement}":
             para.text = statement.strip()
             para.alignment = WD_PARAGRAPH_ALIGNMENT.LEFT
             para.style.font.size = Pt(11)
             para.paragraph_format.line_spacing = 1.15
 
-        if para.text == '{competencies}':
+        if para.text == "{competencies}":
             para.text = skills_str.strip()
             para.alignment = WD_PARAGRAPH_ALIGNMENT.LEFT
             para.style.font.size = Pt(11)
             para.paragraph_format.line_spacing = 1.15
 
-        if para.text == '{experiences}':
+        if para.text == "{experiences}":
             write_experiences(doc, para, experiences)
 
     if new_font_name is not None:
@@ -452,6 +457,7 @@ def extract_text_from_docx(doc):
     Returns:
         A string containing the plain text extracted from the docx file.
     """
+
     def extract_text(json_obj):
         text = []
 
@@ -472,7 +478,7 @@ def extract_text_from_docx(doc):
 
     json_obj = simplify(doc)
     result = extract_text(json_obj)
-    text = '\n'.join(result)
+    text = "\n".join(result)
     return text
 
 

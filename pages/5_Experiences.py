@@ -70,55 +70,60 @@ def edit_description(project: dict) -> None:
       `st.session_state['description_choice_'+name]`.
 
     """
-    name = project['uuid']
-    project['description'] = st.text_area(
-        'Description',  project['description'], height=200)
+    name = project["uuid"]
+    project["description"] = st.text_area(
+        "Description", project["description"], height=200
+    )
 
-    col_description_words, \
-        col_description_temp, \
-        col_description = st.columns([1, 1, 1])
+    col_description_words, col_description_temp, col_description = st.columns(
+        [1, 1, 1]
+    )
     with col_description_words:
         description_words = st.slider(
-            "Words", 10, 100, value=60, key='description_words_'+name)
+            "Words", 10, 100, value=60, key="description_words_" + name
+        )
 
     with col_description_temp:
         description_temp = st.slider(
-            "Temperature", 0.0, 1.0, 0.8, key='description_temp_'+name)
+            "Temperature", 0.0, 1.0, 0.8, key="description_temp_" + name
+        )
 
     with col_description:
-        if st.button('Generate description', key='gene_description_'+name):
+        if st.button("Generate description", key="gene_description_" + name):
             replies = generate_descriptions(
-                project,
-                description_words,
-                description_temp
+                project, description_words, description_temp
             )
             new_descriptions = parse_descriptions(replies)
-            st.session_state['generate_description_'+name] = True
-            st.session_state['new_descriptions_' + name] = new_descriptions
+            st.session_state["generate_description_" + name] = True
+            st.session_state["new_descriptions_" + name] = new_descriptions
 
-    if st.session_state['generate_description_'+name]:
+    if st.session_state["generate_description_" + name]:
         options = []
         option = f"Version 0: {count_words(project['description'])} words"
         options.append(option)
-        st.write('### ' + option)
-        st.write(project['description'])
-        for j in range(len(st.session_state['new_descriptions_' + name])):
-            new_descriptions = st.session_state['new_descriptions_' + name][j]
+        st.write("### " + option)
+        st.write(project["description"])
+        for j in range(len(st.session_state["new_descriptions_" + name])):
+            new_descriptions = st.session_state["new_descriptions_" + name][j]
             option = f"Version {j+1}: {count_words(new_descriptions)} words"
             options.append(option)
-            st.write('### ' + option)
+            st.write("### " + option)
             st.write(new_descriptions)
 
-        if 'description_choice_'+name in st.session_state:
+        if "description_choice_" + name in st.session_state:
             description_choice_index = options.index(
-                st.session_state['description_choice_'+name])
+                st.session_state["description_choice_" + name]
+            )
         else:
             description_choice_index = 0
 
         description_choice = st.selectbox(
-            'Choose final description', options, key='description'+name,
-            index=description_choice_index)
-        st.session_state['description_choice_'+name] = description_choice
+            "Choose final description",
+            options,
+            key="description" + name,
+            index=description_choice_index,
+        )
+        st.session_state["description_choice_" + name] = description_choice
 
 
 def parse_contributions(replies):
@@ -153,63 +158,86 @@ def edit_contribtions(project):
     Returns:
     None
     """
-    name = project['uuid']
+    name = project["uuid"]
     st.markdown("#### Key contributions:")
-    for contribution in project['contributions']:
-        st.markdown('- ' + contribution)
-    col_contributions_words, \
-        col_contributions_number, \
-        col_contributions_temp, \
-        col_contributions = st.columns([1.5, 1.5, 1.5, 2])
+    for contribution in project["contributions"]:
+        st.markdown("- " + contribution)
+    (
+        col_contributions_words,
+        col_contributions_number,
+        col_contributions_temp,
+        col_contributions,
+    ) = st.columns([1.5, 1.5, 1.5, 2])
     with col_contributions_words:
         contributions_words = st.slider(
-            "Words of contributions", 10, 50, value=30,
-            key='contributions_words_'+name)
+            "Words of contributions",
+            10,
+            50,
+            value=30,
+            key="contributions_words_" + name,
+        )
     with col_contributions_number:
         contributions_number = st.slider(
-            "Number of contributions", 2, 8, value=4,
-            key='contributions_number_'+name)
+            "Number of contributions",
+            2,
+            8,
+            value=4,
+            key="contributions_number_" + name,
+        )
     with col_contributions_temp:
         contributions_temperature = st.slider(
-            "Temperature", 0.1, 1.0, value=0.8, key='contributions_temp_'+name)
+            "Temperature",
+            0.1,
+            1.0,
+            value=0.8,
+            key="contributions_temp_" + name,
+        )
     with col_contributions:
-        if st.button('Generate contributions', key='gene_contributions_'+name):
+        if st.button(
+            "Generate contributions", key="gene_contributions_" + name
+        ):
             responses = generate_contributions(
-                project, contributions_words, contributions_number,
-                contributions_temperature)
+                project,
+                contributions_words,
+                contributions_number,
+                contributions_temperature,
+            )
             new_contributions = parse_contributions(responses)
-            st.session_state['generate_contributions_'+name] = True
-            st.session_state['new_contributions_' + name] = new_contributions
-    if st.session_state['generate_contributions_'+name]:
+            st.session_state["generate_contributions_" + name] = True
+            st.session_state["new_contributions_" + name] = new_contributions
+    if st.session_state["generate_contributions_" + name]:
         options = []
         words = 0
-        for contribution in project['contributions']:
+        for contribution in project["contributions"]:
             words += count_words(contribution)
         option = f"Version 0: {words} words"
         options.append(option)
-        st.write('### ' + option)
-        for contribution in project['contributions']:
-            st.markdown('- ' + contribution)
-        for j in range(len(st.session_state['new_contributions_' + name])):
-            new_contributions = \
-                st.session_state['new_contributions_' + name][j]
+        st.write("### " + option)
+        for contribution in project["contributions"]:
+            st.markdown("- " + contribution)
+        for j in range(len(st.session_state["new_contributions_" + name])):
+            new_contributions = st.session_state["new_contributions_" + name][
+                j
+            ]
             option = f"Version {j+1}: {count_words(new_contributions)} words"
             options.append(option)
-            st.write('### ' + option)
-            components.html(
-                new_contributions,
-                scrolling=True)
+            st.write("### " + option)
+            components.html(new_contributions, scrolling=True)
 
-        if 'contributions_choice_'+name in st.session_state:
+        if "contributions_choice_" + name in st.session_state:
             contributions_choice_index = options.index(
-                st.session_state['contributions_choice_'+name])
+                st.session_state["contributions_choice_" + name]
+            )
         else:
             contributions_choice_index = 0
 
         contributions_choice = st.selectbox(
-            'Choose final contributions', options, key='contributions'+name,
-            index=contributions_choice_index)
-        st.session_state['contributions_choice_'+name] = contributions_choice
+            "Choose final contributions",
+            options,
+            key="contributions" + name,
+            index=contributions_choice_index,
+        )
+        st.session_state["contributions_choice_" + name] = contributions_choice
 
 
 def init_project(project: dict) -> None:
@@ -223,11 +251,11 @@ def init_project(project: dict) -> None:
     Parameters:
     project (dict): A dictionary containing the UUID of the project.
     """
-    name = project['uuid']
-    init_state('generate_description_'+name)
-    init_state('generate_contributions_'+name)
-    init_state('new_descriptions_' + name)
-    init_state('new_contributions_' + name)
+    name = project["uuid"]
+    init_state("generate_description_" + name)
+    init_state("generate_contributions_" + name)
+    init_state("new_descriptions_" + name)
+    init_state("new_contributions_" + name)
 
 
 def edit_project(project: dict) -> None:
@@ -243,7 +271,7 @@ def edit_project(project: dict) -> None:
         None. The function updates the project dictionary in place.
     """
     init_project(project)
-    project['title'] = st.text_input("Project:", project['title'])
+    project["title"] = st.text_input("Project:", project["title"])
     edit_description(project)
     edit_contribtions(project)
 
@@ -271,17 +299,18 @@ def edit_experience(exp: dict) -> None:
     st.markdown(
         f"<div style='display: flex; justify-content: space-between;'><div> \
         <b>{exp['title']}</b> at {exp['company']}</div>    <div>( \
-        {exp ['date_range']})</div></div>", unsafe_allow_html=True)
+        {exp ['date_range']})</div></div>",
+        unsafe_allow_html=True,
+    )
 
-    if len(exp['projects']) == 1:
-        edit_project(exp['projects'][0])
+    if len(exp["projects"]) == 1:
+        edit_project(exp["projects"][0])
     else:
         options = OrderedDict()
-        for index, project in enumerate(exp['projects']):
-            options[project['title']] = index
-        project_title = st.sidebar.selectbox(
-            "Project", options.keys())
-        edit_project(exp['projects'][options[project_title]])
+        for index, project in enumerate(exp["projects"]):
+            options[project["title"]] = index
+        project_title = st.sidebar.selectbox("Project", options.keys())
+        edit_project(exp["projects"][options[project_title]])
 
 
 def edit_experiences() -> None:
@@ -298,14 +327,14 @@ def edit_experiences() -> None:
     Returns:
         None
     """
-    experiences = st.session_state['experiences']
+    experiences = st.session_state["experiences"]
     if len(experiences) == 0:
         st.write("# No experiences to edit")
         return
     options = OrderedDict()
     for index, exp in enumerate(experiences):
-        options[exp['title']] = index
-    exp_title = st.sidebar.selectbox('Choose an experience', options.keys())
+        options[exp["title"]] = index
+    exp_title = st.sidebar.selectbox("Choose an experience", options.keys())
     edit_experience(experiences[options[exp_title]])
 
 

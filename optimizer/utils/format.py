@@ -20,7 +20,8 @@ def custom_layout() -> None:
 
     This function defines custom CSS styles for horizontal lines, select boxes, and text alignment.
     """
-    st.markdown('''
+    st.markdown(
+        """
         <style>
         [data-testid="stMarkdownContainer"] hr{
             background-color: rgb(107 114 128);
@@ -29,7 +30,9 @@ def custom_layout() -> None:
             height: 2px;
         }
         </style>
-    ''', unsafe_allow_html=True)
+    """,
+        unsafe_allow_html=True,
+    )
 
     st.write(
         """<style>
@@ -39,10 +42,11 @@ def custom_layout() -> None:
         }
         </style>
         """,
-        unsafe_allow_html=True
+        unsafe_allow_html=True,
     )
 
-    st.markdown('''
+    st.markdown(
+        """
         <style>
         .stSelectbox [data-testid='stMarkdownContainer'] {
             width: 100%;
@@ -52,7 +56,9 @@ def custom_layout() -> None:
             font-size: 2em;
         }
         </style>
-    ''', unsafe_allow_html=True)
+    """,
+        unsafe_allow_html=True,
+    )
 
     hide_streamlit_style = """
             <style>

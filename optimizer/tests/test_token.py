@@ -1,7 +1,10 @@
 """Unit tests for token.py."""
 import unittest
 
-from optimizer.gpt.token import num_tokens_from_string, num_tokens_from_messages
+from optimizer.gpt.token import (
+    num_tokens_from_string,
+    num_tokens_from_messages,
+)
 from optimizer.gpt.api import get_default_mode
 
 

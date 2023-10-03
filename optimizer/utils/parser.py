@@ -11,12 +11,16 @@ import uuid
 from bs4 import BeautifulSoup
 import requests
 import streamlit as st
-from optimizer.gpt.query import analyse_resume, query_project_contributions,  \
-    query_project_description, query_project_title
+from optimizer.gpt.query import (
+    analyse_resume,
+    query_project_contributions,
+    query_project_description,
+    query_project_title,
+)
 from optimizer.utils.extract import extract_by_quotation_mark
 
 
-def snakecase(arg: str, delimiter: str, upper_case: bool) -> str:
+def snake_case(arg: str, delimiter: str, upper_case: bool) -> str:
     """
     Convert a string to snake case based on the specified delimiter and case \
     style.
@@ -39,7 +43,7 @@ def snakecase(arg: str, delimiter: str, upper_case: bool) -> str:
     return delimiter.join(parts)
 
 
-def camelcase(arg: str, upper_case: bool) -> str:
+def camel_case(arg: str, upper_case: bool) -> str:
     """Convert the given string to camel case format.
 
     Args:
@@ -51,12 +55,12 @@ def camelcase(arg: str, upper_case: bool) -> str:
     Returns:
         str: The camel case formatted string.
         """
-    parts = arg.split('_')
+    parts = arg.split("_")
     if len(parts) == 1:
-        parts = arg.split(' ')
+        parts = arg.split(" ")
     if upper_case:
-        return ''.join(x.title() for x in parts)
-    return parts[0].lower() + ''.join(x.title() for x in parts[1:])
+        return "".join(x.title() for x in parts)
+    return parts[0].lower() + "".join(x.title() for x in parts[1:])
 
 
 def search_field(obj: dict, candidates: list) -> Any:
@@ -75,17 +79,17 @@ def search_field(obj: dict, candidates: list) -> Any:
         # add the candidate itself to the list
         new_list.append(candidate)
         # example: Core_Competencies
-        new_list.append(snakecase(candidate, '_', True))
+        new_list.append(snake_case(candidate, "_", True))
         # example: core_competencies
-        new_list.append(snakecase(candidate, '_', False))
+        new_list.append(snake_case(candidate, "_", False))
         # example: Core Competencies
-        new_list.append(snakecase(candidate, ' ', True))
+        new_list.append(snake_case(candidate, " ", True))
         # example: core competencies
-        new_list.append(snakecase(candidate, ' ', False))
+        new_list.append(snake_case(candidate, " ", False))
         # example: CoreCompetencies
-        new_list.append(camelcase(candidate, True))
+        new_list.append(camel_case(candidate, True))
         # example: coreCompetencies
-        new_list.append(camelcase(candidate, False))
+        new_list.append(camel_case(candidate, False))
         # example: Duration
         new_list.append(candidate.capitalize())
 
@@ -108,8 +112,12 @@ def get_statement(resume: dict) -> str | None:
     Returns:
         str | None: Returns the personal statement if it exists, otherwise returns None.
     """
-    candidates = ['profile', 'personal_statement',
-                  'personal_profile', 'statement']
+    candidates = [
+        "profile",
+        "personal_statement",
+        "personal_profile",
+        "statement",
+    ]
     statement = search_field(resume, candidates)
     if statement is not None:
         return statement
@@ -134,8 +142,13 @@ def get_skills(resume: dict) -> list:
     list | None:
         A list of skills if any are found. If no skills are found, None is returned.
     """
-    candidates = ['skills', 'Core Competencies',
-                  'core_competencies', 'Competencies', 'competencies']
+    candidates = [
+        "skills",
+        "Core Competencies",
+        "core_competencies",
+        "Competencies",
+        "competencies",
+    ]
     skills = search_field(resume, candidates)
     if skills is not None:
         if isinstance(skills, dict):
@@ -163,17 +176,17 @@ def reset_skills():
     - 'max_skills_number': the length of the updated skills list
     """
     skills = []
-    if isinstance(st.session_state['resume']['skills'], list):
-        for skill in st.session_state['resume']['skills']:
+    if isinstance(st.session_state["resume"]["skills"], list):
+        for skill in st.session_state["resume"]["skills"]:
             skills.append(skill)
     else:
-        for value in st.session_state['resume']['skills'].values():
+        for value in st.session_state["resume"]["skills"].values():
             skills += value
 
-    st.session_state['skills'] = skills
-    st.session_state['sorted_skills'] = skills
-    st.session_state['choosen_skills'] = skills
-    st.session_state['max_skills_number'] = len(skills)
+    st.session_state["skills"] = skills
+    st.session_state["sorted_skills"] = skills
+    st.session_state["choosen_skills"] = skills
+    st.session_state["max_skills_number"] = len(skills)
 
 
 def get_experiences(resume: dict) -> list | None:
@@ -187,9 +200,14 @@ def get_experiences(resume: dict) -> list | None:
         list | None: A list with experience-related fields if found, otherwise None.
     """
 
-    candidates = ['experience', 'experiences', 'work_experiences',
-                  'work_experience', 'professional_experience',
-                  'professional_experiences']
+    candidates = [
+        "experience",
+        "experiences",
+        "work_experiences",
+        "work_experience",
+        "professional_experience",
+        "professional_experiences",
+    ]
     experiences = search_field(resume, candidates)
     return experiences
 
@@ -206,13 +224,15 @@ def get_date_range(exp: dict) -> str:
     Returns:
     str_range (str): A string in the format "MMM YYYY - MMM YYYY".
     """
-    date_start = datetime.datetime(year=int(exp['start']['year']),
-                                   month=int(exp['start']['month']), day=1)
-    month_start = date_start.strftime('%b')
-    if 'end' in exp:
-        date_end = datetime.datetime(year=int(exp['end']['year']),
-                                     month=int(exp['end']['month']), day=1)
-        month_end = date_end.strftime('%b')
+    date_start = datetime.datetime(
+        year=int(exp["start"]["year"]), month=int(exp["start"]["month"]), day=1
+    )
+    month_start = date_start.strftime("%b")
+    if "end" in exp:
+        date_end = datetime.datetime(
+            year=int(exp["end"]["year"]), month=int(exp["end"]["month"]), day=1
+        )
+        month_end = date_end.strftime("%b")
         str_range = f"{month_start} {exp['start']['year']} - \
                     {month_end} {exp['end']['year']}"
     else:
@@ -235,42 +255,51 @@ def parse_project(exp_or_project_in: dict) -> dict:
           'contributions': The project's contributions.
     """
     project = {}
-    project['uuid'] = str(uuid.uuid4())
+    project["uuid"] = str(uuid.uuid4())
     # locate project title; in some cases, GPT employs description instead
-    project['title'] = search_field(
-        exp_or_project_in, ['title', 'project', 'description'])
-    project['description'] = search_field(
+    project["title"] = search_field(
+        exp_or_project_in, ["title", "project", "description"]
+    )
+    project["description"] = search_field(
         exp_or_project_in,
-        ['project_description', 'project description', 'description'])
+        ["project_description", "project description", "description"],
+    )
 
     # Check if the value of key 'description' in 'project' is None or \
     # equal to the value of key 'title' in 'project', and if true, \
     # call the function 'query_project_description'
-    if project['description'] is None or \
-            project['description'] == project['title']:
-        project['title'] = query_project_title(project['title'])
-        project['description'] = query_project_description(project)
-    project['description'] = project['description'].replace(
-        project['title'], '').strip()
-    project['description'] = project['description'].replace(
-        'Project:', '').strip()
-    project['title'] = project['title'].replace('Project:', '').strip()
-    project['title'] = project['title'].replace(
-        'The project name is ', '').strip()
-    temp_title = extract_by_quotation_mark(project['title'])
+    if (
+        project["description"] is None
+        or project["description"] == project["title"]
+    ):
+        project["title"] = query_project_title(project["title"])
+        project["description"] = query_project_description(project)
+    project["description"] = (
+        project["description"].replace(project["title"], "").strip()
+    )
+    project["description"] = (
+        project["description"].replace("Project:", "").strip()
+    )
+    project["title"] = project["title"].replace("Project:", "").strip()
+    project["title"] = (
+        project["title"].replace("The project name is ", "").strip()
+    )
+    temp_title = extract_by_quotation_mark(project["title"])
     if temp_title is not None:
-        project['title'] = temp_title
-    project['contributions'] = search_field(
-        exp_or_project_in, ['contributions', 'key_contributions'])
-    if project['contributions'] is None:
-        project['contributions'] = query_project_contributions(
-            project['title'])
+        project["title"] = temp_title
+    project["contributions"] = search_field(
+        exp_or_project_in, ["contributions", "key_contributions"]
+    )
+    if project["contributions"] is None:
+        project["contributions"] = query_project_contributions(
+            project["title"]
+        )
     return project
 
 
 @st.cache_data
 def parse_experience(exp_in: dict) -> dict:
-    '''
+    """
     Given a dictionary `exp_in` containing information about a work experience,
     this function parses the dictionary and returns a new dictionary `exp_out`
     containing the following fields:
@@ -295,29 +324,31 @@ def parse_experience(exp_in: dict) -> dict:
 
     Returns:
     A dictionary containing the parsed information about the work experience
-    '''
+    """
     exp_out = {}
-    exp_out['title'] = search_field(exp_in, ['title', 'position', 'job_title'])
-    exp_out['company'] = search_field(
-        exp_in, ['company', 'organisation', 'employer'])
-    if 'start' in exp_in:
-        exp_out['date_range'] = get_date_range(exp_in)
+    exp_out["title"] = search_field(exp_in, ["title", "position", "job_title"])
+    exp_out["company"] = search_field(
+        exp_in, ["company", "organisation", "employer"]
+    )
+    if "start" in exp_in:
+        exp_out["date_range"] = get_date_range(exp_in)
     else:
-        exp_out['date_range'] = search_field(
-            exp_in, ['dates', 'date', 'date_range', 'duration'])
-    if exp_out['date_range'] is None:
-        start_date = search_field(exp_in, ['start_date'])
-        end_date = search_field(exp_in, ['end_date'])
-        exp_out['date_range'] = start_date + ' - ' + end_date
+        exp_out["date_range"] = search_field(
+            exp_in, ["dates", "date", "date_range", "duration"]
+        )
+    if exp_out["date_range"] is None:
+        start_date = search_field(exp_in, ["start_date"])
+        end_date = search_field(exp_in, ["end_date"])
+        exp_out["date_range"] = start_date + " - " + end_date
 
-    exp_out['projects'] = search_field(exp_in, ['projects'])
-    if exp_out['projects'] is None:
+    exp_out["projects"] = search_field(exp_in, ["projects"])
+    if exp_out["projects"] is None:
         project = parse_project(copy.deepcopy(exp_in))
-        exp_out['projects'] = [project]
+        exp_out["projects"] = [project]
     else:
-        for i in range(len(exp_out['projects'])):
-            project_old = copy.deepcopy(exp_out['projects'][i])
-            exp_out['projects'][i] = parse_project(project_old)
+        for i in range(len(exp_out["projects"])):
+            project_old = copy.deepcopy(exp_out["projects"][i])
+            exp_out["projects"][i] = parse_project(project_old)
 
     return exp_out
 
@@ -340,15 +371,15 @@ def parse_expereinces() -> None:
         None
     """
     experiences = []
-    for exp in st.session_state['experiences']:
-        if 'uuid' not in exp:
+    for exp in st.session_state["experiences"]:
+        if "uuid" not in exp:
             experience = parse_experience(exp)
-            experience['uuid'] = str(uuid.uuid4())
+            experience["uuid"] = str(uuid.uuid4())
         else:
             experience = copy.deepcopy(exp)
 
         experiences.append(experience)
-    st.session_state['experiences'] = experiences
+    st.session_state["experiences"] = experiences
 
 
 # @st.cache_data
@@ -359,10 +390,10 @@ def parse_json(txt_resume: str) -> None:
     Returns:
     None
     """
-    st.session_state['resume'] = json.loads(txt_resume)
-    st.session_state['statement'] = st.session_state['resume']['statement']
+    st.session_state["resume"] = json.loads(txt_resume)
+    st.session_state["statement"] = st.session_state["resume"]["statement"]
     reset_skills()
-    st.session_state['experiences'] = st.session_state['resume']['experiences']
+    st.session_state["experiences"] = st.session_state["resume"]["experiences"]
 
 
 def parse_api_json(reply_json_str: str) -> None:
@@ -376,19 +407,20 @@ def parse_api_json(reply_json_str: str) -> None:
         None
     """
     try:
-        st.session_state['resume'] = json.loads(reply_json_str)
+        st.session_state["resume"] = json.loads(reply_json_str)
     except ValueError as error:
         st.write(f"{error}")
         st.error(f"Error to parse the reply from GPT:\n{reply_json_str}")
 
-    st.session_state['statement'] = get_statement(st.session_state['resume'])
-    skills = get_skills(st.session_state['resume'])
-    st.session_state['skills'] = skills
-    st.session_state['sorted_skills'] = skills
-    st.session_state['choosen_skills'] = skills
-    st.session_state['max_skills_number'] = len(skills)
-    st.session_state['experiences'] = get_experiences(
-        st.session_state['resume'])
+    st.session_state["statement"] = get_statement(st.session_state["resume"])
+    skills = get_skills(st.session_state["resume"])
+    st.session_state["skills"] = skills
+    st.session_state["sorted_skills"] = skills
+    st.session_state["choosen_skills"] = skills
+    st.session_state["max_skills_number"] = len(skills)
+    st.session_state["experiences"] = get_experiences(
+        st.session_state["resume"]
+    )
 
 
 def parse_resume(txt_resume: str) -> None:
@@ -414,7 +446,8 @@ def parse_resume(txt_resume: str) -> None:
 
 
 def parse_linkedin_job_description(
-        page: requests.models.Response) -> str | None:
+    page: requests.models.Response,
+) -> str | None:
     """
     Parses the job description from a LinkedIn job posting page.
 
@@ -425,7 +458,7 @@ def parse_linkedin_job_description(
     Returns:
         str: The job description in json str or None if there is an error.
     """
-    soup = BeautifulSoup(page.content, 'html.parser')
+    soup = BeautifulSoup(page.content, "html.parser")
     if "Not enough credits" in soup.text:
         st.error("Not enough credits to parse the job description.")
         return None
@@ -434,12 +467,12 @@ def parse_linkedin_job_description(
     except json.decoder.JSONDecodeError:
         st.error("Error to parse the job description.")
         return None
-    if 'company' in jd_obj and 'title' in jd_obj:
-        company = jd_obj['company']['name']
-        title = jd_obj['title']
-        st.session_state['company_role'] = company + '_' + title
+    if "company" in jd_obj and "title" in jd_obj:
+        company = jd_obj["company"]["name"]
+        title = jd_obj["title"]
+        st.session_state["company_role"] = company + "_" + title
     scrapped_text = json.dumps(jd_obj, indent=2)
-    scrapped_text = scrapped_text.replace('\\n', '\n')
+    scrapped_text = scrapped_text.replace("\\n", "\n")
     return scrapped_text
 
 

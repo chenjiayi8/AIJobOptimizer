@@ -33,4 +33,4 @@ def test_api():
     st.write("User: Tell me who you are.")
     with st.spinner("sending test message to API"):
         reply = send_test_message()
-        st.write('GPT: ' + reply)
+        st.write("GPT: " + reply)

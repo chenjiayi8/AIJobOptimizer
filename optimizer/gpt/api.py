@@ -12,9 +12,7 @@ import requests
 from optimizer.gpt.token import num_tokens_from_messages
 from optimizer.utils.web import retry
 
-MODELS = {"gpt-3.5-turbo": 4096,
-          "gpt-3.5-turbo-16k": 16384,
-          "gpt-4": 8192}
+MODELS = {"gpt-3.5-turbo": 4096, "gpt-3.5-turbo-16k": 16384, "gpt-4": 8192}
 
 SYSTEM_ROLE = "You are my Career Coach. You will help me revise my resume for a target job."
 
@@ -68,10 +66,9 @@ def get_model_index_by_name(model_name):
 
 
 @retry(requests.exceptions.Timeout, tries=5, delay=1, backoff=2, max_delay=120)
-def call_openai_api(messages,
-                    temperature=0.1,
-                    number_completion=1,
-                    model=None):
+def call_openai_api(
+    messages, temperature=0.1, number_completion=1, model=None
+):
     """
     Function that sends a request to the OpenAI API to \
         generate a completion for the specified model, messages, temperature and n.
@@ -90,38 +87,39 @@ def call_openai_api(messages,
             a single generated completion or None if no completion could be generated.
     """
     if model is None:
-        model = st.session_state['MODEL']
+        model = st.session_state["MODEL"]
     num_tokens = num_tokens_from_messages(messages, model)
-    if num_tokens > MODELS[model]*0.9:
+    if num_tokens > MODELS[model] * 0.9:
         st.write("### :red[Your input is too long!]")
         return None
     config = dotenv_values(".env")
-    openai_api_key = config['OPENAI_API_KEY']
+    openai_api_key = config["OPENAI_API_KEY"]
     url = r"https://api.openai.com/v1/chat/completions"
-    headers = {"Content-Type": "application/json",
-               "Authorization": f"Bearer {openai_api_key}",
-               }
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {openai_api_key}",
+    }
     data = {
         "model": model,
         "messages": messages,
         "temperature": temperature,
         "n": number_completion,
     }
-    response = requests.post(url, headers=headers,
-                             json=data, timeout=(300, 600))
+    response = requests.post(
+        url, headers=headers, json=data, timeout=(300, 600)
+    )
     response.raise_for_status()
     response_obj = response.json()
-    for field in ['prompt_tokens',
-                  'completion_tokens', 'total_tokens']:
-        if field in response_obj['usage']:
-            st.session_state[field] += response_obj['usage'][field]
-    choices = response.json()['choices']
+    for field in ["prompt_tokens", "completion_tokens", "total_tokens"]:
+        if field in response_obj["usage"]:
+            st.session_state[field] += response_obj["usage"][field]
+    choices = response.json()["choices"]
     replies = []
     for choice in choices:
-        if choice['finish_reason'] == 'length':
+        if choice["finish_reason"] == "length":
             st.write("### :red[Your input is too long!]")
             return None
-        replies.append(choice['message']['content'])
+        replies.append(choice["message"]["content"])
 
     if len(replies) == 0:
         return None

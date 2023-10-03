@@ -12,8 +12,9 @@ def num_tokens_from_string(string: str, encoding_name: str) -> int:
     return num_tokens
 
 
-def num_tokens_from_messages(messages: list,
-                             model: str = "gpt-3.5-turbo-0301") -> int:
+def num_tokens_from_messages(
+    messages: list, model: str = "gpt-3.5-turbo-0301"
+) -> int:
     """Returns the number of tokens used by a list of messages."""
     try:
         encoding = tiktoken.encoding_for_model(model)
@@ -35,7 +36,8 @@ def num_tokens_from_messages(messages: list,
             f"""num_tokens_from_messages() is not implemented for model \
             {model}. See \
             https://github.com/openai/openai-python/blob/main/chatml.md \
-            for information on how messages are converted to tokens.""")
+            for information on how messages are converted to tokens."""
+        )
     num_tokens = 0
     for message in messages:
         num_tokens += tokens_per_message
