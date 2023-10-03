@@ -138,7 +138,12 @@ def get_skills(resume: dict) -> list:
                   'core_competencies', 'Competencies', 'competencies']
     skills = search_field(resume, candidates)
     if skills is not None:
-        return skills
+        if isinstance(skills, dict):
+            skills = list(skills.values())
+        if isinstance(skills, str):
+            skills = parse_skills_string(skills)
+        if len(skills) > 0:
+            return [skill.strip() for skill in skills]
     return []
 
 
