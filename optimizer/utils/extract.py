@@ -92,7 +92,8 @@ def extract_html_list(content):
 
     """
     pattern1 = r"<li>(.*?)</li>"
-    patterns = [pattern1]
+    pattern2 = r"\d+\.\s*(.*?)(?=\n)"
+    patterns = [pattern1, pattern2]
     for pattern in patterns:
         match = re.findall(pattern, content, flags=re.DOTALL)
         if len(match) > 0:
