@@ -34,6 +34,8 @@ def parse_descriptions(replies: list) -> list:
     for reply in replies:
         description = extract_code(reply)
         descriptions.append(description)
+    if all([description is None for description in descriptions]):
+        return replies
     return descriptions
 
 

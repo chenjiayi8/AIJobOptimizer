@@ -211,6 +211,8 @@ def count_words(paragraph: str) -> int:
     Returns:
         int: The number of words in the string.
     """
+    if paragraph is None:
+        return 0
     paragraph = paragraph.replace("/", " ")
     return len(paragraph.split(" "))
 
