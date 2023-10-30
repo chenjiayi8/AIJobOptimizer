@@ -40,6 +40,17 @@ RUN pip install virtualenv
 USER vscode
 
 WORKDIR /home/vscode
+
+# Copy requirements.txt from local machine to container
+COPY --chown=vscode:vscode ./requirements.txt /home/vscode/
+
+# Create a new virtual environment
+RUN virtualenv --python=python3.10 /home/vscode/env
+RUN source /home/vscode/env/bin/activate
+
+# Install dependencies from requirements.txt
+RUN pip install -r ./requirements.txt
+
 RUN mkdir -p /home/vscode/.config
 
 ENV NODE_VERSION=16.13.0
