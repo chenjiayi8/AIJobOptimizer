@@ -48,8 +48,11 @@ COPY --chown=vscode:vscode ./requirements.txt /home/vscode/
 RUN virtualenv --python=python3.10 /home/vscode/env
 RUN source /home/vscode/env/bin/activate
 
+# Enable venv
+ENV PATH="/home/vscode/env/bin:$PATH"
+
 # Install dependencies from requirements.txt
-RUN pip install -r ./requirements.txt
+RUN pip install -r /home/vscode/requirements.txt
 
 RUN mkdir -p /home/vscode/.config
 
