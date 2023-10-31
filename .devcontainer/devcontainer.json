@@ -6,6 +6,9 @@
   // "image": "mcr.microsoft.com/devcontainers/base:jammy",
   // "image": "ubuntu:22.04",
   "dockerFile": "./Dockerfile",
+  "build": {
+    "target": "development"
+  },
   // "dockerComposeFile": "./docker-compose.yml",
 
   "workspaceMount": "source=${localWorkspaceFolder},target=/JobGPT,type=bind",
