@@ -1,4 +1,4 @@
-FROM ubuntu:22.04 as compiler
+FROM ubuntu:22.04 AS compiler
 ENV TZ=UTC
 ENV PYTHON_VERSION=3.9.0
 
@@ -25,7 +25,7 @@ ENV PATH="/pyenv/versions/${PYTHON_VERSION}/bin:$PATH"
 # Install virtualenv
 RUN pip install virtualenv
 
-FROM ubuntu:22.04 as development
+FROM ubuntu:22.04 AS development
 COPY --from=compiler /pyenv /pyenv
 ENV TZ=UTC
 ENV PYTHON_VERSION=3.9.0
