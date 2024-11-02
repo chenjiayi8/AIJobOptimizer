@@ -4,7 +4,6 @@ if a specified exception occurs and a function that sends a request to the OpenA
 a completion for the specified model, messages, temperature and n.
 """
 
-
 import streamlit as st
 from dotenv import dotenv_values
 import requests
@@ -12,7 +11,10 @@ import requests
 from optimizer.gpt.token import num_tokens_from_messages
 from optimizer.utils.web import retry
 
-MODELS = {"gpt-3.5-turbo": 4096, "gpt-3.5-turbo-16k": 16384, "gpt-4": 8192}
+MODELS = {
+    "gpt-4o": 128000,
+    "gpt-4o-mini": 128000,
+}
 
 SYSTEM_ROLE = "You are my Career Coach. You will help me revise my resume for a target job."
 
