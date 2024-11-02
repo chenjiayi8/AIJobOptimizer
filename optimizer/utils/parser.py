@@ -3,7 +3,8 @@ This module contains functions to parse resume data in JSON format, \
 and extract information like personal statement, skills and experiences \
 for further use.
 """
-from typing import Any
+
+from typing import Any, Union
 import copy
 import datetime
 import json
@@ -102,7 +103,7 @@ def search_field(obj: dict, candidates: list) -> Any:
     return None
 
 
-def get_statement(resume: dict) -> str | None:
+def get_statement(resume: dict) -> Union[str, None]:
     """
     A function that takes a resume as a dictionary and returns the personal statement if it exists.
 
@@ -182,7 +183,7 @@ def reset_skills():
     st.session_state["max_skills_number"] = len(skills)
 
 
-def get_experiences(resume: dict) -> list | None:
+def get_experiences(resume: dict) -> Union[list, None]:
     """
     Search for experience-related fields in a resume and return them if found.
 
@@ -440,7 +441,7 @@ def parse_resume(txt_resume: str) -> None:
 
 def parse_linkedin_job_description(
     page: requests.models.Response,
-) -> str | None:
+) -> Union[str, None]:
     """
     Parses the job description from a LinkedIn job posting page.
 

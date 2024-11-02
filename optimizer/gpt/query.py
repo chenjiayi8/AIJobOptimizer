@@ -3,8 +3,10 @@ This module consists of a set of functions to query GPT API to extract \
 information from a resume.
 
 """
+
 import json
 import re
+from typing import Union
 import uuid
 import streamlit as st
 from optimizer.core.resume import (
@@ -146,7 +148,7 @@ def query_project_description(project: dict) -> str:
 
 
 @st.cache_data
-def query_project_contributions(project_name: str) -> list | None:
+def query_project_contributions(project_name: str) -> Union[list, None]:
     """
     Takes in a project_name and generates a list of key contributions
     of the project using OpenAI's GPT model.
@@ -903,7 +905,7 @@ def get_system_msg(system_role: str) -> list:
     return system_msg
 
 
-def get_job_description_msg() -> dict | None:
+def get_job_description_msg() -> Union[dict, None]:
     """
     Returns a list containing a single dictionary object. The dictionary \
     object has four key-value pairs: "select" with a value of True, "type" \
@@ -937,7 +939,7 @@ def get_job_description_msg() -> dict | None:
     return jd_msg
 
 
-def get_skills_msg() -> dict | None:
+def get_skills_msg() -> Union[dict, None]:
     """
     Returns a list containing a single dictionary object. The dictionary \
     object contains keys "select", "type", "role", and "content" with their \
@@ -961,7 +963,7 @@ def get_skills_msg() -> dict | None:
     return skills_msg
 
 
-def get_experiences_msg() -> dict | None:
+def get_experiences_msg() -> Union[dict, None]:
     """
     Returns a list containing a single dictionary object. The dictionary \
     object contains keys "select", "type", "role", and "content" with their \

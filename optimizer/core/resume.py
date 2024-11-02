@@ -4,7 +4,7 @@ descriptions, experiences, and contributions to be exported for a project.
 
 """
 
-
+from typing import Union
 from collections import OrderedDict
 import copy
 import streamlit as st
@@ -111,7 +111,7 @@ def choose_project_description(project):
     return st.session_state[choice_field][index].strip()
 
 
-def choose_experiences() -> dict | list | None:
+def choose_experiences() -> Union[dict, list, None]:
     """
     Selects experiences as background information.
 
