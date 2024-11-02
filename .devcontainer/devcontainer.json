@@ -63,7 +63,6 @@
 
   "mounts": [
     "source=${localEnv:HOME}/.config/syncthing/,target=/home/vscode/.config/syncthing/,type=bind,consistency=cached,readonly",
-    "source=${localEnv:HOME}/.aicommits,target=/home/vscode/.aicommits,type=bind,consistency=cached",
     "source=${localEnv:HOME}/.config/htop,target=/home/vscode/.config/htop,type=bind,consistency=cached,readonly"
   ],
 
