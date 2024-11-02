@@ -22,6 +22,9 @@ RUN curl https://pyenv.run | bash
 RUN pyenv install $PYTHON_VERSION
 ENV PATH="/pyenv/versions/${PYTHON_VERSION}/bin:$PATH"
 
+# Install pip
+RUN pip install pip==24.0
+
 # Install virtualenv
 RUN pip install virtualenv
 
