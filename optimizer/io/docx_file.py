@@ -9,7 +9,7 @@ import re
 from docx import Document
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT, WD_LINE_SPACING
 from docx.shared import Pt, Inches
-from simplify_docx import simplify
+# from simplify_docx import simplify
 
 
 def move_table_after(table, paragraph):
@@ -445,6 +445,90 @@ def to_docx(
     doc.save(file_stream)
     file_stream.seek(0)
     return file_stream.read()
+
+
+def simplify(doc):
+    """
+    Converts a docx document into a structured format for text extraction.
+
+    Args:
+        doc: A docx document object.
+
+    Returns:
+        A dictionary representation of the document with nested structure
+        containing paragraphs, runs, and text elements.
+    """
+    result = []
+
+    # Process paragraphs
+    for para in doc.paragraphs:
+        if not para.text.strip():
+            continue
+
+        para_obj = {
+            "TYPE": "paragraph",
+            "VALUE": []
+        }
+
+        # Process runs in paragraph
+        for run in para.runs:
+            if run.text.strip():
+                para_obj["VALUE"].append({
+                    "TYPE": "text",
+                    "VALUE": run.text
+                })
+
+        if para_obj["VALUE"]:
+            result.append(para_obj)
+
+    # Process tables
+    for table in doc.tables:
+        table_obj = {
+            "TYPE": "table",
+            "VALUE": []
+        }
+
+        for row in table.rows:
+            row_obj = {
+                "TYPE": "row",
+                "VALUE": []
+            }
+
+            for cell in row.cells:
+                cell_obj = {
+                    "TYPE": "cell",
+                    "VALUE": []
+                }
+
+                for para in cell.paragraphs:
+                    if not para.text.strip():
+                        continue
+
+                    para_obj = {
+                        "TYPE": "paragraph",
+                        "VALUE": []
+                    }
+
+                    for run in para.runs:
+                        if run.text.strip():
+                            para_obj["VALUE"].append({
+                                "TYPE": "text",
+                                "VALUE": run.text
+                            })
+
+                    if para_obj["VALUE"]:
+                        cell_obj["VALUE"].append(para_obj)
+
+                if cell_obj["VALUE"]:
+                    row_obj["VALUE"].append(cell_obj)
+
+            if row_obj["VALUE"]:
+                table_obj["VALUE"].append(row_obj)
+
+        if table_obj["VALUE"]:
+            result.append(table_obj)
+
+    return result
 
 
 def extract_text_from_docx(doc):
