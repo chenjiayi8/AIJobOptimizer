@@ -30,7 +30,6 @@
   "customizations": {
     "vscode": {
       "extensions": [
-        "DanielSanMedium.dscodegpt",
         "eamodio.gitlens",
         "formulahendry.auto-close-tag",
         "formulahendry.auto-rename-tag",
