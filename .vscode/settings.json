@@ -17,7 +17,7 @@
   "editor.formatOnSave": true,
   "editor.formatOnPaste": true,
   "python.terminal.activateEnvInCurrentTerminal": true,
-  "python.defaultInterpreterPath": "/home/vscode/env/bin/python",
+  "python.defaultInterpreterPath": "/home/ubuntu/env/bin/python",
   "black-formatter.args": ["--line-length", "79"],
   "pylint.args": ["--disable=E0611"],
   "python.analysis.typeCheckingMode": "off",
