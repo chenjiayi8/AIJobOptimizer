@@ -5,7 +5,6 @@ session state and text fields.
 
 from typing import Any
 import streamlit as st
-from streamlit_extras.switch_page_button import switch_page
 from optimizer.gpt.api import get_default_mode
 from optimizer.utils.format import custom_layout
 
@@ -123,4 +122,4 @@ def reset():
             if key not in keep_list:
                 del st.session_state[key]
         initialise()
-        switch_page("Job description")
+        st.switch_page("Job description")

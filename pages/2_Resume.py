@@ -11,7 +11,6 @@ from optimizer.core.resume import get_parsed_resume
 from optimizer.gpt.query import estimate_match_rate
 from optimizer.utils.parser import parse_resume
 from optimizer.io.docx_file import docx_to_text
-from streamlit_extras.switch_page_button import switch_page
 
 st.set_page_config(
     page_title="Resume",
@@ -83,7 +82,7 @@ def upload_resume():
     )
     if new_txt_resume != st.session_state["txt_resume"]:
         st.session_state["txt_resume"] = new_txt_resume
-        # st.experimental_rerun()
+        # st.rerun()
 
     col_analyse, col_download, col_estimate = st.columns([1, 1, 1])
 
