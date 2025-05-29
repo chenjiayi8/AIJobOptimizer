@@ -90,7 +90,7 @@ def create_letter():
     )
     if new_letter != st.session_state["letter"]:
         st.session_state["letter"] = new_letter
-        st.experimental_rerun()
+        st.rerun()
 
     col_words, col_temp, col_level = st.columns(
         [
@@ -129,7 +129,7 @@ def create_letter():
                     individual paragraphs",
         ):
             parse_letter()
-            st.experimental_rerun()
+            st.rerun()
 
     with col_analyse:
         if st.button(
@@ -137,7 +137,7 @@ def create_letter():
         ):
             st.session_state["letter"] = revise_motivations(config)
             parse_letter()
-            st.experimental_rerun()
+            st.rerun()
 
     with col_generate:
         if st.button(
@@ -146,7 +146,7 @@ def create_letter():
         ):
             st.session_state["letter"] = generate_motivations(config)
             parse_letter()
-            st.experimental_rerun()
+            st.rerun()
 
 
 def insert_motivation(index):
@@ -220,7 +220,7 @@ def edit_motivations() -> None:
         if st.button("Reset letter"):
             st.session_state["letter"] = ""
             st.session_state["motivations"] = []
-            st.experimental_rerun()
+            st.rerun()
 
     config = {}
     config["words"] = motivation_words
@@ -237,7 +237,7 @@ def edit_motivations() -> None:
             )
             if temp != motivation["content"]:
                 motivation["content"] = temp
-                st.experimental_rerun()
+                st.rerun()
 
         with col_revise:
             if len(motivation["content"]) != 0:
@@ -250,21 +250,21 @@ def edit_motivations() -> None:
                     motivation["content"] = revise_motivation(
                         motivation["content"], config
                     )
-                    st.experimental_rerun()
+                    st.rerun()
                 if st.button(
                     "Insert",
                     key="insert_moti_" + motivation["uuid"],
                     help="Insert an empty paragraph before this one",
                 ):
                     insert_motivation(index)
-                    st.experimental_rerun()
+                    st.rerun()
                 if st.button(
                     "Delete",
                     key="delete_moti_" + motivation["uuid"],
                     help="Remove this paragraph",
                 ):
                     delete_motivation(index)
-                    st.experimental_rerun()
+                    st.rerun()
             else:
                 if st.button(
                     "Generate",
@@ -272,14 +272,14 @@ def edit_motivations() -> None:
                     help="Generate a paragraph based on previous letter",
                 ):
                     motivation["content"] = create_motivation(index, config)
-                    st.experimental_rerun()
+                    st.rerun()
                 if st.button(
                     "Delete",
                     key="delete_motivation_" + motivation["uuid"],
                     help="Remove this paragraph",
                 ):
                     delete_motivation(index)
-                    st.experimental_rerun()
+                    st.rerun()
 
 
 def export_motivations() -> None:

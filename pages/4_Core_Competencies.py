@@ -202,7 +202,7 @@ def edit_skills():
     if st.session_state["skills_number_changed"]:
         on_skills_number_changed()
         st.session_state["skills_number_changed"] = False
-        st.experimental_rerun()
+        st.rerun()
 
     st.session_state["chosen_skills"] = st.multiselect(
         "Core Competencies:",
@@ -266,7 +266,7 @@ def edit_skills():
             key="add_new_skills",
         ):
             distribute_new_skills()
-            st.experimental_rerun()
+            st.rerun()
 
     if len(st.session_state["skills"]) > 0:
         col_max_skills, col_skills_sort, col_skills_reset = st.columns(
@@ -299,14 +299,14 @@ def edit_skills():
                     )
                     st.session_state["sorted_skills"] = parse_skills(reply)
                     on_skills_sorted()
-                    st.experimental_rerun()
+                    st.rerun()
 
         with col_skills_reset:
             if st.button(
                 "Reset skills", help="Reset your skills", key="reset_skills"
             ):
                 reset_skills()
-                st.experimental_rerun()
+                st.rerun()
 
     if len(st.session_state["skills"]) > 0:
         with st.form("my-new-skill", clear_on_submit=True):
@@ -316,7 +316,7 @@ def edit_skills():
             submitted = st.form_submit_button("Add")
         if submitted and new_skill not in st.session_state["skills"]:
             append_new_skill(new_skill)
-            st.experimental_rerun()
+            st.rerun()
     if len(st.session_state["chosen_skills"]) > 0:
         st.write("#### Final Core Competencies:")
         st.write(f"{' | '.join(st.session_state['chosen_skills'])}")

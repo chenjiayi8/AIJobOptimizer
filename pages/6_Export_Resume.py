@@ -137,7 +137,7 @@ def export_docx() -> None:
         st.session_state["experiences_chosen"] = get_chosen_experiences(
             project_choices, options
         )
-        st.experimental_rerun()
+        st.rerun()
 
     with st.form("my-form", clear_on_submit=True):
         uploaded_file = st.file_uploader(

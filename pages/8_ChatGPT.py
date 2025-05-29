@@ -86,26 +86,26 @@ def init_questions() -> None:
             with col_list[0]:
                 if st.form_submit_button("Confirm"):
                     init_background(role)
-                    st.experimental_rerun()
+                    st.rerun()
             for index, role in enumerate(ROLES):
                 with col_list[index + 1]:
                     label = role["name"]
                     role_msg = role["role"]
                     if st.form_submit_button(label):
                         init_background(role_msg)
-                        st.experimental_rerun()
+                        st.rerun()
 
 
 def reset_messages() -> None:
     """
     Clears the value of st.session_state['messages'] and then it executes a \
-    rerun of the Streamlit script by calling st.experimental_rerun(). This \
+    rerun of the Streamlit script by calling st.rerun(). This \
     function is likely used to clear any previous messages in the application \
     and allow it to display new ones.
     """
     st.session_state["messages"] = []
     st.session_state["messages_initalised"] = False
-    st.experimental_rerun()
+    st.rerun()
 
 
 def init_background(system_role):
@@ -242,7 +242,7 @@ def parse_messages() -> None:
                         help="Regenerate response",
                     ):
                         regenerate_response(index)
-                        st.experimental_rerun()
+                        st.rerun()
 
 
 def style_messages():
@@ -326,7 +326,7 @@ def append_input() -> None:
                 },
             ]
             query_gpt(st.session_state["temperature_message"])
-            st.experimental_rerun()
+            st.rerun()
 
 
 def get_messages() -> str:
@@ -400,7 +400,7 @@ def insert_messages():
                     "content": new_msg,
                 },
             ]
-            st.experimental_rerun()
+            st.rerun()
 
 
 def custom_questions():
@@ -425,7 +425,7 @@ def custom_questions():
     if new_model != st.session_state["MODEL"]:
         st.session_state["MODEL"] = new_model
         st.cache_data.clear()
-        st.experimental_rerun()
+        st.rerun()
     init_questions()
     style_messages()
     parse_messages()

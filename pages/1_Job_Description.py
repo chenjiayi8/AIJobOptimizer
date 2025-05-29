@@ -43,7 +43,7 @@ def job_description():
                 )
                 if scrapped_text is not None:
                     st.session_state["txt_jd"] = scrapped_text
-                    st.experimental_rerun()
+                    st.rerun()
                 else:
                     st.session_state["txt_jd"] = ""
                     st.error("The URL is not valid. Please try again.")
@@ -66,7 +66,7 @@ def job_description():
         )
         if new_company_role != st.session_state["company_role"]:
             st.session_state["company_role"] = new_company_role
-            st.experimental_rerun()
+            st.rerun()
     if st.session_state["job_analysed"] != "":
         st.markdown(f"__Summary:__\n {st.session_state['job_analysed']}")
 

@@ -46,7 +46,7 @@ def edit_statement() -> None:
     )
     if statement != st.session_state["statement"]:
         st.session_state["statement"] = statement
-        st.experimental_rerun()
+        st.rerun()
     col_statement_words, col_statement_temp, col_statement = st.columns(
         [1, 1, 1]
     )
@@ -86,7 +86,7 @@ def edit_statement() -> None:
         )
         if statement_choice != st.session_state["statement_choice"]:
             st.session_state["statement_choice"] = statement_choice
-            st.experimental_rerun()
+            st.rerun()
 
 
 initialise()

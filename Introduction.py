@@ -55,7 +55,7 @@ def intro():
     )
     if layout_new != st.session_state["layout"]:
         st.session_state["layout"] = layout_new
-        st.experimental_rerun()
+        st.rerun()
 
 
 intro()
