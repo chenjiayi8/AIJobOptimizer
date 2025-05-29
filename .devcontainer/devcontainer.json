@@ -6,9 +6,6 @@
   // "image": "mcr.microsoft.com/devcontainers/base:jammy",
   // "image": "ubuntu:22.04",
   "dockerFile": "./Dockerfile",
-  "build": {
-    "target": "development"
-  },
   // "dockerComposeFile": "./docker-compose.yml",
 
   "workspaceMount": "source=${localWorkspaceFolder},target=/JobGPT,type=bind",
@@ -69,5 +66,5 @@
   "postStartCommand": "bash -i .devcontainer/start.sh",
 
   // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-  "remoteUser": "vscode"
+  "remoteUser": "ubuntu"
 }
